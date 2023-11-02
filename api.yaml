@@ -1,0 +1,429 @@
+openapi: 3.0.3
+# /Users                                           all the users on the site
+# /Users/{username}/profile                        this user's profile found by username
+# /Users/{username}/posts                          all this specific user's posts
+# /Users/{username}/posts/{postId}                 a specific post from a specific user
+# /Users/{username}/stream                           the stream of the user utilizing the app
+# /Users/{username}/posts/{postId}/comments              all the comments on a specific post
+# /Users/{username}/posts/{postId}/comments/{commentId}  a specific comment on a specific post
+
+
+                    
+info:
+  title: WASAphoto
+  description: |-
+    Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photos directly from your PC, and they will be visible to everyone following you.
+    
+    ### Functional design specifications
+    Each user will be presented with a stream of photos (images) in reverse chronological order, with information about when each photo was uploaded (date and time) and how many likes and comments it has. The stream is composed by photos from “following” (other users that the user follows). 
+    
+    Users can place (and later remove) a "like" to photos from other users. Also, users can add comments to any image (even those uploaded by themself). Only authors can remove their comments. 
+    
+    Users can ban other users. If user Alice bans user Eve, Eve won't be able to see any information about Alice. Alice can decIde to remove the ban at any moment. 
+    
+    Users will have their profiles. The personal profile page for the user shows: the user's photos (in reverse chronological order), how many photos have been uploaded, and the user's followers and following. 
+    
+    Users can change their usernames, upload photos, remove photos, and follow/unfollow other users. Removal of an image will also remove likes and comments. 
+    
+    A user can search other user profiles via username. 
+    
+    A user can log in just by specifying the username. See the "Simplified login" section for details.
+
+    ### Simplified login
+    In real-world scenarios, new developments avoId implementing registration, login, and password-lost flows as they are a security nightmare, cumbersome, error-prone, and outsIde the project scope. So, why lose money and time on implementing those? The best practice is now to delegate those tasks to a separate service (“Identity provIder”), either in-house (owned by the same company) or a third party (like “Login with Apple/Facebook/Google” buttons). 
+    
+    In this project, we do not have an external service like this. Instead, we decIded to provIde you with a specification for a login API so that you won't spend time dealing with the design of the endpoint. The provIded OpenAPI document is at the end of this PDF. 
+    
+    The login endpoint accepts a username - like “Maria” - without any password. If the username already exists, the user is logged in. If the username is new, the user is registered and logged in. The API will return the user Identifier you need to pass into the Authorization header in any other API. 
+    
+    This authentication method is named "Bearer Authentication" (however, in this project, you should use the user Identifier in place of the token):
+      - https://swagger.io/docs/specification/authentication/bearer-authentication/
+      - https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication
+      - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization
+    
+    There is no need either for HTTP sessions or session cookies.
+
+    ## OpenAPI
+    You will need to define different APIs from the requirements above. For each API, you must define the operationId key. We expect to find at least these operation Ids:
+      - **doLogin (see simplified login)**
+      - **setMyUserName**
+      - **uploadPhoto**
+      - **followUser**
+      - **unfollowUser**
+      - **banUser**
+      - **unbanUser**
+      - **getUserProfile**
+      - **getMyStream**
+      - **likePhoto**
+      - **unlikePhoto**
+      - **commentPhoto**
+      - **uncommentPhoto**
+      - **deletePhoto**
+    
+    ## CORS
+    The backend must reply to CORS pre-flight requests with the appropriate setting.
+    
+    To avoId problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the example code in the Fantastic Coffee decaffeinated repository.
+
+    ## Contacts:
+
+  contact:
+    email: mattei.1910026@studenti.uniroma1.it
+  version: 0.2.0
+components:
+  schemas:
+    User:
+      title: User
+      description: This object describes a user
+      type: object
+      properties:
+        username: 
+          title: Username
+          description: This is the user's username
+          type: string
+          pattern: 'ˆ.*?$'
+          minLength: 3
+          maxLength: 16
+          example: example123
+        profile:
+          title: profile
+          description: This is the user's profile
+          type: object
+          properties:
+            posts:
+              title: photos
+              description: This contains all of the user's posts
+              type: array
+              items: {$ref: '#/components/schemas/Post'}
+            numberOfPhotos:
+              title: number of photos
+              description: this is the number of photos uploaded by a user
+              type: number
+              format: integer
+            followers:
+              title: followers
+              description: This contains all of the user's followers
+              type: array
+              items: {$ref: '#/components/schemas/User/properties/username'}
+            followedUsers:
+              title: following
+              description: This contains all of the user's followed users
+              type: array
+              items: {$ref: '#/components/schemas/User/properties/username'}
+        bannedUsers: 
+          title: Banned Users
+          description: this contains all of the banned users by the user
+          type: array
+          items: {$ref: '#/components/schemas/User/properties/username'}
+    Comment:
+      title: Comment
+      description: This is a User's comment on a certain photo
+      type: object
+      properties: 
+        commentOwner: {$ref: '#/components/schemas/User/properties/username'}
+        commentText:
+          title: comment Text
+          description: This is the content of the comment
+          type: string
+          example: Good photo!
+        creationTime:
+          title: creation Time
+          description: this is the creation time and date
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        commentId:
+          title: Comment Id
+          description: This is the post's unique Id
+          type: string
+          example: Comment123
+    Post:
+      title: Post
+      description: This is a post generated by a user using a certain image
+      type: object
+      properties:
+        postOwner: {$ref: '#/components/schemas/User/properties/username'}
+        Image:
+          title: Image
+          description: This is an image posted by a User
+          type: object
+          properties:
+            imageURL: 
+              title: Image URL
+              description: This is the image's unique URL that points to the file
+              example: "https://example.com/example/images/image.png"
+        comments:
+          description: array of comments on a certain post
+          type: array
+          items: {$ref: '#/components/schemas/Comment'}
+        likes:
+          description: number of likes in a post
+          type: number
+          format: integer
+        creationTime:
+          title: creation Time
+          description: this is the creation time and date
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        postId:
+          title: Post Id
+          description: This is the post's unique Id
+          type: string
+          example: Post123
+paths:
+  /session:
+    post:
+      tags: ["login"]
+      summary: Logs in the user
+      description: |-
+        If the user does not exist, it will be created,
+        and an Identifier is returned.
+        If the user exists, the user Identifier is returned.
+      operationId: doLogin
+      requestBody:
+        description: User details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Maria
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 16
+        required: true
+      responses:
+        "201":
+          description: User log-in action successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                Identifier:
+                  type: string
+                  example: "abcdef012345"
+  /Users/{username}/stream:
+    get:
+      tags: ["myProfile"]
+      operationId: getMyStream
+      summary: Retrives the user's stream
+      description: |-
+        Retrieves the user's information from the system and 
+        returns it to the user.
+      parameters:
+        - name: userId
+          in: path
+          description: The unique Id of the user
+          required: true
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User/properties/username'}
+      responses:
+        "200":
+          description: Successfully retrieved the user's stream
+          content: 
+            application/json:
+              schema:
+                type: array
+                format: binary
+                items: {$ref: '#/components/schemas/Post'}
+        "404":
+          description: User not found
+        "400":
+          description: Bad request
+  /Users/{username}/profile:
+    get:
+      tags: ["theirProfile"]
+      operationId: getUserProfile
+      summary: Retrives the user's profile
+      description: |-
+        Retrieves the user's information from the system and 
+        returns it to the user.
+      parameters:
+        - name: username
+          in: path
+          description: The username of the user i want to see the profile
+          required: true
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User/properties/username'}
+      responses:
+        "200":
+          description: Successfully retrieved the user's profile
+          content: 
+            application/json:
+              schema: {$ref: '#/components/schemas/User/properties/profile'}
+        "404":
+          description: User not found
+        "400":
+          description: Bad request
+    put:
+      tags: ["theirProfile"]
+      parameters:
+        - name: action
+          in: query
+          description: specify the action (follow, unfollow)
+          required: true
+          schema:
+            type: string
+            enum: ["follow","unfollow","ban","unban"]
+        - name: username
+          in: path
+          description: The username of the user i want to see the profile
+          required: true
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User/properties/username'}
+      operationId: followUnfollowBanUnbanUser
+      summary: follow, unfollow, ban or unban a user
+      description: Follow, unfollow, ban or unban a certain user
+      responses: 
+        "204":
+          description: Action performed successfully
+  /Users/{username}/posts/{postId}:
+    put:
+      tags: ["Post"]
+      parameters:
+        - name: action
+          in: query
+          description: specify the action (like, unlike)
+          required: true
+          schema:
+            type: string
+            enum: ["like","unlike"]
+        - name: postId
+          in: path
+          description: the Id of the post being liked or unliked
+          required: true
+          schema: {$ref: '#/components/schemas/Post/properties/postId'}
+        - name: username
+          in: path
+          description: the username of the user who made the post
+          required: true
+          schema: {$ref: '#/components/schemas/User/properties/username'}
+      operationId: likeUnlikepost
+      summary: like or unlike a post
+      description: Like or unlike a certain post
+      responses: 
+        "204":
+          description: Action performed successfully
+    delete:
+      tags: ["myPost"]
+      description: deletes a post
+      operationId: deletePost
+      summary: delete a post
+      parameters:
+        - name: postId
+          in: path
+          description: the unique ID of a post
+          required: true
+          schema: {$ref: '#/components/schemas/Post/properties/postId'}
+        - name: userId
+          in: path
+          description: the unique ID of the user
+          required: true
+          schema: {$ref: '#/components/schemas/User/properties/username'}
+      responses:
+        "204": 
+          description: post succesfully deleted
+  /Users/{username}/posts/{postId}/comments:
+    put:
+      tags: ["Post"]
+      operationId: commentPost
+      description: create a comment on a post
+      summary: write a comment ona  post
+      parameters:
+        - name: postId
+          in: path
+          description: the Id of the post being liked or unliked
+          required: true
+          schema: {$ref: '#/components/schemas/Post/properties/postId'}
+        - name: username
+          in: path
+          description: the username of the user who made the post
+          required: true
+          schema: {$ref: '#/components/schemas/User/properties/username'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  description: The comment text
+      responses:
+        "204":
+          description: Action performed successfully
+  /Users/{username}/posts/{postId}/comments/{comment}:
+    delete:
+      tags: ["Post"]
+      operationId: unCommentPost
+      summary: delete your comment on a post
+      parameters:
+        - name: commentId
+          in: path
+          description: the unique ID of a comment
+          required: true
+          schema: {$ref: '#/components/schemas/Comment/properties/commentId'}
+        - name: username
+          in: path
+          description: the username of the user who made the post
+          required: true
+          schema: {$ref: '#/components/schemas/User/properties/username'}
+        - name: postId
+          in: path
+          description: the unique ID of the post where is the comment
+          required: true
+          schema: {$ref: '#/components/schemas/Post/properties/postId'}
+      responses:
+        "204": 
+          description: comment succesfully deleted
+  /Users/{username}/posts:
+    post:
+      description: creates a post
+      operationId: uploadPhoto
+      summary: create a new post
+      tags: ["myPost"]
+      parameters:
+        - name: username
+          in: path
+          description: the username of the user who made the post
+          required: true
+          schema: {$ref: '#/components/schemas/User/properties/username'}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  description: The description of the post
+          image/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "204":
+          description: Photo uploaded
+  /Users:
+    put:
+      description: Set the username
+      tags: ["myProfile"]
+      operationId: setMyUsername
+      summary: set the username
+      parameters:
+        - name: username
+          in: header
+          description: the new username
+          required: true
+          schema: {$ref: '#/components/schemas/User/properties/username'}
+      responses:
+        "204": 
+          description: successfully changed Username
