@@ -359,12 +359,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                content:
-                  type: string
-                  description: The comment text
+            schema: {$ref: '#/components/schemas/Comment/properties/commentText'}
       responses:
         "204":
           description: Action performed successfully
