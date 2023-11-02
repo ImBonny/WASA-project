@@ -1,6 +1,6 @@
 openapi: 3.0.3
 # /Users                                           all the users on the site
-# /Users/{username}/profile                        this user's profile found by username
+# /Users/{username}/{profile}                       this user's profile found by username
 # /Users/{username}/posts                          all this specific user's posts
 # /Users/{username}/posts/{postId}                 a specific post from a specific user
 # /Users/{username}/stream                           the stream of the user utilizing the app
@@ -212,7 +212,7 @@ paths:
       operationId: getMyStream
       summary: Retrives the user's stream
       description: |-
-        Retrieves the user's information from the system and 
+        Retrieves the user's stream of posts from the system and 
         returns it to the user.
       parameters:
         - name: userId
@@ -233,15 +233,13 @@ paths:
                 items: {$ref: '#/components/schemas/Post'}
         "404":
           description: User not found
-        "400":
-          description: Bad request
   /Users/{username}/profile:
     get:
       tags: ["theirProfile"]
       operationId: getUserProfile
       summary: Retrives the user's profile
       description: |-
-        Retrieves the user's information from the system and 
+        Retrieves the user's profile from the system and 
         returns it to the user.
       parameters:
         - name: username
@@ -259,14 +257,13 @@ paths:
               schema: {$ref: '#/components/schemas/User/properties/profile'}
         "404":
           description: User not found
-        "400":
-          description: Bad request
+  /Users/{username}/{profile}:
     put:
       tags: ["theirProfile"]
       parameters:
         - name: action
           in: query
-          description: specify the action (follow, unfollow)
+          description: specify the action (follow, unfollow, ban, unban)
           required: true
           schema:
             type: string
@@ -278,12 +275,21 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/User/properties/username'}
+        - name: profile
+          in: path
+          description: The profile of the user in path
+          required: true
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User/properties/profile'}
       operationId: followUnfollowBanUnbanUser
       summary: follow, unfollow, ban or unban a user
-      description: Follow, unfollow, ban or unban a certain user
+      description: "Given the username and the profile of a user, it allows you to: follow,unfollow, ban or unban a certain user"
       responses: 
         "204":
           description: Action performed successfully
+        "404":
+          description: Profile not found
   /Users/{username}/posts/{postId}:
     put:
       tags: ["Post"]
@@ -307,10 +313,12 @@ paths:
           schema: {$ref: '#/components/schemas/User/properties/username'}
       operationId: likeUnlikepost
       summary: like or unlike a post
-      description: Like or unlike a certain post
+      description: Given the postId and the username of the user who made the post, it allows you to like or unlike the post
       responses: 
         "204":
           description: Action performed successfully
+        "404":
+          description: Post not found
     delete:
       tags: ["myPost"]
       description: deletes a post
@@ -331,15 +339,15 @@ paths:
         "204": 
           description: post succesfully deleted
   /Users/{username}/posts/{postId}/comments:
-    put:
+    post:
       tags: ["Post"]
       operationId: commentPost
-      description: create a comment on a post
+      description: given a postId and the username of the user who created it, it allows you to write a comment on the post
       summary: write a comment ona  post
       parameters:
         - name: postId
           in: path
-          description: the Id of the post being liked or unliked
+          description: the Id of the post being commented on
           required: true
           schema: {$ref: '#/components/schemas/Post/properties/postId'}
         - name: username
@@ -360,11 +368,15 @@ paths:
       responses:
         "204":
           description: Action performed successfully
+        "404":
+          description: Post not found
+        
   /Users/{username}/posts/{postId}/comments/{comment}:
     delete:
       tags: ["Post"]
       operationId: unCommentPost
       summary: delete your comment on a post
+      description: allows you to remove your own comment on a post
       parameters:
         - name: commentId
           in: path
@@ -384,11 +396,13 @@ paths:
       responses:
         "204": 
           description: comment succesfully deleted
+        "404":
+          description: Comment not found
   /Users/{username}/posts:
     post:
-      description: creates a post
       operationId: uploadPhoto
       summary: create a new post
+      description: allows you to create a new post
       tags: ["myPost"]
       parameters:
         - name: username
@@ -412,9 +426,11 @@ paths:
       responses:
         "204":
           description: Photo uploaded
+        "400":
+          description: Bad Request
   /Users:
     put:
-      description: Set the username
+      description: it allows you to set the username
       tags: ["myProfile"]
       operationId: setMyUsername
       summary: set the username
@@ -426,4 +442,6 @@ paths:
           schema: {$ref: '#/components/schemas/User/properties/username'}
       responses:
         "204": 
-          description: successfully changed Username
+          description: Successfully changed Username
+        "409":
+          description: Username already exists
