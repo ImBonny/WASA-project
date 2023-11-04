@@ -1,11 +1,11 @@
-openapi: 3.0.3
-# /Users                                           all the users on the site
-# /Users/{username}/{profile}                       this user's profile found by username
-# /Users/{username}/posts                          all this specific user's posts
-# /Users/{username}/posts/{postId}                 a specific post from a specific user
-# /Users/{username}/stream                           the stream of the user utilizing the app
-# /Users/{username}/posts/{postId}/comments              all the comments on a specific post
-# /Users/{username}/posts/{postId}/comments/{commentId}  a specific comment on a specific post
+openapi: 3.1.0
+# /users                                           all the user on the site
+# /users/{username}/{profile}                       this user's profile found by username
+# /users/{username}/posts                          all this specific user's posts
+# /users/{username}/posts/{postId}                 a specific post from a specific user
+# /users/{username}/stream                           the stream of the user utilizing the app
+# /users/{username}/posts/{postId}/comments              all the comments on a specific post
+# /users/{username}/posts/{postId}/comments/{commentId}  a specific comment on a specific post
 
 
                     
@@ -153,9 +153,9 @@ components:
               description: This is the image's unique URL that points to the file
               example: "https://example.com/example/images/image.png"
         comments:
-          description: array of comments on a certain post
+          description: array of the Ids of the comments on a certain post
           type: array
-          items: {$ref: '#/components/schemas/Comment'}
+          items: {$ref: '#/components/schemas/Comment/properties/commentId'}
         likes:
           description: number of likes in a post
           type: number
@@ -206,7 +206,7 @@ paths:
                 Identifier:
                   type: string
                   example: "abcdef012345"
-  /Users/{username}/stream:
+  /users/{username}/stream:
     get:
       tags: ["myProfile"]
       operationId: getMyStream
@@ -233,7 +233,7 @@ paths:
                 items: {$ref: '#/components/schemas/Post'}
         "404":
           description: User not found
-  /Users/{username}/profile:
+  /users/{username}/profile:
     get:
       tags: ["theirProfile"]
       operationId: getUserProfile
@@ -257,7 +257,7 @@ paths:
               schema: {$ref: '#/components/schemas/User/properties/profile'}
         "404":
           description: User not found
-  /Users/{username}/{profile}:
+  /users/{username}/{profile}:
     put:
       tags: ["theirProfile"]
       parameters:
@@ -290,7 +290,7 @@ paths:
           description: Action performed successfully
         "404":
           description: Profile not found
-  /Users/{username}/posts/{postId}:
+  /users/{username}/posts/{postId}:
     put:
       tags: ["Post"]
       parameters:
@@ -338,7 +338,7 @@ paths:
       responses:
         "204": 
           description: post succesfully deleted
-  /Users/{username}/posts/{postId}/comments:
+  /users/{username}/posts/{postId}/comments:
     post:
       tags: ["Post"]
       operationId: commentPost
@@ -366,7 +366,7 @@ paths:
         "404":
           description: Post not found
         
-  /Users/{username}/posts/{postId}/comments/{comment}:
+  /users/{username}/posts/{postId}/comments/{comment}:
     delete:
       tags: ["Post"]
       operationId: unCommentPost
@@ -393,7 +393,7 @@ paths:
           description: comment succesfully deleted
         "404":
           description: Comment not found
-  /Users/{username}/posts:
+  /users/{username}/posts:
     post:
       operationId: uploadPhoto
       summary: create a new post
@@ -407,34 +407,36 @@ paths:
           schema: {$ref: '#/components/schemas/User/properties/username'}
       requestBody:
         content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                content:
-                  type: string
-                  description: The description of the post
-          image/octet-stream:
-            schema:
-              type: string
-              format: binary
+          multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  image:
+                    type: string
+                    format: binary
+                  description: 
+                    type: object
+                    properties:
+                      content:
+                        type: string
+                        description: The description of the post
       responses:
         "204":
           description: Photo uploaded
         "400":
           description: Bad Request
-  /Users:
+  /users:
     put:
       description: it allows you to set the username
       tags: ["myProfile"]
       operationId: setMyUsername
       summary: set the username
-      parameters:
-        - name: username
-          in: header
-          description: the new username
-          required: true
-          schema: {$ref: '#/components/schemas/User/properties/username'}
+      requestBody:
+        description: Username to set
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/User/properties/username'}
+        required: true
       responses:
         "204": 
           description: Successfully changed Username
