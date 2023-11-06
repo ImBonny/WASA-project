@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.1
 # /users                                           all the user on the site
 # /users/{username}/{profile}                       this user's profile found by username
 # /users/{username}/posts                          all this specific user's posts
@@ -165,7 +165,11 @@ components:
           description: array of the Ids of the comments on a certain post
           type: array
           items: {$ref: '#/components/schemas/Comment/properties/commentId'}
-        likes:
+        nComments:
+          description: number of comments on a post
+          type: integer
+          examples: [1]
+        nLikes:
           description: number of likes in a post
           type: number
           format: integer
