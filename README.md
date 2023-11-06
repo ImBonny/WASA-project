@@ -1,6 +1,6 @@
 # WASA-project
 # Introduction
-As part of the Web and Soware Architecture exam, you will:
+As part of the Web and Software Architecture exam, you will:
 1. define APIs using the OpenAPI standard
 2. design and develop the server side (“backend”) in Go
 3. design and develop the client side (“frontend”) in JavaScript
