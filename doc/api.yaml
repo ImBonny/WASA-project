@@ -244,7 +244,7 @@ paths:
                   Identifier:
                     type: string
                     examples: ["abcdef012345"]
-  security: []
+      security: []
   /users/{username}/stream:
     get:
       tags: ["myProfile"]
@@ -581,12 +581,18 @@ paths:
         "204": {$ref: "#/components/responses/204"}
         "400": {$ref: "#/components/responses/400"}
         "500": {$ref: "#/components/responses/500"}
-  /users:
+  /users/{username}:
     put:
       description: it allows you to set the username
       tags: ["myProfile"]
       operationId: setMyUsername
       summary: set the username
+      parameters:
+        - name: username
+          in: path
+          description: the username of the user who wants to change username
+          required: true
+          schema: { $ref: '#/components/schemas/User/properties/username' }
       requestBody:
         description: Username to set
         content:
@@ -601,3 +607,22 @@ paths:
         "500": {$ref: "#/components/responses/500"}
         "409":
           description: Username already exists
+  /users:
+    get:
+      tags: ["search"]
+      description: it allows you to search for a user using his username
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema: {$ref: "#/components/schemas/User/properties/username"}
+      responses:
+        "200":
+          description: Successfully found the user
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/User"}
+        "400": { $ref: "#/components/responses/400" }
+        "404":
+          description: "not found"
+        "500": { $ref: "#/components/responses/500" }
