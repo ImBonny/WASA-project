@@ -174,6 +174,11 @@ components:
           type: array
           items: {$ref: '#/components/schemas/Comment/properties/commentId'}
           minItems: 0
+        nComments:
+          description: number of comments on a post
+          type: integer
+          examples: [ 1 ]
+          minimum: 0
         likesNumber:
           description: number of likes in a post
           type: number
@@ -470,6 +475,8 @@ paths:
   /users/{username}/posts/{postId}/{likeId}:
     delete:
       tags: [ "Post" ]
+      description: "Remove a like from a post"
+      summary: remove like to a post
       parameters:
         - name: postId
           in: path
@@ -611,6 +618,7 @@ paths:
     get:
       tags: ["search"]
       description: it allows you to search for a user using his username
+      summary: search by username
       parameters:
         - name: username
           in: query
