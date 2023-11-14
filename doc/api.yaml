@@ -273,7 +273,6 @@ paths:
             application/json:
               schema:
                 type: array
-                format: binary
                 items: {$ref: '#/components/schemas/Post'}
                 minItems: 0
         "400": {$ref: "#/components/responses/400"}
@@ -328,7 +327,11 @@ paths:
       summary: follow a user
       description: "Given the username and the profile of a user, it allows you to follow a certain user"
       responses:
-        "204": {$ref: "#/components/responses/204"}
+        "201":
+          description: Successfully followed the user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User/properties/profile" }
         "400": {$ref: "#/components/responses/400"}
         "404":
           description: "not found"
@@ -382,7 +385,11 @@ paths:
       summary: ban a user
       description: "Given the username and the profile of a user, it allows you to ban a certain user"
       responses:
-        "204": {$ref: "#/components/responses/204"}
+        "201":
+          description: Successfully banned the user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User/properties/profile" }
         "400": {$ref: "#/components/responses/400"}
         "404":
           description: "not found"
@@ -445,7 +452,11 @@ paths:
               properties:
                 targetUser: {$ref: "#/components/schemas/User/properties/username"}
       responses:
-        "204": {$ref: "#/components/responses/204"}
+        "201":
+          description: Successfully liked the post
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Post/properties/likesUsers" }
         "400": {$ref: "#/components/responses/400"}
         "404":
           description: "Post not found"
@@ -522,7 +533,11 @@ paths:
           application/json:
             schema: {$ref: '#/components/schemas/Comment/properties/commentText'}
       responses:
-        "204": {$ref: "#/components/responses/204"}
+        "201":
+          description: Successfully commented the post
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Post/properties/comments" }
         "400": {$ref: "#/components/responses/400"}
         "404":
           description: "Post not found"
@@ -585,7 +600,11 @@ paths:
                       description: The description of the post
                       maxLength: 2200 #Like instagram
       responses:
-        "204": {$ref: "#/components/responses/204"}
+        "201":
+          description: Successfully uploaded a post
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Post" }
         "400": {$ref: "#/components/responses/400"}
         "500": {$ref: "#/components/responses/500"}
   /users/{username}:
@@ -610,7 +629,7 @@ paths:
         "204": {$ref: "#/components/responses/204"}
         "400": {$ref: "#/components/responses/400"}
         "404":
-          description: "not found"
+          description: "Username not found"
         "500": {$ref: "#/components/responses/500"}
         "409":
           description: Username already exists
@@ -632,5 +651,5 @@ paths:
               schema: {$ref: "#/components/schemas/User"}
         "400": { $ref: "#/components/responses/400" }
         "404":
-          description: "not found"
+          description: "Username not found"
         "500": { $ref: "#/components/responses/500" }
