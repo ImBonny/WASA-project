@@ -622,22 +622,27 @@ paths:
         "500": {$ref: "#/components/responses/500"}
         "409":
           description: Username already exists
-  /users:
     get:
-      tags: ["search"]
+      tags: [ "search" ]
       description: it allows you to search for a user's profile using his username
       summary: search by username
       parameters:
         - name: username
+          description: The username to search
           in: query
           required: true
-          schema: {$ref: "#/components/schemas/User/properties/username"}
+          schema: { $ref: "#/components/schemas/User/properties/username" }
+        - name: myUsername
+          in: path
+          description: the current username of the user who wants to search
+          required: true
+          schema: { $ref: '#/components/schemas/User/properties/username' }
       responses:
         "200":
           description: Successfully found the user
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/User/properties/profile"}
+              schema: { $ref: "#/components/schemas/User/properties/profile" }
         "400": { $ref: "#/components/responses/400" }
         "404":
           description: "Username not found"
