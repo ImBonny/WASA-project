@@ -428,7 +428,7 @@ paths:
           description: the username of the user who wants to like the post
           required: true
           schema: {$ref: '#/components/schemas/User/properties/username'}
-      operationId: likePost
+      operationId: likePhoto
       summary: like a post
       description: Given the postId of a post, allows you to like it
       requestBody:
@@ -477,6 +477,7 @@ paths:
     delete:
       tags: [ "Post" ]
       description: "Remove a like from a post"
+      operationId: unlikePhoto
       summary: remove like to a post
       parameters:
         - name: postId
@@ -503,7 +504,7 @@ paths:
   /users/{username}/posts/{postId}/comments:
     post:
       tags: ["Post"]
-      operationId: commentPost
+      operationId: commentPhoto
       description: given a postId and the username of the user who created it, it allows you to write a comment on the post
       summary: write a comment ona  post
       parameters:
@@ -535,7 +536,7 @@ paths:
   /users/{username}/posts/{postId}/comments/{comment}:
     delete:
       tags: ["Post"]
-      operationId: unCommentPost
+      operationId: unCommentPhoto
       summary: delete your comment on a post
       description: allows you to remove your own comment on a post
       parameters:
