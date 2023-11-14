@@ -1,14 +1,4 @@
 openapi: 3.1.0
-  # /users                                           all the user on the site
-  # /users/{username}/{profile}                       this user's profile found by username
-  # /users/{username}/posts                          all this specific user's posts
-  # /users/{username}/posts/{postId}                 a specific post from a specific user
-  # /users/{username}/stream                           the stream of the user utilizing the app
-  # /users/{username}/posts/{postId}/comments              all the comments on a specific post
-  # /users/{username}/posts/{postId}/comments/{commentId}  a specific comment on a specific post
-
-
-
 info:
   title: WASAphoto
   description: |-
@@ -185,7 +175,7 @@ components:
           format: integer
           examples: [1]
           minimum: 0
-        likesUsers:
+        likes:
           description: array of users who put like on a post
           type: array
           items: {$ref: "#/components/schemas/Like/properties/likeId"}
@@ -211,7 +201,12 @@ components:
           description: This is the like's unique Id
           type: string
           examples: [ "Like123" ]
-
+        creationTime:
+          title: creation Time
+          description: this is the creation time and date
+          type: string
+          format: date-time
+          examples: [ 2017-07-21T17:32:28Z ]
 security:
   - bearerAuth: [ ]
 paths:
@@ -279,7 +274,7 @@ paths:
         "404":
           description: "User not found"
         "500": {$ref: "#/components/responses/500"}
-  /users/{username}/profile:
+  /users/{username}/profiles:
     get:
       tags: ["theirProfile"]
       operationId: getUserProfile
@@ -305,7 +300,7 @@ paths:
         "404":
           description: "User not found"
         "500": {$ref: "#/components/responses/500"}
-  /users/{username}/{profile}:
+  /users/{username}/profiles/{profile}:
     post:
       tags: ["theirProfile"]
       parameters:
@@ -451,7 +446,7 @@ paths:
           description: Successfully liked the post
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/Post/properties/likesUsers" }
+              schema: { $ref: "#/components/schemas/Post/properties/likes" }
         "400": {$ref: "#/components/responses/400"}
         "404":
           description: "Post not found"
@@ -630,7 +625,7 @@ paths:
   /users:
     get:
       tags: ["search"]
-      description: it allows you to search for a user using his username
+      description: it allows you to search for a user's profile using his username
       summary: search by username
       parameters:
         - name: username
@@ -642,7 +637,7 @@ paths:
           description: Successfully found the user
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/User"}
+              schema: {$ref: "#/components/schemas/User/properties/profile"}
         "400": { $ref: "#/components/responses/400" }
         "404":
           description: "Username not found"
