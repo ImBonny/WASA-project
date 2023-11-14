@@ -311,21 +311,21 @@ paths:
       parameters:
         - name: username
           in: path
-          description: The username of the user i want to see the profile
+          description: The username of the user who wants to follow someone
           required: true
           content:
             application/json:
               schema: {$ref: '#/components/schemas/User/properties/username'}
         - name: profile
           in: path
-          description: The profile of the user in path
+          description: The profile of the user to be followed
           required: true
           content:
             application/json:
               schema: {$ref: '#/components/schemas/User/properties/profile'}
       operationId: followUser
       summary: follow a user
-      description: "Given the username and the profile of a user, it allows you to follow a certain user"
+      description: "Given the profile of a user, it allows you to follow a certain user"
       responses:
         "201":
           description: Successfully followed the user
@@ -336,106 +336,101 @@ paths:
         "404":
           description: "not found"
         "500": {$ref: "#/components/responses/500"}
-  /users/{username}/{profile}/follow:
     delete:
       tags: [ "theirProfile" ]
       parameters:
         - name: username
           in: path
-          description: The username of the user i want to see the profile
+          description: The username of the user who wants to follow someone
           required: true
           content:
             application/json:
               schema: { $ref: '#/components/schemas/User/properties/username' }
         - name: profile
           in: path
-          description: The profile of the user in path
+          description: The profile of the user to be followed
           required: true
           content:
             application/json:
               schema: { $ref: '#/components/schemas/User/properties/profile' }
       operationId: unfollowUser
       summary: unfollow a user
-      description: "Given the username and the profile of a user, it allows you to unfollow a certain user"
+      description: "Given the profile of a user, it allows you to unfollow a certain user"
       responses:
         "204": { $ref: "#/components/responses/204" }
         "400": { $ref: "#/components/responses/400" }
         "404":
           description: "not found"
         "500": { $ref: "#/components/responses/500" }
-  /users/{username}/{profile}/ban:
+  /users/{username}/banned/{bannedUser}:
     post:
       tags: ["theirProfile"]
       parameters:
         - name: username
           in: path
-          description: The username of the user i want to see the profile
+          description: The username of the user who wants to ban someone
           required: true
           content:
             application/json:
               schema: {$ref: '#/components/schemas/User/properties/username'}
-        - name: profile
+        - name: bannedUser
           in: path
-          description: The profile of the user in path
+          description: The username of the user to be banned
           required: true
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/User/properties/profile'}
+              schema: {$ref: '#/components/schemas/User/properties/username'}
       operationId: banUser
       summary: ban a user
-      description: "Given the username and the profile of a user, it allows you to ban a certain user"
+      description: "Given the username of a user, it allows you to ban a certain user"
       responses:
         "201":
           description: Successfully banned the user
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/User/properties/profile" }
+              schema: { $ref: "#/components/schemas/User/properties/username" }
         "400": {$ref: "#/components/responses/400"}
         "404":
           description: "not found"
         "500": {$ref: "#/components/responses/500"}
-  /users/{username}/{profile}/unban:
     delete:
       tags: [ "theirProfile" ]
       parameters:
         - name: username
           in: path
-          description: The username of the user i want to see the profile
+          description: The username of the user who wants to unban someone
           required: true
           content:
             application/json:
               schema: { $ref: '#/components/schemas/User/properties/username' }
-        - name: profile
+        - name: bannedUser
           in: path
-          description: The profile of the user in path
+          description: The username of the user to be unbanned
           required: true
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/User/properties/profile' }
+              schema: { $ref: '#/components/schemas/User/properties/username' }
       operationId: unbanUser
       summary: unban a user
-      description: "Given the username and the profile of a user, it allows you to unban a certain user"
+      description: "Given the usernameof a user, it allows you to unban a certain user"
       responses:
         "204": { $ref: "#/components/responses/204" }
         "400": { $ref: "#/components/responses/400" }
         "404":
           description: "not found"
         "500": { $ref: "#/components/responses/500" }
-
-
-
   /users/{username}/posts/{postId}:
     post:
       tags: ["Post"]
       parameters:
         - name: postId
           in: path
-          description: the Id of the post being liked or unliked
+          description: the Id of the post being liked
           required: true
           schema: {$ref: '#/components/schemas/Post/properties/postId'}
         - name: username
           in: path
-          description: the username of the user who made the post
+          description: the username of the user who wants to like the post
           required: true
           schema: {$ref: '#/components/schemas/User/properties/username'}
       operationId: likePost
@@ -472,9 +467,9 @@ paths:
           description: the unique ID of a post
           required: true
           schema: {$ref: '#/components/schemas/Post/properties/postId'}
-        - name: userId
+        - name: username
           in: path
-          description: the unique ID of the user
+          description: the username of the user who wants to delete the post
           required: true
           schema: {$ref: '#/components/schemas/User/properties/username'}
       responses:
@@ -491,12 +486,12 @@ paths:
       parameters:
         - name: postId
           in: path
-          description: the Id of the post being liked or unliked
+          description: the Id of the post being unliked
           required: true
           schema: { $ref: '#/components/schemas/Post/properties/postId' }
         - name: username
           in: path
-          description: the username of the user who made the post
+          description: the username of the user who put the like
           required: true
           schema: { $ref: '#/components/schemas/User/properties/username' }
         - name: likeId
@@ -524,7 +519,7 @@ paths:
           schema: {$ref: '#/components/schemas/Post/properties/postId'}
         - name: username
           in: path
-          description: the username of the user who made the post
+          description: the username of the user who wants to put a comment
           required: true
           schema: {$ref: '#/components/schemas/User/properties/username'}
       requestBody:
@@ -542,7 +537,6 @@ paths:
         "404":
           description: "Post not found"
         "500": {$ref: "#/components/responses/500"}
-
   /users/{username}/posts/{postId}/comments/{comment}:
     delete:
       tags: ["Post"]
@@ -557,7 +551,7 @@ paths:
           schema: {$ref: '#/components/schemas/Comment/properties/commentId'}
         - name: username
           in: path
-          description: the username of the user who made the post
+          description: the username of the user who made the comment
           required: true
           schema: {$ref: '#/components/schemas/User/properties/username'}
         - name: postId
@@ -580,7 +574,7 @@ paths:
       parameters:
         - name: username
           in: path
-          description: the username of the user who made the post
+          description: the username of the user who wants to create a post
           required: true
           schema: {$ref: '#/components/schemas/User/properties/username'}
       requestBody:
@@ -616,7 +610,7 @@ paths:
       parameters:
         - name: username
           in: path
-          description: the username of the user who wants to change username
+          description: the current username of the user who wants to change username
           required: true
           schema: { $ref: '#/components/schemas/User/properties/username' }
       requestBody:
