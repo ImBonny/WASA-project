@@ -166,7 +166,8 @@ components:
           minItems: 0
         nComments:
           description: number of comments on a post
-          type: integer
+          type: number
+          format: integer
           examples: [ 1 ]
           minimum: 0
         likesNumber:
@@ -473,7 +474,7 @@ paths:
         "404":
           description: "Post not found"
         "500": {$ref: "#/components/responses/500"}
-  /users/{username}/posts/{postId}/{likeId}:
+  /users/{username}/posts/{postId}/likes/{likeId}:
     delete:
       tags: [ "Post" ]
       description: "Remove a like from a post"
@@ -628,12 +629,12 @@ paths:
       description: it allows you to search for a user's profile using his username
       summary: search by username
       parameters:
-        - name: username
+        - name: theirUsername
           description: The username to search
           in: query
           required: true
           schema: { $ref: "#/components/schemas/User/properties/username" }
-        - name: myUsername
+        - name: username
           in: path
           description: the current username of the user who wants to search
           required: true
