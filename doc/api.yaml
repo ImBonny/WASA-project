@@ -336,14 +336,14 @@ paths:
       parameters:
         - name: username
           in: path
-          description: The username of the user who wants to follow someone
+          description: The username of the user who wants to unfollow someone
           required: true
           content:
             application/json:
               schema: { $ref: '#/components/schemas/User/properties/username' }
         - name: profile
           in: path
-          description: The profile of the user to be followed
+          description: The profile of the user to be unfollowed
           required: true
           content:
             application/json:
@@ -533,7 +533,7 @@ paths:
         "404":
           description: "Post not found"
         "500": {$ref: "#/components/responses/500"}
-  /users/{username}/posts/{postId}/comments/{comment}:
+  /users/{username}/posts/{postId}/comments/{commentId}:
     delete:
       tags: ["Post"]
       operationId: unCommentPhoto
