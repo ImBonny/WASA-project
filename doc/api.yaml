@@ -617,7 +617,7 @@ paths:
     parameters:
         - name: username
           in: path
-          description: the current username of the user who wants to change username
+          description: the current username of the user who wants to change username or look for another user
           required: true
           schema: { $ref: '#/components/schemas/User/properties/username' }
     put:
