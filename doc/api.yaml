@@ -395,7 +395,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/Profile'}
-    post:
+    put:
       tags: ["theirProfile"]
       operationId: followUser
       summary: follow a user
@@ -437,7 +437,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/User/properties/username'}
-    post:
+    put:
       tags: ["theirProfile"]
       operationId: banUser
       summary: ban a user
