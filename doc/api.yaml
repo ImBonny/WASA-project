@@ -67,13 +67,44 @@ components:
       scheme: bearer
       bearerFormat: JWT    # optional, arbitrary value for documentation purposes
   responses:
-    "204":
-      description: Action performed successfully
-    "400":
-      description: Bad Request
-    "500":
-      description: Internal server error
+    NoContent: #204
+      description: The request was successful, but the client doesn't need to navigate away from its current page.
+    BadRequest: #400
+      description: The request was not compliant with the documentation (eg. missing fields, etc).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized: #401
+      description: The request was not completed due to lack of authentication credentials for the requested resource.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound: #404
+      description: The specified resource was not found.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    InternalServerError: #500
+      description: The server encountered an internal error. Further info in server logs.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
   schemas:
+    Error:
+      title: Error
+      description: |-
+        This object represents a single error to be returned for certain requests
+      type: object
+      properties:
+        code:
+          type: string
+          description: An HTTP error code
+          example: "404"
+        message:
+          type: string
+          description: A brief message describing the error code
+          example: The specified resource was not found
+      required: [ "code", "message" ]
     User:
       title: User
       description: This object describes a user
@@ -87,43 +118,44 @@ components:
           minLength: 3
           maxLength: 16
           example: "example123"
-        profile:
-          title: profile
-          description: This is the user's profile
-          type: object
-          properties:
-            posts:
-              title: photos
-              description: This contains all of the user's posts
-              type: array
-              items: {$ref: '#/components/schemas/Post'}
-              minItems: 0
-              maxItems: 99999
-            numberOfPhotos:
-              title: number of photos
-              description: this is the number of photos uploaded by a user
-              type: integer
-              example: 1
-            followers:
-              title: followers
-              description: This contains all of the user's followers
-              type: array
-              items: {$ref: '#/components/schemas/User/properties/username'}
-              minItems: 0
-              maxItems: 99999
-            followedUsers:
-              title: following
-              description: This contains all of the user's followed users
-              type: array
-              items: {$ref: '#/components/schemas/User/properties/username'}
-              minItems: 0
-              maxItems: 99999
+        profile: {$ref: '#/components/schemas/Profile'}
         bannedUsers:
           title: Banned Users
           description: this contains all of the banned users by the user
           type: array
           items: {$ref: '#/components/schemas/User/properties/username'}
           minItems: 0
+    Profile:
+      title: Profile
+      description: This is the user's profile
+      type: object
+      properties:
+        posts:
+          title: photos
+          description: This contains all of the user's posts
+          type: array
+          items: {$ref: '#/components/schemas/Post'}
+          minItems: 0
+          maxItems: 99999
+        numberOfPhotos:
+          title: number of photos
+          description: this is the number of photos uploaded by a user
+          type: integer
+          example: 1
+        followers:
+          title: followers
+          description: This contains all of the user's followers
+          type: array
+          items: {$ref: '#/components/schemas/User/properties/username'}
+          minItems: 0
+          maxItems: 99999
+        followedUsers:
+          title: following
+          description: This contains all of the user's followed users
+          type: array
+          items: {$ref: '#/components/schemas/User/properties/username'}
+          minItems: 0
+          maxItems: 99999
     Comment:
       title: Comment
       description: This is a User's comment on a certain photo
@@ -134,7 +166,7 @@ components:
           title: comment Text
           description: This is the content of the comment
           type: string
-          pattern: ""
+          pattern: '^.*$'
           minLength: 1
           maxLength: 2200 #Like instagram
           example: "Good photo!"
@@ -142,6 +174,7 @@ components:
           title: creation Time
           description: this is the creation time and date
           type: string
+          pattern: '^.*$'
           minLength: 1
           maxLength: 99999
           format: date-time
@@ -150,6 +183,7 @@ components:
           title: Comment Id
           description: This is the post's unique Id
           type: string
+          pattern: '^.*$'
           minLength: 1
           maxLength: 99999
           example: "Comment123"
@@ -162,6 +196,7 @@ components:
           title: Like Id
           description: This is the like's unique Id
           type: string
+          pattern: '^.*$'
           minLength: 1
           maxLength: 99999
           example: "Like123"
@@ -169,6 +204,7 @@ components:
           title: creation Time
           description: this is the creation time and date
           type: string
+          pattern: '^.*$'
           minLength: 1
           maxLength: 99999
           format: date-time
@@ -179,18 +215,14 @@ components:
       type: object
       properties:
         postOwner: {$ref: '#/components/schemas/User/properties/username'}
-        Image:
-          title: Image
-          description: This is an image posted by a User
-          type: object
-          properties:
-            imageURL:
-              title: Image URL
-              type: string
-              minLength: 1
-              maxLength: 99999
-              description: This is the image's unique URL that points to the file
-              example: "https://example.com/example/images/image.png"
+        image:
+          title: Image URL
+          type: string
+          pattern: '^.*$'
+          minLength: 1
+          maxLength: 99999
+          description: This is the image's unique URL that points to the file
+          example: "https://example.com/example/images/image.png"
         comments:
           description: array of the Ids of the comments on a certain post
           type: array
@@ -219,6 +251,7 @@ components:
           title: creation Time
           description: this is the creation time and date
           type: string
+          pattern: '^.*$'
           minLength: 1
           maxLength: 99999
           format: date-time
@@ -227,6 +260,7 @@ components:
           title: Post Id
           description: This is the post's unique Id
           type: string
+          pattern: '^.*$'
           minLength: 1
           maxLength: 99999
           example: "Post123"
@@ -283,7 +317,7 @@ paths:
                   Identifier:
                     description: The identifier
                     type: string
-                    format: ""
+                    pattern: '^.*$'
                     minLength: 1
                     maxLength: 99999
                     example: "abcdef012345"
@@ -315,10 +349,10 @@ paths:
                 items: {$ref: '#/components/schemas/Post'}
                 minItems: 0
                 maxItems: 99999
-        "400": {$ref: "#/components/responses/400"}
-        "404":
-          description: "User not found"
-        "500": {$ref: "#/components/responses/500"}
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/profiles:
     get:
       tags: ["theirProfile"]
@@ -340,11 +374,11 @@ paths:
           description: Successfully retrieved the user's profile
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/User/properties/profile'}
-        "400": {$ref: "#/components/responses/400"}
-        "404":
-          description: "User not found"
-        "500": {$ref: "#/components/responses/500"}
+              schema: {$ref: '#/components/schemas/Profile'}
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/profiles/{profile}:
     parameters:
         - name: username
@@ -360,7 +394,7 @@ paths:
           required: true
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/User/properties/profile'}
+              schema: {$ref: '#/components/schemas/Profile'}
     post:
       tags: ["theirProfile"]
       operationId: followUser
@@ -372,21 +406,21 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/User/properties/username" }
-        "400": {$ref: "#/components/responses/400"}
-        "404":
-          description: "not found"
-        "500": {$ref: "#/components/responses/500"}
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
     delete:
       tags: [ "theirProfile" ]
       operationId: unfollowUser
       summary: unfollow a user
       description: "Given the profile of a user, it allows you to unfollow a certain user"
       responses:
-        "204": { $ref: "#/components/responses/204" }
-        "400": { $ref: "#/components/responses/400" }
-        "404":
-          description: "not found"
-        "500": { $ref: "#/components/responses/500" }
+        "204": { $ref: '#/components/responses/NoContent' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/banned/{bannedUser}:
     parameters:
         - name: username
@@ -414,21 +448,21 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/User/properties/username" }
-        "400": {$ref: "#/components/responses/400"}
-        "404":
-          description: "not found"
-        "500": {$ref: "#/components/responses/500"}
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
     delete:
       tags: [ "theirProfile" ]
       operationId: unbanUser
       summary: unban a user
       description: "Given the usernameof a user, it allows you to unban a certain user"
       responses:
-        "204": { $ref: "#/components/responses/204" }
-        "400": { $ref: "#/components/responses/400" }
-        "404":
-          description: "not found"
-        "500": { $ref: "#/components/responses/500" }
+        "204": { $ref: '#/components/responses/NoContent' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/posts/{postId}:
     parameters:
         - name: postId
@@ -462,21 +496,22 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Post/properties/likes" }
-        "400": {$ref: "#/components/responses/400"}
-        "404":
-          description: "Post not found"
-        "500": {$ref: "#/components/responses/500"}
+        "204": { $ref: '#/components/responses/NoContent' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
     delete:
       tags: ["myPost"]
       description: deletes a post
       operationId: deletePost
       summary: delete a post
       responses:
-        "204": {$ref: "#/components/responses/204"}
-        "400": {$ref: "#/components/responses/400"}
-        "404":
-          description: "Post not found"
-        "500": {$ref: "#/components/responses/500"}
+        "204": { $ref: '#/components/responses/NoContent' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/posts/{postId}/likes/{likeId}:
     delete:
       tags: [ "Post" ]
@@ -500,11 +535,11 @@ paths:
           required: true
           schema: {$ref: "#/components/schemas/Like/properties/likeId"}
       responses:
-        "204": { $ref: "#/components/responses/204" }
-        "400": { $ref: "#/components/responses/400" }
-        "404":
-          description: "Post not found"
-        "500": { $ref: "#/components/responses/500" }
+        "204": { $ref: '#/components/responses/NoContent' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/posts/{postId}/comments:
     post:
       tags: ["Post"]
@@ -538,10 +573,11 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Post/properties/comments" }
-        "400": {$ref: "#/components/responses/400"}
-        "404":
-          description: "Post not found"
-        "500": {$ref: "#/components/responses/500"}
+        "204": { $ref: '#/components/responses/NoContent' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/posts/{postId}/comments/{commentId}:
     delete:
       tags: ["Post"]
@@ -565,11 +601,11 @@ paths:
           required: true
           schema: {$ref: '#/components/schemas/Post/properties/postId'}
       responses:
-        "204": {$ref: "#/components/responses/204"}
-        "400": {$ref: "#/components/responses/400"}
-        "404":
-          description: "Comment not found"
-        "500": {$ref: "#/components/responses/500"}
+        "204": { $ref: '#/components/responses/NoContent' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/posts:
     post:
       operationId: uploadPhoto
@@ -593,26 +629,25 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 99999
+                  pattern: '^.*$'
                   description: The image on a post
                   format: binary
                 caption:
-                  type: object
-                  description: The caption on a post
-                  properties:
-                    content:
-                      type: string
-                      pattern: ""
-                      description: The description of the post
-                      minLength: 1
-                      maxLength: 2200 #Like instagram
+                  type: string
+                  pattern: '^.*$'
+                  description: The description of the post
+                  minLength: 1
+                  maxLength: 2200 #Like instagram
       responses:
         "201":
           description: Successfully uploaded a post
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Post" }
-        "400": {$ref: "#/components/responses/400"}
-        "500": {$ref: "#/components/responses/500"}
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}:
     parameters:
         - name: username
@@ -641,12 +676,15 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/User/properties/username" }
-        "400": {$ref: "#/components/responses/400"}
-        "404":
-          description: "Username not found"
-        "500": {$ref: "#/components/responses/500"}
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
         "409":
           description: Username already exists
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User/properties/username" }
+        "500": { $ref: '#/components/responses/InternalServerError' }
     get:
       tags: [ "search" ]
       operationId: "searchUser"
@@ -664,7 +702,7 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/User/properties/username" }
-        "400": { $ref: "#/components/responses/400" }
-        "404":
-          description: "Username not found"
-        "500": { $ref: "#/components/responses/500" }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
