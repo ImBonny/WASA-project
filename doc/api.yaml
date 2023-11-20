@@ -328,7 +328,7 @@ paths:
       operationId: getMyStream
       summary: Retrieves the user's stream
       description: |-
-        Retrieves the user's stream of posts from the system and 
+        Retrieves the user's stream of posts made by the user's followed by him from the system and 
         returns it to the user.
       parameters:
         - name: username
@@ -344,6 +344,7 @@ paths:
           content:
             application/json:
               schema:
+                title: posts
                 description: the user's stream
                 type: array
                 items: {$ref: '#/components/schemas/Post'}
@@ -572,7 +573,7 @@ paths:
           description: Successfully commented the post
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/Post/properties/comments" }
+              schema: { $ref: "#/components/schemas/Comment/properties/commentId" }
         "204": { $ref: '#/components/responses/NoContent' }
         "400": { $ref: '#/components/responses/BadRequest' }
         "401": { $ref: '#/components/responses/Unauthorized' }
@@ -643,7 +644,8 @@ paths:
           description: Successfully uploaded a post
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/Post" }
+              schema: { $ref: "#/components/schemas/Post/properties/postId" }
+
         "400": { $ref: '#/components/responses/BadRequest' }
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
