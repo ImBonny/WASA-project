@@ -505,7 +505,7 @@ paths:
     delete:
       tags: ["myPost"]
       description: deletes a post
-      operationId: deletePost
+      operationId: deletePhoto
       summary: delete a post
       responses:
         "204": { $ref: '#/components/responses/NoContent' }
@@ -582,7 +582,7 @@ paths:
   /users/{username}/posts/{postId}/comments/{commentId}:
     delete:
       tags: ["Post"]
-      operationId: unCommentPhoto
+      operationId: uncommentPhoto
       summary: delete your comment on a post
       description: allows you to remove your own comment on a post
       parameters:
@@ -660,7 +660,7 @@ paths:
     put:
       description: it allows you to set the username
       tags: ["myProfile"]
-      operationId: setMyUsername
+      operationId: setMyUserName
       summary: set the username
       requestBody:
         description: Username to set
