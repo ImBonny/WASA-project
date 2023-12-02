@@ -3,34 +3,34 @@ info:
   title: WASAphoto
   description: |-
     Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photos directly from your PC, and they will be visible to everyone following you.
-    
+
     ### Functional design specifications
-    Each user will be presented with a stream of photos (images) in reverse chronological order, with information about when each photo was uploaded (date and time) and how many likes and comments it has. The stream is composed by photos from “following” (other users that the user follows). 
-    
-    Users can place (and later remove) a "like" to photos from other users. Also, users can add comments to any image (even those uploaded by themself). Only authors can remove their comments. 
-    
-    Users can ban other users. If user Alice bans user Eve, Eve won't be able to see any information about Alice. Alice can decIde to remove the ban at any moment. 
-    
-    Users will have their profiles. The personal profile page for the user shows: the user's photos (in reverse chronological order), how many photos have been uploaded, and the user's followers and following. 
-    
-    Users can change their usernames, upload photos, remove photos, and follow/unfollow other users. Removal of an image will also remove likes and comments. 
-    
-    A user can search other user profiles via username. 
-    
+    Each user will be presented with a stream of photos (images) in reverse chronological order, with information about when each photo was uploaded (date and time) and how many likes and comments it has. The stream is composed by photos from “following” (other users that the user follows).
+
+    Users can place (and later remove) a "like" to photos from other users. Also, users can add comments to any image (even those uploaded by themself). Only authors can remove their comments.
+
+    Users can ban other users. If user Alice bans user Eve, Eve won't be able to see any information about Alice. Alice can decIde to remove the ban at any moment.
+
+    Users will have their profiles. The personal profile page for the user shows: the user's photos (in reverse chronological order), how many photos have been uploaded, and the user's followers and following.
+
+    Users can change their usernames, upload photos, remove photos, and follow/unfollow other users. Removal of an image will also remove likes and comments.
+
+    A user can search other user profiles via username.
+
     A user can log in just by specifying the username. See the "Simplified login" section for details.
 
     ### Simplified login
-    In real-world scenarios, new developments avoId implementing registration, login, and password-lost flows as they are a security nightmare, cumbersome, error-prone, and outsIde the project scope. So, why lose money and time on implementing those? The best practice is now to delegate those tasks to a separate service (“Identity provider”), either in-house (owned by the same company) or a third party (like “Login with Apple/Facebook/Google” buttons). 
-    
-    In this project, we do not have an external service like this. Instead, we decided to provIde you with a specification for a login API so that you won't spend time dealing with the design of the endpoint. The provided OpenAPI document is at the end of this PDF. 
-    
-    The login endpoint accepts a username - like “Maria” - without any password. If the username already exists, the user is logged in. If the username is new, the user is registered and logged in. The API will return the user Identifier you need to pass into the Authorization header in any other API. 
-    
+    In real-world scenarios, new developments avoId implementing registration, login, and password-lost flows as they are a security nightmare, cumbersome, error-prone, and outsIde the project scope. So, why lose money and time on implementing those? The best practice is now to delegate those tasks to a separate service (“Identity provider”), either in-house (owned by the same company) or a third party (like “Login with Apple/Facebook/Google” buttons).
+
+    In this project, we do not have an external service like this. Instead, we decided to provIde you with a specification for a login API so that you won't spend time dealing with the design of the endpoint. The provided OpenAPI document is at the end of this PDF.
+
+    The login endpoint accepts a username - like “Maria” - without any password. If the username already exists, the user is logged in. If the username is new, the user is registered and logged in. The API will return the user Identifier you need to pass into the Authorization header in any other API.
+
     This authentication method is named "Bearer Authentication" (however, in this project, you should use the user Identifier in place of the token):
       - https://swagger.io/docs/specification/authentication/bearer-authentication/
       - https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication
       - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization
-    
+
     There is no need either for HTTP sessions or session cookies.
 
     ## OpenAPI
@@ -49,10 +49,10 @@ info:
       - **commentPhoto**
       - **uncommentPhoto**
       - **deletePhoto**
-    
+
     ## CORS
     The backend must reply to CORS pre-flight requests with the appropriate setting.
-    
+
     To avoid problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the example code in the Fantastic Coffee decaffeinated repository.
 
     ## Contacts:
@@ -191,7 +191,7 @@ components:
       title: like
       description: like object
       properties:
-        user: { $ref: '#/components/schemas/User/properties/username' }
+        likeOwner: { $ref: '#/components/schemas/User/properties/username' }
         likeId:
           title: Like Id
           description: This is the like's unique Id
@@ -328,7 +328,7 @@ paths:
       operationId: getMyStream
       summary: Retrieves the user's stream
       description: |-
-        Retrieves the user's stream of posts made by the user's followed by him from the system and 
+        Retrieves the user's stream of posts made by the user's followed by him from the system and
         returns it to the user.
       parameters:
         - name: username
@@ -354,48 +354,39 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
-  /users/{username}/profiles:
-    get:
-      tags: ["theirProfile"]
-      operationId: getUserProfile
-      summary: Retrieves the user's profile
-      description: |-
-        Retrieves the user's profile from the system and 
-        returns it to the user.
-      parameters:
-        - name: username
-          in: path
-          description: The username of the user i want to see the profile
-          required: true
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/User/properties/username'}
-      responses:
-        "200":
-          description: Successfully retrieved the user's profile
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/Profile'}
-        "400": { $ref: '#/components/responses/BadRequest' }
-        "401": { $ref: '#/components/responses/Unauthorized' }
-        "404": { $ref: '#/components/responses/NotFound' }
-        "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/profiles/{profile}:
     parameters:
         - name: username
           in: path
-          description: The username of the user who wants to follow or unfollow someone
+          description: The username of the user who wants to see the profile, follow or unfollow someone
           required: true
           content:
             application/json:
               schema: {$ref: '#/components/schemas/User/properties/username'}
         - name: profile
           in: path
-          description: The profile of the user to be followed or unfollowed
+          description: The profile of the user to be shown, followed or unfollowed
           required: true
           content:
             application/json:
               schema: {$ref: '#/components/schemas/Profile'}
+    get:
+      tags: [ "theirProfile" ]
+      operationId: getUserProfile
+      summary: Retrieves the user's profile
+      description: |-
+        Retrieves the user's profile from the system and
+        returns it to the user.
+      responses:
+        "200":
+          description: Successfully retrieved the user's profile
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Profile' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
     put:
       tags: ["theirProfile"]
       operationId: followUser
@@ -490,13 +481,13 @@ paths:
               type: object
               description: the username of the user who liked
               properties:
-                targetUser: {$ref: "#/components/schemas/User/properties/username"}
+                targetUser: {$ref: "#/components/schemas/Like"}
       responses:
         "201":
           description: Successfully liked the post
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/Post/properties/likes" }
+              schema: { $ref: "#/components/schemas/Like" }
         "204": { $ref: '#/components/responses/NoContent' }
         "400": { $ref: '#/components/responses/BadRequest' }
         "401": { $ref: '#/components/responses/Unauthorized' }
@@ -559,6 +550,7 @@ paths:
           required: true
           schema: {$ref: '#/components/schemas/User/properties/username'}
       requestBody:
+        name: commentText
         description: The text of the comment
         required: true
         content:

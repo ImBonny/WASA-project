@@ -13,5 +13,21 @@ func (rt *_router) Handler() http.Handler {
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
 
+	//API routes
+	rt.router.POST("/session", rt.doLogin) //DONE
+	rt.router.GET("users/:username/stream", rt.getMyStream)
+	rt.router.GET("users/:username/profiles/:profile", rt.getUserProfile)
+	rt.router.PUT("users/:username/profiles/:profile", rt.followUser)                         //DONE
+	rt.router.DELETE("users/:username/profiles/:profile", rt.unfollowUser)                    //DONE
+	rt.router.PUT("users/:username/banned/:bannedUser", rt.banUser)                           //DONE
+	rt.router.DELETE("users/:username/banned/:bannedUser", rt.unbanUser)                      //DONE
+	rt.router.POST("/users/:username/posts/:postId", rt.likePhoto)                            //DONE
+	rt.router.DELETE("/users/:username/posts/:postId/likes/:likeId", rt.unlikePhoto)          //DONE
+	rt.router.DELETE("/users/:username/posts/:postId", rt.deletePhoto)                        //DONE
+	rt.router.POST("/users/:username/posts/:postId/comments", rt.commentPhoto)                //DONE
+	rt.router.DELETE("/users/:username/posts/:postId/comments/:commentId", rt.uncommentPhoto) //DONE
+	rt.router.POST("/users/:username/posts/", rt.uploadPhoto)                                 //DONE
+	rt.router.PUT("users/:username", rt.changeUsername)                                       //DONE
+	rt.router.GET("users/:username", rt.searchUser)
 	return rt.router
 }
