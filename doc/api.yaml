@@ -125,6 +125,7 @@ components:
           type: array
           items: {$ref: '#/components/schemas/User/properties/username'}
           minItems: 0
+          maxItems: 99999
     Profile:
       title: Profile
       description: This is the user's profile
@@ -226,7 +227,7 @@ components:
         comments:
           description: array of the Ids of the comments on a certain post
           type: array
-          items: {$ref: '#/components/schemas/Comment/properties/commentId'}
+          items: {$ref: '#/components/schemas/Comment'}
           minItems: 0
           maxItems: 99999
         nComments:
@@ -244,7 +245,7 @@ components:
         likes:
           description: array of users who put like on a post
           type: array
-          items: {$ref: "#/components/schemas/Like/properties/likeId"}
+          items: {$ref: "#/components/schemas/Like"}
           minItems: 0
           maxItems: 99999
         creationTime:
@@ -322,7 +323,7 @@ paths:
                     maxLength: 99999
                     example: "abcdef012345"
       security: []
-  /users/{username}/stream:
+  /users/myStream:
     get:
       tags: ["myProfile"]
       operationId: getMyStream
@@ -330,14 +331,6 @@ paths:
       description: |-
         Retrieves the user's stream of posts made by the user's followed by him from the system and
         returns it to the user.
-      parameters:
-        - name: username
-          in: path
-          description: The unique username of the user
-          required: true
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/User/properties/username'}
       responses:
         "200":
           description: Successfully retrieved the user's stream
@@ -354,22 +347,15 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
-  /users/{username}/profiles/{profile}:
+  /users/profiles/{username}:
     parameters:
-        - name: username
-          in: path
-          description: The username of the user who wants to see the profile, follow or unfollow someone
-          required: true
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/User/properties/username'}
-        - name: profile
-          in: path
-          description: The profile of the user to be shown, followed or unfollowed
-          required: true
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/Profile'}
+      - name: username
+        in: path
+        description: The username of the user whose profile is to be shown
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/User/properties/username' }
     get:
       tags: [ "theirProfile" ]
       operationId: getUserProfile
@@ -387,6 +373,22 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
+  /users/{username}/{profile}:
+    parameters:
+        - name: username
+          in: path
+          description: The username of the user who whose profile is being shown
+          required: true
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User/properties/username'}
+        - name: profile
+          in: path
+          description: The profile of the user to be followed or unfollowed
+          required: true
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Profile'}
     put:
       tags: ["theirProfile"]
       operationId: followUser
@@ -417,20 +419,47 @@ paths:
     parameters:
         - name: username
           in: path
-          description: The username of the user who wants to ban or unban someone
+          description: The username of the user who wants to unban someone
           required: true
           content:
             application/json:
               schema: {$ref: '#/components/schemas/User/properties/username'}
         - name: bannedUser
           in: path
-          description: The username of the user to be banned or unbanned
+          description: The username of the user to be unbanned
           required: true
           content:
             application/json:
               schema: {$ref: '#/components/schemas/User/properties/username'}
+    delete:
+      tags: [ "theirProfile" ]
+      operationId: unbanUser
+      summary: unban a user
+      description: "Given the usernameof a user, it allows you to unban a certain user"
+      responses:
+        "204": { $ref: '#/components/responses/NoContent' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
+  /users/{username}/banned:
+    parameters:
+      - name: username
+        in: path
+        description: The username of the user who wants to ban
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/User/properties/username' }
+      - name: bannedUser
+        in: query
+        description: The username of the user to be banned
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/User/properties/username' }
     put:
-      tags: ["theirProfile"]
+      tags: [ "theirProfile" ]
       operationId: banUser
       summary: ban a user
       description: "Given the username of a user, it allows you to ban a certain user"
@@ -444,27 +473,39 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
+  /users/{username}/posts/{postId}:
+    parameters:
+      - name: postId
+        in: path
+        description: the Id of the post being liked or unliked or the post to be deleted
+        required: true
+        schema: { $ref: '#/components/schemas/Post/properties/postId' }
+      - name: username
+        in: path
+        description: the username of the user whose post is being shown
+        required: true
+        schema: { $ref: '#/components/schemas/User/properties/username' }
     delete:
-      tags: [ "theirProfile" ]
-      operationId: unbanUser
-      summary: unban a user
-      description: "Given the usernameof a user, it allows you to unban a certain user"
+      tags: [ "myPost" ]
+      description: deletes a post
+      operationId: deletePhoto
+      summary: delete a post
       responses:
         "204": { $ref: '#/components/responses/NoContent' }
         "400": { $ref: '#/components/responses/BadRequest' }
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
-  /users/{username}/posts/{postId}:
+  /users/{username}/posts/{postId}/likes:
     parameters:
         - name: postId
           in: path
-          description: the Id of the post being liked or unliked
+          description: the Id of the post being liked or unliked or the post to be deleted
           required: true
           schema: {$ref: '#/components/schemas/Post/properties/postId'}
         - name: username
           in: path
-          description: the username of the user who wants to like or unlike the post
+          description: the username of the user whose post is being shown
           required: true
           schema: {$ref: '#/components/schemas/User/properties/username'}
     post:
@@ -493,17 +534,6 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
-    delete:
-      tags: ["myPost"]
-      description: deletes a post
-      operationId: deletePhoto
-      summary: delete a post
-      responses:
-        "204": { $ref: '#/components/responses/NoContent' }
-        "400": { $ref: '#/components/responses/BadRequest' }
-        "401": { $ref: '#/components/responses/Unauthorized' }
-        "404": { $ref: '#/components/responses/NotFound' }
-        "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/posts/{postId}/likes/{likeId}:
     delete:
       tags: [ "Post" ]
@@ -518,7 +548,7 @@ paths:
           schema: { $ref: '#/components/schemas/Post/properties/postId' }
         - name: username
           in: path
-          description: the username of the user who put the like
+          description: the username of the user whose post is being shown
           required: true
           schema: { $ref: '#/components/schemas/User/properties/username' }
         - name: likeId
@@ -546,11 +576,10 @@ paths:
           schema: {$ref: '#/components/schemas/Post/properties/postId'}
         - name: username
           in: path
-          description: the username of the user who wants to put a comment
+          description: the username of the user whose post is being commented on
           required: true
           schema: {$ref: '#/components/schemas/User/properties/username'}
       requestBody:
-        name: commentText
         description: The text of the comment
         required: true
         content:
@@ -585,7 +614,7 @@ paths:
           schema: {$ref: '#/components/schemas/Comment/properties/commentId'}
         - name: username
           in: path
-          description: the username of the user who made the comment
+          description: the username of the user whose post is being commented on
           required: true
           schema: {$ref: '#/components/schemas/User/properties/username'}
         - name: postId
@@ -679,6 +708,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/User/properties/username" }
         "500": { $ref: '#/components/responses/InternalServerError' }
+  /users:
     get:
       tags: [ "search" ]
       operationId: "searchUser"
@@ -695,7 +725,7 @@ paths:
           description: Successfully found the user
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/User/properties/username" }
+              schema: { $ref: "#/components/schemas/User" }
         "400": { $ref: '#/components/responses/BadRequest' }
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }

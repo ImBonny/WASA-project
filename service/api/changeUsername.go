@@ -3,11 +3,13 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
 type changeRequest struct {
-	Username string `json:"username"`
+	Username    string `json:"username"`
+	NewUsername string `json:"newUsername"`
 }
 
 type changeResponse struct {
@@ -15,7 +17,8 @@ type changeResponse struct {
 }
 
 // Handler for changing username
-func changeUsername(w http.ResponseWriter, r *http.Request) {
+// TODO: check how to handle request body
+func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new change request
 	var changeReq changeRequest
 	// Decode the request body into changeReq
@@ -23,7 +26,9 @@ func changeUsername(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	changeToNewUsername(changeReq.Username)
+	changeReq.Username = ps.ByName("Username")
+	changeReq.NewUsername = ps.ByName("NewUsername")
+	changeToNewUsername(changeReq)
 	changeResponse := changeResponse{Message: "Successfully changed username"}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -32,13 +37,13 @@ func changeUsername(w http.ResponseWriter, r *http.Request) {
 }
 
 // Change the username of the current user
-func changeToNewUsername(username string) error {
-	if _, exists := users[username]; !exists {
-		delete(users, CurrentUser.Username)
-		CurrentUser.Username = username
-		users[username] = CurrentUser
+func changeToNewUsername(request changeRequest) error {
+	if _, exists := users[request.NewUsername]; !exists {
+		delete(users, request.Username)
+		CurrentUser.Username = request.NewUsername
+		users[request.NewUsername] = CurrentUser
 		return nil
 	}
 
-	return fmt.Errorf("User with username %s already exists", username)
+	return fmt.Errorf("User with username %s already exists", request.NewUsername)
 }

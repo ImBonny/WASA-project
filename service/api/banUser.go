@@ -3,20 +3,19 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
 type banRequest struct {
-	bannedUser  string `json:"bannedUser"`
-	banningUser string `json:"username"`
+	BannedUser string `json:"bannedUser"`
 }
 
 type banResponse struct {
-	Message string `json:"message"`
+	Username string `json:"username"`
 }
 
-// Handler for banning a user
-func banUser(w http.ResponseWriter, r *http.Request) {
+func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new ban request
 	var banReq banRequest
 	// Decode the request body into banReq
@@ -24,23 +23,29 @@ func banUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	banThisUser(banReq.bannedUser, banReq.banningUser)
-	banResponse := banResponse{Message: "Successfully banned the user"}
+	myUsername := CurrentUser.Username
+	banReq.BannedUser = ps.ByName("bannedUser")
+	err := banThisUser(myUsername, banReq)
+	if err != nil {
+		return
+	}
+	banResponse := banResponse{Username: banReq.BannedUser}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(banResponse)
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(banResponse)
+	if err != nil {
+		return
+	}
 }
-
-// Ban a user
-func banThisUser(bannedUser string, banningUser string) error {
-	if _, exists := users[bannedUser]; !exists {
-		return fmt.Errorf("User with %s username not found", bannedUser)
+func banThisUser(banningUser string, request banRequest) error {
+	if _, exists := users[request.BannedUser]; !exists {
+		return fmt.Errorf("User with %s username not found", request.BannedUser)
 	}
 	users[banningUser] = User{
 		Username:    banningUser,
 		Profile:     users[banningUser].Profile,
-		BannedUsers: append(users[banningUser].BannedUsers, users[bannedUser].Username),
+		BannedUsers: append(users[banningUser].BannedUsers, users[request.BannedUser].Username),
 	}
 	return nil
 }

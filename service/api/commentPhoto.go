@@ -2,23 +2,24 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 type commentRequest struct {
-	postId      int    `json:"postId"`
-	username    string `json:"username"`
-	commentText string `json:"commentText"`
+	PostId      int    `json:"postId"`
+	Username    string `json:"username"`
+	CommentText string `json:"commentText"`
 }
 
 type commentResponse struct {
-	Message string `json:"message"`
+	Comment Comment `json:"comment"`
 }
 
 // Handler for commenting on a post
-func commentPhoto(w http.ResponseWriter, r *http.Request) {
+func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new comment request
 	var commentReq commentRequest
 	// Decode the request body into commentReq
@@ -26,50 +27,50 @@ func commentPhoto(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	addComment(commentReq.postId, commentReq.username, commentReq.commentText)
-	commentResponse := commentResponse{Message: "Successfully commented the post"}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(commentResponse)
-}
-
-func addComment(postID int, commentOwner string, commentText string) error {
-	// Check if the post exists
-	_, exists := posts[postID]
-	if !exists {
-		return fmt.Errorf("Post with ID %d not found", postID)
+	commentReq.Username = CurrentUser.Username
+	var err error
+	commentReq.PostId, err = strconv.Atoi(ps.ByName("postId"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-
-	// Find the index of the post with the given ID
+	body, err := json.Marshal(commentReq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	commentReq.CommentText = string(body)
+	// Find the post put by the specified user
 	postIndex := -1
+
 	for i, post := range posts {
-		if post.PostOwner == commentOwner {
+		if post.PostId == commentReq.PostId {
 			postIndex = i
 			break
 		}
 	}
-
+	myUsername := CurrentUser.Username
 	// If the post put by the specified user is found, add the comment
+	var newComment Comment
 	if postIndex != -1 {
-		var newComment = Comment{
-			CommentOwner: commentOwner,
-			CommentText:  commentText,
+		newComment = Comment{
+			CommentOwner: myUsername,
+			CommentText:  commentReq.CommentText,
 			CreationTime: time.Now().Format("2006-01-02 15:04:05"),
-			CommentId:    int(len(posts[postID].Comments)),
+			CommentId:    int(len(posts[commentReq.PostId].Comments)),
 		}
-		posts[postID] = Post{
-			PostOwner:    posts[postID].PostOwner,
-			Image:        posts[postID].Image,
-			Comments:     append(posts[postID].Comments, newComment),
-			NComments:    posts[postID].NComments + 1,
-			Likes:        posts[postID].Likes,
-			NLikes:       posts[postID].NLikes,
-			CreationTime: posts[postID].CreationTime,
-			PostId:       posts[postID].PostId,
+		posts[commentReq.PostId] = Post{
+			PostOwner:    posts[commentReq.PostId].PostOwner,
+			Image:        posts[commentReq.PostId].Image,
+			Comments:     append(posts[commentReq.PostId].Comments, newComment),
+			NComments:    posts[commentReq.PostId].NComments + 1,
+			Likes:        posts[commentReq.PostId].Likes,
+			NLikes:       posts[commentReq.PostId].NLikes,
+			CreationTime: posts[commentReq.PostId].CreationTime,
+			PostId:       posts[commentReq.PostId].PostId,
 		}
-		return nil
 	}
+	commentResponse := commentResponse{Comment: newComment}
 
-	return fmt.Errorf("Post with owner %s not found in post %d", commentOwner, postID)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(commentResponse)
 }

@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
@@ -17,8 +18,9 @@ type followResponse struct {
 }
 
 // Follow a user
-func followUser(w http.ResponseWriter, r *http.Request) {
+func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
+	myUsername := CurrentUser.Username
 
 	var request followRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -26,7 +28,12 @@ func followUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	followThisUser(request.Username, request.Profile)
+	request.Username = ps.ByName("username")
+	request.Profile = users[request.Username].Profile
+	err = followThisUser(myUsername, request)
+	if err != nil {
+		return
+	}
 	response := followResponse{
 		Username: request.Username,
 		Profile:  request.Profile,
@@ -35,20 +42,20 @@ func followUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // Follow a user
-func followThisUser(username string, profileToFollow Profile) error {
-	if _, exists := users[profileToFollow.Username]; exists {
-		users[username] = User{
-			Username: username,
+func followThisUser(myUsername string, request followRequest) error {
+	if _, exists := users[request.Username]; exists {
+		users[myUsername] = User{
+			Username: myUsername,
 			Profile: Profile{
-				Username:       users[username].Username,
-				Posts:          users[username].Profile.Posts,
-				NumberOfPhotos: users[username].Profile.NumberOfPhotos,
-				Followers:      append(users[username].Profile.Followers, profileToFollow.Username),
-				Following:      users[username].Profile.Following,
+				Username:       users[myUsername].Username,
+				Posts:          users[myUsername].Profile.Posts,
+				NumberOfPhotos: users[myUsername].Profile.NumberOfPhotos,
+				Followers:      append(users[myUsername].Profile.Followers, request.Username),
+				Following:      users[myUsername].Profile.Following,
 			},
-			BannedUsers: users[username].BannedUsers,
+			BannedUsers: users[myUsername].BannedUsers,
 		}
 		return nil
 	}
-	return fmt.Errorf("User with %s username not found", username)
+	return fmt.Errorf("User with %s username not found", request.Username)
 }

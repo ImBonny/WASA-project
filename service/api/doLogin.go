@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"regexp"
 )
@@ -23,7 +24,7 @@ var users = map[string]User{}
 var CurrentUser User
 
 // doLogin handles the login request
-func doLogin(w http.ResponseWriter, r *http.Request) {
+func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var loginReq LoginRequest
 	// Decode the request body into loginReq
 	if err := json.NewDecoder(r.Body).Decode(&loginReq); err != nil {

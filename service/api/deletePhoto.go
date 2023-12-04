@@ -3,7 +3,9 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"strconv"
 )
 
 type deleteRequest struct {
@@ -16,13 +18,19 @@ type deleteResponse struct {
 }
 
 // Handler for deleting a post
-func deletePhoto(w http.ResponseWriter, r *http.Request) {
+func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new delete request
 	var deleteReq deleteRequest
 	// Decode the request body into deleteReq
 	if err := json.NewDecoder(r.Body).Decode(&deleteReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+	deleteReq.username = ps.ByName("username")
+	var err error
+	deleteReq.postId, err = strconv.Atoi(ps.ByName("postId"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	removePostByID(deleteReq.postId, deleteReq.username)
 	deleteResponse := deleteResponse{Message: "Successfully deleted the post"}

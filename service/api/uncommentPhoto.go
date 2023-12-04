@@ -3,38 +3,53 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"strconv"
 )
 
 type uncommentRequest struct {
-	PostId           int    `json:"postId"`
-	CommentId        int    `json:"commentId"`
-	uncommentingUser string `json:"uncommentingUser"`
+	PostId    int    `json:"postId"`
+	CommentId int    `json:"commentId"`
+	PostOwner string `json:"username"`
 }
 
 type uncommentResponse struct {
-	Message string `json:"message"`
 }
 
 // Handler for uncommenting a post
-func uncommentPhoto(w http.ResponseWriter, r *http.Request) {
+func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new uncomment request
 	var uncommentReq uncommentRequest
+	uncommentReq.PostOwner = ps.ByName("username")
+	var err error
+	uncommentReq.PostId, err = strconv.Atoi(ps.ByName("postId"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	uncommentReq.CommentId, err = strconv.Atoi(ps.ByName("commentId"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	// Decode the request body into uncommentReq
 	if err := json.NewDecoder(r.Body).Decode(&uncommentReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	removeCommentByID(uncommentReq.PostId, uncommentReq.CommentId, uncommentReq.uncommentingUser)
-	uncommentResponse := uncommentResponse{Message: "Successfully uncommented the post"}
-
+	err = removeCommentByID(uncommentReq.PostId, uncommentReq.CommentId)
+	if err != nil {
+		return
+	}
+	var uncommentResponse uncommentResponse
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(uncommentResponse)
 }
 
 // Remove a comment from a post by ID
-func removeCommentByID(postID int, commentID int, uncommentUser string) error {
+func removeCommentByID(postID int, commentID int) error {
 	// Check if the post exists
 	post, exists := posts[postID]
 	if !exists {
@@ -44,7 +59,7 @@ func removeCommentByID(postID int, commentID int, uncommentUser string) error {
 	// Find the index of the comment with the given ID
 	commentIndex := -1
 	for i, comment := range post.Comments {
-		if comment.CommentOwner == uncommentUser {
+		if comment.CommentId == commentID {
 			commentIndex = i
 			break
 		}
@@ -58,5 +73,5 @@ func removeCommentByID(postID int, commentID int, uncommentUser string) error {
 		return nil
 	}
 
-	return fmt.Errorf("Comment with owner %s not found in post %d", uncommentUser, postID)
+	return fmt.Errorf("Comment with id %d not found in post %d", commentID, postID)
 }

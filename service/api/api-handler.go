@@ -14,20 +14,20 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/liveness", rt.liveness)
 
 	//API routes
-	rt.router.POST("/session", rt.doLogin) //DONE
-	rt.router.GET("users/:username/stream", rt.getMyStream)
-	rt.router.GET("users/:username/profiles/:profile", rt.getUserProfile)
-	rt.router.PUT("users/:username/profiles/:profile", rt.followUser)                         //DONE
-	rt.router.DELETE("users/:username/profiles/:profile", rt.unfollowUser)                    //DONE
-	rt.router.PUT("users/:username/banned/:bannedUser", rt.banUser)                           //DONE
+	rt.router.POST("/session", rt.doLogin)                                                    //DONE
+	rt.router.GET("users/myStream", rt.getMyStream)                                           //DONE
+	rt.router.GET("users/profiles/:username", rt.getUserProfile)                              //DONE
+	rt.router.PUT("users/profiles/:profile", rt.followUser)                                   //DONE
+	rt.router.DELETE("users/profiles/:profile", rt.unfollowUser)                              //DONE
+	rt.router.PUT("users/:username/banned", rt.banUser)                                       //DONE
 	rt.router.DELETE("users/:username/banned/:bannedUser", rt.unbanUser)                      //DONE
-	rt.router.POST("/users/:username/posts/:postId", rt.likePhoto)                            //DONE
+	rt.router.POST("/users/:username/posts/:postId/likes", rt.likePhoto)                      //DONE
 	rt.router.DELETE("/users/:username/posts/:postId/likes/:likeId", rt.unlikePhoto)          //DONE
 	rt.router.DELETE("/users/:username/posts/:postId", rt.deletePhoto)                        //DONE
 	rt.router.POST("/users/:username/posts/:postId/comments", rt.commentPhoto)                //DONE
 	rt.router.DELETE("/users/:username/posts/:postId/comments/:commentId", rt.uncommentPhoto) //DONE
 	rt.router.POST("/users/:username/posts/", rt.uploadPhoto)                                 //DONE
-	rt.router.PUT("users/:username", rt.changeUsername)                                       //DONE
-	rt.router.GET("users/:username", rt.searchUser)
+	rt.router.PUT("users/:username", rt.setMyUsername)                                        //DONE
+	rt.router.GET("users", rt.searchUser)                                                     //DONE
 	return rt.router
 }

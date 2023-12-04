@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
@@ -16,9 +17,11 @@ type unbanUserResponse struct {
 }
 
 // Handler for unbanning a user
-func unbanUser(w http.ResponseWriter, r *http.Request) {
+func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new unban request
 	var unbanReq unbanUserRequest
+	unbanReq.unbanningUser = ps.ByName("username")
+	unbanReq.bannedUser = ps.ByName("bannedUser")
 	// Decode the request body into unbanReq
 	if err := json.NewDecoder(r.Body).Decode(&unbanReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -45,8 +48,9 @@ func unbanThisUser(bannedUser string, unbanningUser string) error {
 		}
 	}
 	if userIndex != -1 {
-		CurrentUser.BannedUsers = append(users[unbanningUser].BannedUsers[:userIndex], users[unbanningUser].BannedUsers[userIndex+1:]...)
-		users[unbanningUser] = CurrentUser
+		currentUser := users[unbanningUser]
+		currentUser.BannedUsers = append(users[unbanningUser].BannedUsers[:userIndex], users[unbanningUser].BannedUsers[userIndex+1:]...)
+		users[unbanningUser] = currentUser
 		return nil
 	}
 

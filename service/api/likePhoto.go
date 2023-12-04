@@ -2,35 +2,43 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 type LikeRequest struct {
 	targetPost int    `json:"postId"`
-	likingUser string `json:"username"`
+	postOwner  string `json:"username"`
 }
 
 type LikeResponse struct {
-	// Define the structure of the response if needed
-	// This could include the liked post details, confirmation message, etc.
-	Message string `json:"message"`
+	like Like `json:"like"`
 }
 
 // Handler for liking a post
-func likePhoto(w http.ResponseWriter, r *http.Request) {
+func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new like request
 	var likeReq LikeRequest
+	likeReq.postOwner = ps.ByName("username")
+	var err error
+	likeReq.targetPost, err = strconv.Atoi(ps.ByName("postId"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	// Decode the request body into likeReq
 	if err := json.NewDecoder(r.Body).Decode(&likeReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	myUsername := CurrentUser.Username
 	var newLike = Like{
 		// Create a new like
-		LikeOwner:    likeReq.likingUser,
+		LikeOwner:    myUsername,
 		CreationTime: time.Now().Format("2006-01-02 15:04:05"),
-		LikeId:       int(len(posts[likeReq.targetPost].Likes)),
+		LikeId:       len(posts[likeReq.targetPost].Likes) + 1,
 		// Update the post with the new like
 	}
 	posts[likeReq.targetPost] = Post{
@@ -44,7 +52,7 @@ func likePhoto(w http.ResponseWriter, r *http.Request) {
 		PostId:       posts[likeReq.targetPost].PostId,
 	}
 	// In this example, assuming a successful like, prepare the response
-	likeResponse := LikeResponse{Message: "Successfully liked the post"}
+	likeResponse := LikeResponse{like: newLike}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

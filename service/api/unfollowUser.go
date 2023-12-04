@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
@@ -16,16 +17,16 @@ type unfollowResponse struct {
 }
 
 // Unfollow a user
-func unfollowUser(w http.ResponseWriter, r *http.Request) {
+func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
 	var request unfollowRequest
-	err := json.NewDecoder(r.Body).Decode(&request)
+	request.Username = ps.ByName("username")
+	request.Profile = users[ps.ByName("username")].Profile
+	err := unfollowThisUser(CurrentUser.Username, request)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	unfollowThisUser(request.Username, request.Profile)
 	response := unfollowResponse{
 		Username: request.Username,
 	}
@@ -33,22 +34,22 @@ func unfollowUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // Unfollow a user
-func unfollowThisUser(username string, profileToUnfollow Profile) error {
-	if _, exists := users[profileToUnfollow.Username]; exists {
-		users[username] = User{
-			Username: username,
+func unfollowThisUser(myUsername string, request unfollowRequest) error {
+	if _, exists := users[myUsername]; exists {
+		users[myUsername] = User{
+			Username: myUsername,
 			Profile: Profile{
-				Username:       users[username].Username,
-				Posts:          users[username].Profile.Posts,
-				NumberOfPhotos: users[username].Profile.NumberOfPhotos,
-				Followers:      users[username].Profile.Followers,
-				Following:      removeFollowing(users[username].Profile.Following, profileToUnfollow.Username),
+				Username:       users[myUsername].Username,
+				Posts:          users[myUsername].Profile.Posts,
+				NumberOfPhotos: users[myUsername].Profile.NumberOfPhotos,
+				Followers:      users[myUsername].Profile.Followers,
+				Following:      removeFollowing(users[myUsername].Profile.Following, request.Username),
 			},
-			BannedUsers: users[username].BannedUsers,
+			BannedUsers: users[myUsername].BannedUsers,
 		}
 		return nil
 	}
-	return fmt.Errorf("User with %s username not found", username)
+	return fmt.Errorf("User with %s username not found", request.Username)
 }
 
 func removeFollowing(following []string, username string) []string {
