@@ -23,14 +23,17 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	var request unfollowRequest
 	request.Username = ps.ByName("username")
 	request.Profile = users[ps.ByName("username")].Profile
-	err := unfollowThisUser(CurrentUser.Username, request)
+	err := unfollowThisUser(getCurrentUser().Username, request)
 	if err != nil {
 		return
 	}
 	response := unfollowResponse{
 		Username: request.Username,
 	}
-	json.NewEncoder(w).Encode(response)
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		return
+	}
 }
 
 // Unfollow a user
@@ -47,6 +50,7 @@ func unfollowThisUser(myUsername string, request unfollowRequest) error {
 			},
 			BannedUsers: users[myUsername].BannedUsers,
 		}
+		updateUser(users[myUsername])
 		return nil
 	}
 	return fmt.Errorf("User with %s username not found", request.Username)

@@ -33,15 +33,18 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(changeResponse)
+	err := json.NewEncoder(w).Encode(changeResponse)
+	if err != nil {
+		return
+	}
 }
 
 // Change the username of the current user
 func changeToNewUsername(request changeRequest) error {
 	if _, exists := users[request.NewUsername]; !exists {
 		delete(users, request.Username)
-		CurrentUser.Username = request.NewUsername
-		users[request.NewUsername] = CurrentUser
+		setUsername(request.NewUsername)
+		users[request.NewUsername] = getCurrentUser()
 		return nil
 	}
 

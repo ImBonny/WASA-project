@@ -27,7 +27,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	commentReq.Username = CurrentUser.Username
+	commentReq.Username = getCurrentUser().Username
 	var err error
 	commentReq.PostId, err = strconv.Atoi(ps.ByName("postId"))
 	if err != nil {
@@ -47,7 +47,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 			break
 		}
 	}
-	myUsername := CurrentUser.Username
+	myUsername := getCurrentUser().Username
 	// If the post put by the specified user is found, add the comment
 	var newComment Comment
 	if postIndex != -1 {
@@ -55,7 +55,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 			CommentOwner: myUsername,
 			CommentText:  commentReq.CommentText,
 			CreationTime: time.Now().Format("2006-01-02 15:04:05"),
-			CommentId:    int(len(posts[commentReq.PostId].Comments)),
+			CommentId:    len(posts[commentReq.PostId].Comments),
 		}
 		posts[commentReq.PostId] = Post{
 			PostOwner:    posts[commentReq.PostId].PostOwner,
@@ -72,5 +72,8 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(commentResponse)
+	err = json.NewEncoder(w).Encode(commentResponse)
+	if err != nil {
+		return
+	}
 }

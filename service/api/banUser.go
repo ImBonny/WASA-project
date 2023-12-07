@@ -23,7 +23,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	myUsername := CurrentUser.Username
+	myUsername := getCurrentUser().Username
 	banReq.BannedUser = ps.ByName("bannedUser")
 	err := banThisUser(myUsername, banReq)
 	if err != nil {
@@ -47,5 +47,6 @@ func banThisUser(banningUser string, request banRequest) error {
 		Profile:     users[banningUser].Profile,
 		BannedUsers: append(users[banningUser].BannedUsers, users[request.BannedUser].Username),
 	}
+	updateUser(users[banningUser])
 	return nil
 }

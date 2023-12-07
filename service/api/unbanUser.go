@@ -32,7 +32,10 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(unbanResponse)
+	err := json.NewEncoder(w).Encode(unbanResponse)
+	if err != nil {
+		return
+	}
 }
 
 // Unban a user
@@ -51,6 +54,7 @@ func unbanThisUser(bannedUser string, unbanningUser string) error {
 		currentUser := users[unbanningUser]
 		currentUser.BannedUsers = append(users[unbanningUser].BannedUsers[:userIndex], users[unbanningUser].BannedUsers[userIndex+1:]...)
 		users[unbanningUser] = currentUser
+		updateUser(users[unbanningUser])
 		return nil
 	}
 

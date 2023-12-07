@@ -43,7 +43,10 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(unlikeResponse)
+	err = json.NewEncoder(w).Encode(unlikeResponse)
+	if err != nil {
+		return
+	}
 }
 
 // Remove a like from a post by ID
@@ -71,5 +74,5 @@ func removeLikeByID(request unlikeRequest) error {
 		return nil
 	}
 
-	return fmt.Errorf("Like with id %s not found in post with id %d", request.LikeId, request.PostId)
+	return fmt.Errorf("Like with id %d not found in post with id %d", request.LikeId, request.PostId)
 }

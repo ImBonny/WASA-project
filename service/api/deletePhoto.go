@@ -37,16 +37,13 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(deleteResponse)
+	err = json.NewEncoder(w).Encode(deleteResponse)
+	if err != nil {
+		return
+	}
 }
 
 func removePostByID(postID int, deleteUsername string) error {
-	// Check if the post exists
-	post, exists := posts[postID]
-	if !exists {
-		return fmt.Errorf("Post with ID %d not found", postID)
-	}
-
 	// Find the index of the post with the given ID
 	postIndex := 1
 	for i, post := range posts {
@@ -55,11 +52,10 @@ func removePostByID(postID int, deleteUsername string) error {
 			break
 		}
 	}
-
 	// If the post put by the specified user is found, remove it
 	if postIndex != -1 {
 		delete(posts, postIndex)
-		posts[postID] = post // Update the post in the posts map
+		deletePost(postIndex)
 		return nil
 	}
 

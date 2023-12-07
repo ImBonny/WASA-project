@@ -26,17 +26,20 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 	// Send response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	err := json.NewEncoder(w).Encode(response)
+	if err != nil {
+		return
+	}
 }
 
 // getMyStream returns a list of posts from the user's stream
 func getMyStream(request getMyStreamRequest) []Post {
 	var stream []Post
-	for _, following := range CurrentUser.Profile.Following {
+	for _, following := range getCurrentUser().Profile.Following {
 		for _, postId := range users[following].Profile.Posts {
 			stream = append([]Post{}, posts[postId])
 		}
-	} //Sort posts by timestamp
+	} // Sort posts by timestamp
 	for i := 0; i < len(stream); i++ {
 		for j := i + 1; j < len(stream); j++ {
 			if stream[i].CreationTime < stream[j].CreationTime {

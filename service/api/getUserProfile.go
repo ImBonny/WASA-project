@@ -26,7 +26,10 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	profResponse := getProfileResponse{Profile: profile}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(profResponse)
+	err := json.NewEncoder(w).Encode(profResponse)
+	if err != nil {
+		return
+	}
 }
 
 func getProfile(username string) Profile {

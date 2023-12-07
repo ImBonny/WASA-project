@@ -373,7 +373,7 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
-  /users/{username}/{profile}:
+  /users/{username}/profiles/{profile}:
     parameters:
         - name: username
           in: path
@@ -415,33 +415,6 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
-  /users/{username}/banned/{bannedUser}:
-    parameters:
-        - name: username
-          in: path
-          description: The username of the user who wants to unban someone
-          required: true
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/User/properties/username'}
-        - name: bannedUser
-          in: path
-          description: The username of the user to be unbanned
-          required: true
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/User/properties/username'}
-    delete:
-      tags: [ "theirProfile" ]
-      operationId: unbanUser
-      summary: unban a user
-      description: "Given the usernameof a user, it allows you to unban a certain user"
-      responses:
-        "204": { $ref: '#/components/responses/NoContent' }
-        "400": { $ref: '#/components/responses/BadRequest' }
-        "401": { $ref: '#/components/responses/Unauthorized' }
-        "404": { $ref: '#/components/responses/NotFound' }
-        "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/banned:
     parameters:
       - name: username
@@ -469,6 +442,33 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/User/properties/username" }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
+  /users/{username}/banned/{bannedUser}:
+    parameters:
+        - name: username
+          in: path
+          description: The username of the user who wants to unban someone
+          required: true
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User/properties/username'}
+        - name: bannedUser
+          in: path
+          description: The username of the user to be unbanned
+          required: true
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User/properties/username'}
+    delete:
+      tags: [ "theirProfile" ]
+      operationId: unbanUser
+      summary: unban a user
+      description: "Given the usernameof a user, it allows you to unban a certain user"
+      responses:
+        "204": { $ref: '#/components/responses/NoContent' }
         "400": { $ref: '#/components/responses/BadRequest' }
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }

@@ -33,7 +33,7 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	myUsername := CurrentUser.Username
+	myUsername := getCurrentUser().Username
 	var newLike = Like{
 		// Create a new like
 		LikeOwner:    myUsername,
@@ -56,5 +56,8 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(likeResponse)
+	err = json.NewEncoder(w).Encode(likeResponse)
+	if err != nil {
+		return
+	}
 }

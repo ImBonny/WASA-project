@@ -45,7 +45,10 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	var uncommentResponse uncommentResponse
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(uncommentResponse)
+	err = json.NewEncoder(w).Encode(uncommentResponse)
+	if err != nil {
+		return
+	}
 }
 
 // Remove a comment from a post by ID

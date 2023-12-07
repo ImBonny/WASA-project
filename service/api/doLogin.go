@@ -20,8 +20,8 @@ type LoginResponse struct {
 // users is a map of username to User
 var users = map[string]User{}
 
-// CurrentUser is the currently logged in user
-var CurrentUser User
+// getCurrentUser() is the currently logged in user
+var currentUser User
 
 // doLogin handles the login request
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -39,14 +39,17 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 	// Create a new user if it doesn't exist
 	createUser(loginReq.Name)
-	CurrentUser = users[loginReq.Name]
-	//TODO: check the logic behind the identifier
+	setCurrentUser(users[loginReq.Name])
+	// TODO: check the logic behind the identifier
 	identifier := "abcdef012345"
 	// Create the response body
 	response := LoginResponse{Identifier: identifier}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(response)
+	err := json.NewEncoder(w).Encode(response)
+	if err != nil {
+		return
+	}
 }
 
 // createUser creates a new user if it doesn't exist
@@ -68,7 +71,33 @@ func createUser(username string) {
 	}
 }
 
-// getCurrentUser returns the currently logged in user
+// getCurrentUser() returns the currently logged in user
 func getCurrentUser() User {
-	return CurrentUser
+	return currentUser
+}
+
+func setCurrentUser(user User) {
+	currentUser = user
+}
+func setUsername(username string) {
+	currentUser.Username = username
+}
+
+func addPost(id int) {
+	currentUser.Profile.Posts = append(currentUser.Profile.Posts, id)
+	currentUser.Profile.NumberOfPhotos++
+	users[currentUser.Username] = currentUser
+}
+
+func deletePost(id int) {
+	for i, postId := range currentUser.Profile.Posts {
+		if postId == id {
+			currentUser.Profile.Posts = append(currentUser.Profile.Posts[:i], currentUser.Profile.Posts[i+1:]...)
+		}
+	}
+	return
+}
+
+func updateUser(user User) {
+	currentUser = user
 }

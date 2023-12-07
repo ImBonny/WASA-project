@@ -20,7 +20,7 @@ type followResponse struct {
 // Follow a user
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
-	myUsername := CurrentUser.Username
+	myUsername := getCurrentUser().Username
 
 	var request followRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -38,7 +38,10 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		Username: request.Username,
 		Profile:  request.Profile,
 	}
-	json.NewEncoder(w).Encode(response)
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		return
+	}
 }
 
 // Follow a user
@@ -56,6 +59,7 @@ func followThisUser(myUsername string, request followRequest) error {
 			BannedUsers: users[myUsername].BannedUsers,
 		}
 		return nil
+		updateUser(users[myUsername])
 	}
 	return fmt.Errorf("User with %s username not found", request.Username)
 }
