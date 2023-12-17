@@ -28,13 +28,20 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	var user User
+	token := getToken(r.Header.Get("Authorization"))
+	user.UserId = token
+
+	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
 	uncommentReq.CommentId, err = strconv.Atoi(ps.ByName("commentId"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	// Decode the request body into uncommentReq
-	if err := json.NewDecoder(r.Body).Decode(&uncommentReq); err != nil {
+	if err = json.NewDecoder(r.Body).Decode(&uncommentReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -47,6 +54,7 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	w.WriteHeader(http.StatusCreated)
 	err = json.NewEncoder(w).Encode(uncommentResponse)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }
@@ -56,7 +64,7 @@ func removeCommentByID(postID int, commentID int) error {
 	// Check if the post exists
 	post, exists := posts[postID]
 	if !exists {
-		return fmt.Errorf("Post with ID %d not found", postID)
+		return fmt.Errorf("post with ID %d not found", postID)
 	}
 
 	// Find the index of the comment with the given ID
@@ -76,5 +84,5 @@ func removeCommentByID(postID int, commentID int) error {
 		return nil
 	}
 
-	return fmt.Errorf("Comment with id %d not found in post %d", commentID, postID)
+	return fmt.Errorf("comment with id %d not found in post %d", commentID, postID)
 }

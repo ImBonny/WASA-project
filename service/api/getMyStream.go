@@ -28,24 +28,38 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 	w.WriteHeader(http.StatusOK)
 	err := json.NewEncoder(w).Encode(response)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	var user User
+	token := getToken(r.Header.Get("Authorization"))
+	user.UserId = token
+
+	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
 }
 
 // getMyStream returns a list of posts from the user's stream
 func getMyStream(request getMyStreamRequest) []Post {
 	var stream []Post
+	if getCurrentUser().Username != request.Username {
+		return stream
+	}
 	for _, following := range getCurrentUser().Profile.Following {
-		for _, postId := range users[following].Profile.Posts {
-			stream = append([]Post{}, posts[postId])
-		}
-	} // Sort posts by timestamp
-	for i := 0; i < len(stream); i++ {
-		for j := i + 1; j < len(stream); j++ {
-			if stream[i].CreationTime < stream[j].CreationTime {
-				temp := stream[i]
-				stream[i] = stream[j]
-				stream[j] = temp
+		if !getCurrentUser().isBanned(following) {
+			for _, postId := range users[following].Profile.Posts {
+				stream = append([]Post{}, posts[postId])
+			}
+			// Sort posts by timestamp
+			for i := 0; i < len(stream); i++ {
+				for j := i + 1; j < len(stream); j++ {
+					if stream[i].CreationTime < stream[j].CreationTime {
+						temp := stream[i]
+						stream[i] = stream[j]
+						stream[j] = temp
+					}
+				}
 			}
 		}
 	}

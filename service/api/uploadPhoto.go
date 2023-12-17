@@ -12,6 +12,13 @@ var posts = map[int]Post{}
 // Upload a photo to the current user's profile
 func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
+
+	var user User
+	token := getToken(r.Header.Get("Authorization"))
+	user.UserId = token
+
+	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
 	currentUsername := getCurrentUser().Username
 	uploadedImage := r.URL.Query().Get("image")
 	id := len(posts)
@@ -29,6 +36,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	users[currentUsername] = getCurrentUser()
 	err := json.NewEncoder(w).Encode(id)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }

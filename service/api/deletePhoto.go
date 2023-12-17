@@ -26,19 +26,31 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	var user User
+	token := getToken(r.Header.Get("Authorization"))
+	user.UserId = token
+
+	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
 	deleteReq.username = ps.ByName("username")
 	var err error
 	deleteReq.postId, err = strconv.Atoi(ps.ByName("postId"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	removePostByID(deleteReq.postId, deleteReq.username)
+	err = removePostByID(deleteReq.postId, deleteReq.username)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	deleteResponse := deleteResponse{Message: "Successfully deleted the post"}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	err = json.NewEncoder(w).Encode(deleteResponse)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }
@@ -59,5 +71,5 @@ func removePostByID(postID int, deleteUsername string) error {
 		return nil
 	}
 
-	return fmt.Errorf("Post with owner %s not found in post %d", deleteUsername, postID)
+	return fmt.Errorf("post with owner %s not found in post %d", deleteUsername, postID)
 }

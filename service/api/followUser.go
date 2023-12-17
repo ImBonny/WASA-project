@@ -28,6 +28,13 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	var user User
+	token := getToken(r.Header.Get("Authorization"))
+	user.UserId = token
+
+	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
 	request.Username = ps.ByName("username")
 	request.Profile = users[request.Username].Profile
 	err = followThisUser(myUsername, request)
@@ -40,6 +47,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }
@@ -58,8 +66,8 @@ func followThisUser(myUsername string, request followRequest) error {
 			},
 			BannedUsers: users[myUsername].BannedUsers,
 		}
-		return nil
 		updateUser(users[myUsername])
+		return nil
 	}
 	return fmt.Errorf("User with %s username not found", request.Username)
 }

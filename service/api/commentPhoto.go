@@ -27,6 +27,13 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	var user User
+	token := getToken(r.Header.Get("Authorization"))
+	user.UserId = token
+
+	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
 	commentReq.Username = getCurrentUser().Username
 	var err error
 	commentReq.PostId, err = strconv.Atoi(ps.ByName("postId"))
@@ -74,6 +81,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	w.WriteHeader(http.StatusCreated)
 	err = json.NewEncoder(w).Encode(commentResponse)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }

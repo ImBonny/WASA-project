@@ -28,23 +28,35 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	var user User
+	token := getToken(r.Header.Get("Authorization"))
+	user.UserId = token
+
+	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
 	unlikeReq.LikeId, err = strconv.Atoi(ps.ByName("likeId"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	// Decode the request body into unlikeReq
-	if err := json.NewDecoder(r.Body).Decode(&unlikeReq); err != nil {
+	if err = json.NewDecoder(r.Body).Decode(&unlikeReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	removeLikeByID(unlikeReq)
+	err = removeLikeByID(unlikeReq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	unlikeResponse := unlikeResponse{Message: "Successfully unliked the post"}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	err = json.NewEncoder(w).Encode(unlikeResponse)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }
@@ -54,7 +66,7 @@ func removeLikeByID(request unlikeRequest) error {
 	// Check if the post exists
 	post, exists := posts[request.PostId]
 	if !exists {
-		return fmt.Errorf("Post with ID %d not found", request.PostId)
+		return fmt.Errorf("post with ID %d not found", request.PostId)
 	}
 
 	// Find the index of the like with the given ID
@@ -74,5 +86,5 @@ func removeLikeByID(request unlikeRequest) error {
 		return nil
 	}
 
-	return fmt.Errorf("Like with id %d not found in post with id %d", request.LikeId, request.PostId)
+	return fmt.Errorf("like with id %d not found in post with id %d", request.LikeId, request.PostId)
 }

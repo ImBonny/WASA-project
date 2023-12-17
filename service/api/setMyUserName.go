@@ -18,23 +18,35 @@ type changeResponse struct {
 
 // Handler for changing username
 // TODO: check how to handle request body
-func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new change request
+	var user User
 	var changeReq changeRequest
 	// Decode the request body into changeReq
 	if err := json.NewDecoder(r.Body).Decode(&changeReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	token := getToken(r.Header.Get("Authorization"))
+	user.UserId = token
+
+	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
 	changeReq.Username = ps.ByName("Username")
 	changeReq.NewUsername = ps.ByName("NewUsername")
-	changeToNewUsername(changeReq)
+	err := changeToNewUsername(changeReq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	changeResponse := changeResponse{Message: "Successfully changed username"}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	err := json.NewEncoder(w).Encode(changeResponse)
+	err = json.NewEncoder(w).Encode(changeResponse)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }

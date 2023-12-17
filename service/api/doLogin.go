@@ -48,6 +48,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	w.WriteHeader(http.StatusCreated)
 	err := json.NewEncoder(w).Encode(response)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }

@@ -23,6 +23,13 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	var user User
+	token := getToken(r.Header.Get("Authorization"))
+	user.UserId = token
+
+	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
 	myUsername := getCurrentUser().Username
 	banReq.BannedUser = ps.ByName("bannedUser")
 	err := banThisUser(myUsername, banReq)
@@ -35,6 +42,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(banResponse)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }

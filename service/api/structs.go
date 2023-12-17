@@ -1,11 +1,23 @@
 package api
 
+// User represents a user
 type User struct {
 	Username    string   `json:"username"`
 	Profile     Profile  `json:"profile"`
 	BannedUsers []string `json:"bannedUsers"`
+	UserId      uint64   `json:"id"`
 }
 
+func (u User) isBanned(following string) bool {
+	for _, username := range users[following].BannedUsers {
+		if username == u.Username {
+			return true
+		}
+	}
+	return false
+}
+
+// Comment represents a comment
 type Comment struct {
 	CommentOwner string `json:"commentOwner"`
 	CommentText  string `json:"commentText"`
@@ -13,12 +25,14 @@ type Comment struct {
 	CommentId    int    `json:"commentId"`
 }
 
+// Like represents a like
 type Like struct {
 	LikeOwner    string `json:"likeOwner"`
 	CreationTime string `json:"creationTime"`
 	LikeId       int    `json:"likeId"`
 }
 
+// Profile represents a user's profile
 type Profile struct {
 	Username       string   `json:"username"`
 	Posts          []int    `json:"posts"`
@@ -26,6 +40,8 @@ type Profile struct {
 	Followers      []string `json:"followers"`
 	Following      []string `json:"following"`
 }
+
+// Post represents a post
 type Post struct {
 	PostOwner    string    `json:"postOwner"`
 	Image        string    `json:"image"`

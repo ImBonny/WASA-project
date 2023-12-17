@@ -126,6 +126,14 @@ components:
           items: {$ref: '#/components/schemas/User/properties/username'}
           minItems: 0
           maxItems: 99999
+        userId:
+          title: User Id
+          description: This is the user's unique Id
+          type: string
+          pattern: '^.*$'
+          minLength: 1
+          maxLength: 99999
+          example: "User123"
     Profile:
       title: Profile
       description: This is the user's profile

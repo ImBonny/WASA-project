@@ -27,7 +27,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/users/:username/posts/:postId/comments", rt.commentPhoto)                // DONE
 	rt.router.DELETE("/users/:username/posts/:postId/comments/:commentId", rt.uncommentPhoto) // DONE
 	rt.router.POST("/users/:username/posts/", rt.uploadPhoto)                                 // DONE
-	rt.router.PUT("/users/:username", rt.setMyUsername)                                       // DONE
+	rt.router.PUT("/users/:username", rt.setMyUserName)                                       // DONE
 	rt.router.GET("/users", rt.searchUser)                                                    // DONE
 	return rt.router
 }

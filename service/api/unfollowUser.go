@@ -25,13 +25,22 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	request.Profile = users[ps.ByName("username")].Profile
 	err := unfollowThisUser(getCurrentUser().Username, request)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	var user User
+	token := getToken(r.Header.Get("Authorization"))
+	user.UserId = token
+
+	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
 	response := unfollowResponse{
 		Username: request.Username,
 	}
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }
@@ -53,7 +62,7 @@ func unfollowThisUser(myUsername string, request unfollowRequest) error {
 		updateUser(users[myUsername])
 		return nil
 	}
-	return fmt.Errorf("User with %s username not found", request.Username)
+	return fmt.Errorf("user with %s username not found", request.Username)
 }
 
 func removeFollowing(following []string, username string) []string {
