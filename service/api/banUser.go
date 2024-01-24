@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -30,10 +29,16 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
 
-	myUsername := getCurrentUser().Username
 	banReq.BannedUser = ps.ByName("bannedUser")
-	err := banThisUser(myUsername, banReq)
+
+	bannedId, err := rt.db.GetIdFromUsername(banReq.BannedUser)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = rt.db.BanUser(int(token), bannedId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	banResponse := banResponse{Username: banReq.BannedUser}
@@ -45,16 +50,4 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-}
-func banThisUser(banningUser string, request banRequest) error {
-	if _, exists := users[request.BannedUser]; !exists {
-		return fmt.Errorf("User with %s username not found", request.BannedUser)
-	}
-	users[banningUser] = User{
-		Username:    banningUser,
-		Profile:     users[banningUser].Profile,
-		BannedUsers: append(users[banningUser].BannedUsers, users[request.BannedUser].Username),
-	}
-	updateUser(users[banningUser])
-	return nil
 }

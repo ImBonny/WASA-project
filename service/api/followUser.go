@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -20,7 +19,6 @@ type followResponse struct {
 // Follow a user
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
-	myUsername := getCurrentUser().Username
 
 	var request followRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -37,8 +35,14 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 
 	request.Username = ps.ByName("username")
 	request.Profile = users[request.Username].Profile
-	err = followThisUser(myUsername, request)
+	followId, err := rt.db.GetIdFromUsername(request.Username)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = rt.db.FollowUser(int(token), followId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	response := followResponse{
@@ -50,24 +54,4 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-}
-
-// Follow a user
-func followThisUser(myUsername string, request followRequest) error {
-	if _, exists := users[request.Username]; exists {
-		users[myUsername] = User{
-			Username: myUsername,
-			Profile: Profile{
-				Username:       users[myUsername].Username,
-				Posts:          users[myUsername].Profile.Posts,
-				NumberOfPhotos: users[myUsername].Profile.NumberOfPhotos,
-				Followers:      append(users[myUsername].Profile.Followers, request.Username),
-				Following:      users[myUsername].Profile.Following,
-			},
-			BannedUsers: users[myUsername].BannedUsers,
-		}
-		updateUser(users[myUsername])
-		return nil
-	}
-	return fmt.Errorf("User with %s username not found", request.Username)
 }
