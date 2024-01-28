@@ -141,10 +141,10 @@ type AppDatabase interface {
 	GetLikes(photoid string) (*[]Database_like, error)
 
 	// LikePhoto //
-	LikePhoto(userid string, photoid string, likeid string) error
+	LikePhoto(userid uint64, photoid uint64) error
 
 	// UnlikePhoto //
-	UnlikePhoto(userid string, photoid string, likeid string) error
+	UnlikePhoto(userid uint64, photoid uint64) error
 
 	// GetComments //
 	GetComments(photoid string) (*[]Database_comment, error)
@@ -169,6 +169,11 @@ type AppDatabase interface {
 
 type appdbimpl struct {
 	c *sql.DB
+}
+
+func (db *appdbimpl) UncommentPhoto(userid uint64, photoid uint64, commentid uint64, commentauthor uint64) error {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (db *appdbimpl) GetUserProfile(username string) (*Database_profile, error) {
@@ -231,22 +236,7 @@ func (db *appdbimpl) GetLikes(photoid string) (*[]Database_like, error) {
 	panic("implement me")
 }
 
-func (db *appdbimpl) LikePhoto(userid string, photoid string, likeid string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) UnlikePhoto(userid string, photoid string, likeid string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (db *appdbimpl) GetComments(photoid string) (*[]Database_comment, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) UncommentPhoto(userid uint64, photoid uint64, commentid uint64, commentauthor uint64) error {
 	//TODO implement me
 	panic("implement me")
 }
@@ -358,6 +348,23 @@ func New(db *sql.DB) (AppDatabase, error) {
                     					 FOREIGN KEY (postId) REFERENCES postDb(postId)
                          );`
 		_, err = db.Exec(commentDb)
+		if err != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err)
+		}
+
+	}
+
+	err = db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='likesDb';`).Scan(&tableName)
+	if errors.Is(err, sql.ErrNoRows) {
+		// commentDb memorizza i commenti
+		likesDb := `CREATE TABLE likesDb (postId INTEGER NOT NULL,
+										 userId INTEGER NOT NULL,
+										 creationTime TEXT NOT NULL,
+										 FOREIGN KEY (userId) REFERENCES usersDb(UserId),
+                    					 FOREIGN KEY (postId) REFERENCES postDb(postId),
+										 PRIMARY KEY (postId, userId)
+                         );`
+		_, err = db.Exec(likesDb)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
 		}

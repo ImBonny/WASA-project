@@ -27,9 +27,8 @@ type Comment struct {
 
 // Like represents a like
 type Like struct {
-	LikeOwner    string `json:"likeOwner"`
-	CreationTime string `json:"creationTime"`
-	LikeId       int    `json:"likeId"`
+	LikeOwner uint64 `json:"likeOwner"`
+	PostId    uint64 `json:"postId"`
 }
 
 // Profile represents a user's profile
