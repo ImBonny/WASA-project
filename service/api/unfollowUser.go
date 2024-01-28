@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -18,22 +17,23 @@ type unfollowResponse struct {
 
 // Unfollow a user
 func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
 	w.Header().Set("content-type", "application/json")
-
-	var request unfollowRequest
-	request.Username = ps.ByName("username")
-	request.Profile = users[ps.ByName("username")].Profile
-	err := unfollowThisUser(getCurrentUser().Username, request)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	var user User
 	token := getToken(r.Header.Get("Authorization"))
 	user.UserId = token
 
 	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
+	var request unfollowRequest
+	request.Username = ps.ByName("username")
+	request.Profile = users[ps.ByName("username")].Profile
+	unfollowId, err := rt.db.GetIdFromUsername(request.Username)
+	err = rt.db.UnfollowUser(token, unfollowId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	response := unfollowResponse{
 		Username: request.Username,
@@ -43,34 +43,4 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-}
-
-// Unfollow a user
-func unfollowThisUser(myUsername string, request unfollowRequest) error {
-	if _, exists := users[myUsername]; exists {
-		users[myUsername] = User{
-			Username: myUsername,
-			Profile: Profile{
-				Username:       users[myUsername].Username,
-				Posts:          users[myUsername].Profile.Posts,
-				NumberOfPhotos: users[myUsername].Profile.NumberOfPhotos,
-				Followers:      users[myUsername].Profile.Followers,
-				Following:      removeFollowing(users[myUsername].Profile.Following, request.Username),
-			},
-			BannedUsers: users[myUsername].BannedUsers,
-		}
-		updateUser(users[myUsername])
-		return nil
-	}
-	return fmt.Errorf("user with %s username not found", request.Username)
-}
-
-func removeFollowing(following []string, username string) []string {
-	for i := range following {
-		if following[i] == username {
-			following = append(following[:i], following[i+1:]...)
-			break
-		}
-	}
-	return following
 }

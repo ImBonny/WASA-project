@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -34,7 +33,12 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 
 	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
 
-	err := unbanThisUser(unbanReq.BannedUser, unbanReq.UnbanningUser)
+	bannedId, err := rt.db.GetIdFromUsername(unbanReq.BannedUser)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = rt.db.UnbanUser(token, bannedId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -48,27 +52,4 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-}
-
-// Unban a user
-func unbanThisUser(bannedUser string, unbanningUser string) error {
-	if _, exists := users[bannedUser]; !exists {
-		return fmt.Errorf("user with %s username not found", bannedUser)
-	}
-	userIndex := -1
-	for i, user := range users[unbanningUser].BannedUsers {
-		if user == bannedUser {
-			userIndex = i
-			break
-		}
-	}
-	if userIndex != -1 {
-		currentUser := users[unbanningUser]
-		currentUser.BannedUsers = append(users[unbanningUser].BannedUsers[:userIndex], users[unbanningUser].BannedUsers[userIndex+1:]...)
-		users[unbanningUser] = currentUser
-		updateUser(users[unbanningUser])
-		return nil
-	}
-
-	return fmt.Errorf("user with %s username not found in banned users of %s", bannedUser, unbanningUser)
 }
