@@ -153,7 +153,7 @@ type AppDatabase interface {
 	CommentPhoto(userid uint64, photoid uint64, commenttext string) (uint64, error)
 
 	// UncommentPhoto //
-	UncommentPhoto(userid uint64, photoid uint64, commentid uint64, commentauthor uint64) error
+	UncommentPhoto(commentid uint64) error
 
 	// Ping checks whether the database is available or not (in that case, an error will be returned)
 	Ping() error
@@ -162,18 +162,12 @@ type AppDatabase interface {
 	CheckAuthorization(request *http.Request, username string) error
 	CheckUserExistence(username string) error
 	GetUsernameFromId(id uint64) (string, error)
-	IsAllowed(id1 uint64, id2 uint64) error
 	CheckPhotoExistence(user_id uint64, photoid uint64) error
 	GetIdFromUsername(user string) (uint64, error)
 }
 
 type appdbimpl struct {
 	c *sql.DB
-}
-
-func (db *appdbimpl) UncommentPhoto(userid uint64, photoid uint64, commentid uint64, commentauthor uint64) error {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (db *appdbimpl) GetUserProfile(username string) (*Database_profile, error) {
@@ -211,16 +205,6 @@ func (db *appdbimpl) GetBanned(id string) (*[]Database_banned, error) {
 	panic("implement me")
 }
 
-func (db *appdbimpl) FollowUser(to_add_id uint64, id uint64) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) UnfollowUser(id uint64, to_del_id uint64) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (db *appdbimpl) UploadPhoto(photo Database_photo, id string) error {
 	//TODO implement me
 	panic("implement me")
@@ -247,11 +231,6 @@ func (db *appdbimpl) CheckAuthorization(request *http.Request, username string) 
 }
 
 func (db *appdbimpl) CheckUserExistence(username string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) IsAllowed(id1 uint64, id2 uint64) error {
 	//TODO implement me
 	panic("implement me")
 }

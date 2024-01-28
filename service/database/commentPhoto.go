@@ -8,5 +8,6 @@ func (db *appdbimpl) CommentPhoto(userid uint64, photoid uint64, commenttext str
 		return 0, err
 	}
 	lastInsertId, err := res.LastInsertId()
+	db.c.Exec("UPDATE postDb SET nComments = nComments + 1 WHERE postId = ?", photoid)
 	return uint64(lastInsertId), nil
 }
