@@ -1,6 +1,12 @@
 package database
 
-func (db *appdbimpl) CommentPhoto(userid string, photoid string, commentid string, commentauthor string, commenttext string) error {
-	_, err := db.c.Exec("INSERT INTO comments (Userid, postId, Commentid, CommentAuthor, CommentText) VALUES (?, ?, ?, ?, ?)", userid, photoid, commentid, commentauthor, commenttext)
-	return err
+import "time"
+
+func (db *appdbimpl) CommentPhoto(userid string, photoid string, commenttext string) (uint64, error) {
+	res, err := db.c.Exec("INSERT INTO commentsDb (UserId, postId, content, creationTime) VALUES (?, ?, ?, ?)", userid, photoid, commenttext, time.Now())
+	if err != nil {
+		return 0, err
+	}
+	lastInsertId, err := res.LastInsertId()
+	return uint64(lastInsertId), nil
 }

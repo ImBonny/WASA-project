@@ -38,7 +38,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err = rt.db.UnbanUser(string(token), string(bannedId))
+	err = rt.db.UnbanUser(token, bannedId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

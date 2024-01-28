@@ -5,17 +5,15 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 type commentRequest struct {
-	PostId      int    `json:"postId"`
-	Username    string `json:"username"`
+	PostId      uint64 `json:"postId"`
 	CommentText string `json:"commentText"`
 }
 
 type commentResponse struct {
-	Comment Comment `json:"comment"`
+	commentId uint64 `json:"comment"`
 }
 
 // Handler for commenting on a post
@@ -34,9 +32,8 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 
 	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
 
-	commentReq.Username = getCurrentUser().Username
 	var err error
-	commentReq.PostId, err = strconv.Atoi(ps.ByName("postId"))
+	commentReq.PostId, err = strconv.ParseUint(ps.ByName("postId"), 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
@@ -46,36 +43,10 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	commentReq.CommentText = string(body)
 	// Find the post put by the specified user
-	postIndex := -1
 
-	for i, post := range posts {
-		if post.PostId == commentReq.PostId {
-			postIndex = i
-			break
-		}
-	}
-	myUsername := getCurrentUser().Username
-	// If the post put by the specified user is found, add the comment
-	var newComment Comment
-	if postIndex != -1 {
-		newComment = Comment{
-			CommentOwner: myUsername,
-			CommentText:  commentReq.CommentText,
-			CreationTime: time.Now().Format("2006-01-02 15:04:05"),
-			CommentId:    len(posts[commentReq.PostId].Comments),
-		}
-		posts[commentReq.PostId] = Post{
-			PostOwner:    posts[commentReq.PostId].PostOwner,
-			Image:        posts[commentReq.PostId].Image,
-			Comments:     append(posts[commentReq.PostId].Comments, newComment),
-			NComments:    posts[commentReq.PostId].NComments + 1,
-			Likes:        posts[commentReq.PostId].Likes,
-			NLikes:       posts[commentReq.PostId].NLikes,
-			CreationTime: posts[commentReq.PostId].CreationTime,
-			PostId:       posts[commentReq.PostId].PostId,
-		}
-	}
-	commentResponse := commentResponse{Comment: newComment}
+	commentId, _ := rt.db.CommentPhoto(token, commentReq.PostId, commentReq.CommentText)
+
+	commentResponse := commentResponse{commentId: commentId}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

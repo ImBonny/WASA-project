@@ -5,7 +5,7 @@ import "errors"
 func (db *appdbimpl) unfollowUser(followerId uint64, followingId uint64) error {
 	// Check if the follower is already following the user
 	var alreadyFollowing bool
-	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 FROM following WHERE follower_id = ? AND following_id = ?)", followerId, followingId).Scan(&alreadyFollowing)
+	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 FROM followersDb WHERE userFollowingId = ? AND userToFollowId = ?)", followerId, followingId).Scan(&alreadyFollowing)
 	if err != nil {
 		return err
 	}
@@ -14,7 +14,7 @@ func (db *appdbimpl) unfollowUser(followerId uint64, followingId uint64) error {
 	}
 
 	// Insert the follow into the database
-	_, err = db.c.Exec("DELETE FROM following WHERE follower_id = ? AND following_id = ?", followerId, followingId)
+	_, err = db.c.Exec("DELETE FROM followersDb WHERE userFollowingId = ? AND userToFollowId = ?", followerId, followingId)
 	if err != nil {
 		return err
 	}

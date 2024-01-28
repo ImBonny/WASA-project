@@ -36,7 +36,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err = rt.db.BanUser(int(token), bannedId)
+	err = rt.db.BanUser(token, bannedId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

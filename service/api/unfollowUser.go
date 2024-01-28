@@ -29,7 +29,7 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	request.Username = ps.ByName("username")
 	request.Profile = users[ps.ByName("username")].Profile
 	unfollowId, err := rt.db.GetIdFromUsername(request.Username)
-	err = rt.db.UnfollowUser(int(token), unfollowId)
+	err = rt.db.UnfollowUser(token, unfollowId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

@@ -14,7 +14,7 @@ type LoginRequest struct {
 
 // LoginResponse represents the response body for user details
 type LoginResponse struct {
-	Identifier string `json:"Identifier"`
+	Identifier uint64 `json:"Identifier"`
 }
 
 // users is a map of username to User
@@ -37,16 +37,15 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, "Invalid username format", http.StatusBadRequest)
 		return
 	}
-	// Create a new user if it doesn't exist
-	createUser(loginReq.Name)
-	setCurrentUser(users[loginReq.Name])
-	// TODO: check the logic behind the identifier
-	identifier := "abcdef012345"
+	err := error(nil)
+
+	currentUser.UserId, err = rt.db.DoLogin(loginReq.Name)
+
 	// Create the response body
-	response := LoginResponse{Identifier: identifier}
+	response := LoginResponse{Identifier: currentUser.UserId}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	err := json.NewEncoder(w).Encode(response)
+	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

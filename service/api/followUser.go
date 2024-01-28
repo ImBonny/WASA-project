@@ -40,7 +40,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err = rt.db.FollowUser(int(token), followId)
+	err = rt.db.FollowUser(token, followId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
