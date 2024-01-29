@@ -2,15 +2,13 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
 )
 
 type deleteRequest struct {
-	postId   int    `json:"postId"`
-	username string `json:"username"`
+	postId int `json:"postId"`
 }
 
 type deleteResponse struct {
@@ -27,19 +25,20 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	var user User
 	token := getToken(r.Header.Get("Authorization"))
-	user.UserId = token
+	if token == 0 {
+		http.Error(w, "no token provided", http.StatusBadRequest)
+		return
+	}
 
 	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
 
-	deleteReq.username = ps.ByName("username")
 	var err error
 	deleteReq.postId, err = strconv.Atoi(ps.ByName("postId"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	err = removePostByID(deleteReq.postId, deleteReq.username)
+	err = rt.db.DeletePhoto(uint64(deleteReq.postId))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -53,23 +52,4 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-}
-
-func removePostByID(postID int, deleteUsername string) error {
-	// Find the index of the post with the given ID
-	postIndex := 1
-	for i, post := range posts {
-		if post.PostOwner == deleteUsername {
-			postIndex = i
-			break
-		}
-	}
-	// If the post put by the specified user is found, remove it
-	if postIndex != -1 {
-		delete(posts, postIndex)
-		deletePost(postIndex)
-		return nil
-	}
-
-	return fmt.Errorf("post with owner %s not found in post %d", deleteUsername, postID)
 }

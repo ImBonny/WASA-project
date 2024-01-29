@@ -37,60 +37,6 @@ import (
 	"net/http"
 )
 
-type Database_user struct {
-	Username string
-	UserId   uint64
-}
-
-type Database_follower struct {
-	Username string
-}
-
-type Database_following struct {
-	Username string
-}
-
-type Database_banned struct {
-	Username       string
-	Userid         uint64
-	BannedUsername string
-	BannedUserid   uint64
-}
-
-type Database_photo struct {
-	postOwner    string
-	image        string
-	nComments    uint
-	nLikes       uint
-	creationTime string
-	postId       string
-}
-
-type Database_like struct {
-	postId       string
-	likeOwner    string
-	creationTime string
-	likeId       string
-}
-
-type Database_comment struct {
-	postId       int
-	commentOwner string
-	commentText  string
-	creationTime string
-	commentId    int
-}
-
-type Database_profile struct {
-	Username       string
-	Posts          []string
-	NumberOfPhotos uint
-}
-
-type Database_photostream_component struct {
-	stream []Database_photo
-}
-
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
 
@@ -102,22 +48,22 @@ type AppDatabase interface {
 	GetUserProfile(username string) (*Database_profile, error)
 
 	// GetMyStream //
-	GetMyStream(id string) (*[]Database_photostream_component, error)
+	GetMyStream(id uint64) (*[]Database_photo, error)
 
 	// Deleteuser deletes the user from the system //
-	DeleteUser(id string, username string) error
+	DeleteUser(id uint64) error
 
-	// SetMyUsernamer modifies the username of a user //
-	SetMyUsername(old_username string, new_username string) error
+	// SetMyUsername modifies the username of a user //
+	SetMyUsername(userid uint64, new_username string) error
 
 	// GetFollowers //
-	GetFollowers(id string) (*[]Database_follower, error)
+	GetFollowers(id uint64) (*[]Database_user, error)
 
 	// GetFollowing //
-	GetFollowing(id string) (*[]Database_following, error)
+	GetFollowing(id uint64) (*[]Database_user, error)
 
 	// GetBanned //
-	GetBanned(id string) (*[]Database_banned, error)
+	GetBanned(id uint64) (*[]Database_user, error)
 
 	// FollowUser //
 	FollowUser(to_add_id uint64, id uint64) error
@@ -132,13 +78,13 @@ type AppDatabase interface {
 	UnbanUser(id uint64, to_del_id uint64) error
 
 	// UploadPhoto //
-	UploadPhoto(photo Database_photo, id string) error
+	UploadPhoto(id uint64, image string, caption string) (uint64, error)
 
 	// DeletePhoto //
-	DeletePhoto(userid string, photoid string) error
+	DeletePhoto(postId uint64) error
 
 	// GetLikes //
-	GetLikes(photoid string) (*[]Database_like, error)
+	GetLikes(photoid uint64) (*[]Database_like, error)
 
 	// LikePhoto //
 	LikePhoto(userid uint64, photoid uint64) error
@@ -147,7 +93,7 @@ type AppDatabase interface {
 	UnlikePhoto(userid uint64, photoid uint64) error
 
 	// GetComments //
-	GetComments(photoid string) (*[]Database_comment, error)
+	GetComments(photoid uint64) (*[]Database_comment, error)
 
 	// CommentPhoto //
 	CommentPhoto(userid uint64, photoid uint64, commenttext string) (uint64, error)
@@ -155,14 +101,14 @@ type AppDatabase interface {
 	// UncommentPhoto //
 	UncommentPhoto(commentid uint64) error
 
+	SearchUser(username string) (Database_user, error)
+
 	// Ping checks whether the database is available or not (in that case, an error will be returned)
 	Ping() error
 
 	// Funzioni ausiliarie definite in database_utilities
 	CheckAuthorization(request *http.Request, username string) error
-	CheckUserExistence(username string) error
 	GetUsernameFromId(id uint64) (string, error)
-	CheckPhotoExistence(user_id uint64, photoid uint64) error
 	GetIdFromUsername(user string) (uint64, error)
 }
 
@@ -170,72 +116,7 @@ type appdbimpl struct {
 	c *sql.DB
 }
 
-func (db *appdbimpl) GetUserProfile(username string) (*Database_profile, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) GetMyStream(id string) (*[]Database_photostream_component, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) DeleteUser(id string, username string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) SetMyUsername(old_username string, new_username string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) GetFollowers(id string) (*[]Database_follower, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) GetFollowing(id string) (*[]Database_following, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) GetBanned(id string) (*[]Database_banned, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) UploadPhoto(photo Database_photo, id string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) DeletePhoto(userid string, photoid string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) GetLikes(photoid string) (*[]Database_like, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) GetComments(photoid string) (*[]Database_comment, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (db *appdbimpl) CheckAuthorization(request *http.Request, username string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) CheckUserExistence(username string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (db *appdbimpl) CheckPhotoExistence(user_id uint64, photoid uint64) error {
 	//TODO implement me
 	panic("implement me")
 }
@@ -249,12 +130,12 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	// Check if table exists. If not, the database is empty, and we need to create the structure
 	var tableName string
-	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='usersDb';`).Scan(&tableName)
+	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='userDb';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		// Creazione della tabella users
-		// usersDb memorizza gli username e gli id di ogni utente
-		usersDb := `CREATE TABLE usersDb (username TEXT NOT NULL UNIQUE, UserId INTEGER PRIMARY KEY AUTOINCREMENT);`
-		_, err = db.Exec(usersDb)
+		// userDb memorizza gli username e gli id di ogni utente
+		userDb := `CREATE TABLE userDb (username TEXT NOT NULL UNIQUE, UserId INTEGER PRIMARY KEY AUTOINCREMENT);`
+		_, err = db.Exec(userDb)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
 		}
@@ -266,8 +147,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 		// followersDb memorizza i seguiti e i seguaci di ogni utente
 		followersDb := `CREATE TABLE followersDb (userFollowingId INTEGER NOT NULL,
                          userToFollowId INTEGER NOT NULL,
-                         FOREIGN KEY (userFollowingId) REFERENCES usersDb(UserId),
-                         FOREIGN KEY (userToFollowId) REFERENCES usersDb(UserId),
+                         FOREIGN KEY (userFollowingId) REFERENCES userDb(UserId),
+                         FOREIGN KEY (userToFollowId) REFERENCES userDb(UserId),
                          PRIMARY KEY (userFollowingId, userToFollowId)
                          );`
 		_, err = db.Exec(followersDb)
@@ -283,8 +164,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 		// followersDb memorizza i bannati
 		bannedDb := `CREATE TABLE bannedDb (userBanningId INTEGER NOT NULL,
                          userToBanId INTEGER NOT NULL,
-                         FOREIGN KEY (userBanningId) REFERENCES usersDb(UserId),
-                         FOREIGN KEY (userToBanId) REFERENCES usersDb(UserId),
+                         FOREIGN KEY (userBanningId) REFERENCES userDb(UserId),
+                         FOREIGN KEY (userToBanId) REFERENCES userDb(UserId),
                          PRIMARY KEY (userBanningId, userToBanId)
                          );`
 		_, err = db.Exec(bannedDb)
@@ -302,11 +183,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 										 postOwner INTEGER NOT NULL,
 										 image BLOB NOT NULL,
 										 description TEXT NOT NULL,
-										 uploadTime DATETIME NOT NULL,
 										 nComments INTEGER NOT NULL,
 										 nLikes INTEGER NOT NULL,
-										 creationTime TEXT NOT NULL,
-										 FOREIGN KEY (postOwner) REFERENCES usersDb(UserId)
+										 creationTime DATETIME NOT NULL,
+										 FOREIGN KEY (postOwner) REFERENCES userDb(UserId)
                          );`
 		_, err = db.Exec(postDb)
 		if err != nil {
@@ -323,7 +203,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 										 postId INTEGER NOT NULL,
 										 content TEXT NOT NULL,
 										 creationTime TEXT NOT NULL,
-										 FOREIGN KEY (commentOwner) REFERENCES usersDb(UserId),
+										 FOREIGN KEY (commentOwner) REFERENCES userDb(UserId),
                     					 FOREIGN KEY (postId) REFERENCES postDb(postId)
                          );`
 		_, err = db.Exec(commentDb)
@@ -339,7 +219,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		likesDb := `CREATE TABLE likesDb (postId INTEGER NOT NULL,
 										 userId INTEGER NOT NULL,
 										 creationTime TEXT NOT NULL,
-										 FOREIGN KEY (userId) REFERENCES usersDb(UserId),
+										 FOREIGN KEY (userId) REFERENCES userDb(UserId),
                     					 FOREIGN KEY (postId) REFERENCES postDb(postId),
 										 PRIMARY KEY (postId, userId)
                          );`

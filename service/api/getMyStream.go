@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/ImBonny/WASA-project.git/service/database"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -11,7 +12,7 @@ type getMyStreamRequest struct {
 }
 
 type getMyStreamResponse struct {
-	Posts []Post `json:"posts"`
+	Posts []database.Database_photo `json:"posts"`
 }
 
 // getMyStream returns a list of posts from the user's stream
@@ -19,49 +20,25 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 	// Get username from session
 	var request getMyStreamRequest
 	request.Username = ps.ByName("username")
-	// Get posts from user's stream
-	posts := getMyStream(request)
+
+	token := getToken(r.Header.Get("Authorization"))
+
+	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
+	myStream, err := rt.db.GetMyStream(token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	// Create response
-	response := getMyStreamResponse{Posts: posts}
+	response := getMyStreamResponse{Posts: *myStream}
 	// Send response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(response)
+	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	var user User
-	token := getToken(r.Header.Get("Authorization"))
-	user.UserId = token
-
-	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
-
-}
-
-// getMyStream returns a list of posts from the user's stream
-func getMyStream(request getMyStreamRequest) []Post {
-	var stream []Post
-	if getCurrentUser().Username != request.Username {
-		return stream
-	}
-	for _, following := range getCurrentUser().Profile.Following {
-		if !getCurrentUser().isBanned(following) {
-			for _, postId := range users[following].Profile.Posts {
-				stream = append([]Post{}, posts[postId])
-			}
-			// Sort posts by timestamp
-			for i := 0; i < len(stream); i++ {
-				for j := i + 1; j < len(stream); j++ {
-					if stream[i].CreationTime < stream[j].CreationTime {
-						temp := stream[i]
-						stream[i] = stream[j]
-						stream[j] = temp
-					}
-				}
-			}
-		}
-	}
-	return stream
 }

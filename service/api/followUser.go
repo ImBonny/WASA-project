@@ -7,13 +7,11 @@ import (
 )
 
 type followRequest struct {
-	Username string  `json:"username"`
-	Profile  Profile `json:"profile"`
+	Username string `json:"username"`
 }
 
 type followResponse struct {
-	Username string  `json:"username"`
-	Profile  Profile `json:"profile"`
+	Username string `json:"username"`
 }
 
 // Follow a user
@@ -27,14 +25,11 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	var user User
 	token := getToken(r.Header.Get("Authorization"))
-	user.UserId = token
 
 	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
 
 	request.Username = ps.ByName("username")
-	request.Profile = users[request.Username].Profile
 	followId, err := rt.db.GetIdFromUsername(request.Username)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -47,7 +42,6 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 	response := followResponse{
 		Username: request.Username,
-		Profile:  request.Profile,
 	}
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {

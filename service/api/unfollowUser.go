@@ -7,8 +7,7 @@ import (
 )
 
 type unfollowRequest struct {
-	Username string  `json:"username"`
-	Profile  Profile `json:"profile"`
+	Username string `json:"username"`
 }
 
 type unfollowResponse struct {
@@ -19,15 +18,16 @@ type unfollowResponse struct {
 func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
-	var user User
 	token := getToken(r.Header.Get("Authorization"))
-	user.UserId = token
+	if token == 0 {
+		http.Error(w, "no token provided", http.StatusBadRequest)
+		return
+	}
 
 	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
 
 	var request unfollowRequest
 	request.Username = ps.ByName("username")
-	request.Profile = users[ps.ByName("username")].Profile
 	unfollowId, err := rt.db.GetIdFromUsername(request.Username)
 	err = rt.db.UnfollowUser(token, unfollowId)
 	if err != nil {
