@@ -26,9 +26,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	var user User
 	token := getToken(r.Header.Get("Authorization"))
-	user.UserId = token
 
 	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
 

@@ -27,9 +27,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	var user User
 	token := getToken(r.Header.Get("Authorization"))
-	user.UserId = token
 
 	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
 

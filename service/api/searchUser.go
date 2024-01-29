@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/ImBonny/WASA-project.git/service/database"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -12,27 +12,30 @@ type searchUserRequest struct {
 }
 
 type searchUserResponse struct {
-	User User `json:"username"`
+	User database.Database_user `json:"user"`
 }
 
 // searchUser returns a list of users that match the search query
 func (rt *_router) searchUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	myUser := r.URL.Query().Get("username")
 	var request searchUserRequest
-	request.Username = myUser
 	var response searchUserResponse
 	var err error
-	response.User, err = searchUser(request)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+
+	token := getToken(r.Header.Get("Authorization"))
+	if token == 0 {
+		http.Error(w, "no token provided", http.StatusBadRequest)
 		return
 	}
 
-	var user User
-	token := getToken(r.Header.Get("Authorization"))
-	user.UserId = token
-
 	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+
+	request.Username = r.URL.Query().Get("username")
+	user, err := rt.db.SearchUser(request.Username)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	response.User = user
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -41,12 +44,4 @@ func (rt *_router) searchUser(w http.ResponseWriter, r *http.Request, ps httprou
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-}
-
-// searchUser returns a list of users that match the search query
-func searchUser(request searchUserRequest) (User, error) {
-	if user, exists := users[request.Username]; exists {
-		return user, nil
-	}
-	return User{}, fmt.Errorf("user '%s' not found", request.Username)
 }

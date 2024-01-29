@@ -13,7 +13,7 @@ type LikeRequest struct {
 }
 
 type LikeResponse struct {
-	like Like `json:"like"`
+	message string `json:"message"`
 }
 
 // Handler for liking a post
@@ -28,19 +28,13 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	var user User
 	token := getToken(r.Header.Get("Authorization"))
-	user.UserId = token
 
 	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
-	rt.db.LikePhoto(likeReq.targetPost, user.UserId)
 
-	// Create a new like
-	var newLike Like
-	newLike.PostId = likeReq.targetPost
-	newLike.LikeOwner = user.UserId
+	rt.db.LikePhoto(likeReq.targetPost, token)
 
-	likeResponse := LikeResponse{like: newLike}
+	likeResponse := LikeResponse{message: "Post liked"}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

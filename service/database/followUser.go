@@ -2,7 +2,7 @@ package database
 
 import "errors"
 
-func (db *appdbimpl) followUser(userFollowingId uint64, userToFollowId uint64) error {
+func (db *appdbimpl) FollowUser(userFollowingId uint64, userToFollowId uint64) error {
 	// Check if the follower is already following the user
 	var alreadyFollowing bool
 	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 FROM followersDb WHERE userFollowingId = ? AND userToFollowId = ?)", userFollowingId, userToFollowId).Scan(&alreadyFollowing)

@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/ImBonny/WASA-project.git/service/database"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -11,7 +12,7 @@ type getProfileRequest struct {
 }
 
 type getProfileResponse struct {
-	Profile Profile `json:"profile"`
+	Profile database.Database_profile `json:"profile"`
 }
 
 func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -22,24 +23,25 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	var user User
 	token := getToken(r.Header.Get("Authorization"))
-	user.UserId = token
-
+	if token == 0 {
+		http.Error(w, "no token provided", http.StatusBadRequest)
+		return
+	}
 	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
 
 	profReq.Username = ps.ByName("username")
-	profile := getProfile(profReq.Username)
-	profResponse := getProfileResponse{Profile: profile}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(profResponse)
+	profile, err := rt.db.GetUserProfile(profReq.Username)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-}
-
-func getProfile(username string) Profile {
-	return users[username].Profile
+	profResponse := getProfileResponse{Profile: *profile}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(profResponse)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 }
