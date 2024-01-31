@@ -27,7 +27,15 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	token := getToken(r.Header.Get("Authorization"))
 
-	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+	auth, e := rt.db.CheckAuthorization(token)
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusBadRequest)
+		return
+	}
+	if !auth {
+		http.Error(w, "token is invalid", http.StatusBadRequest)
+		return
+	}
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

@@ -34,7 +34,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"net/http"
 )
 
 // AppDatabase is the high level interface for the DB
@@ -42,7 +41,7 @@ type AppDatabase interface {
 
 	// DoLogin resitituisce l'id relativo all'username passato come argomento. //
 	// se l'username non è registrato verrà creato e restituito un nuovo id,altrimenti verrò resituito quello esistente //
-	DoLogin(username string) (uint64, error)
+	DoLogin(username string, token uint64) (uint64, error)
 
 	// GetUserProfile gets a user profile searched via username //
 	GetUserProfile(username string) (*Database_profile, error)
@@ -107,18 +106,13 @@ type AppDatabase interface {
 	Ping() error
 
 	// Funzioni ausiliarie definite in database_utilities
-	CheckAuthorization(request *http.Request, username string) error
+	CheckAuthorization(token uint64) (bool, error)
 	GetUsernameFromId(id uint64) (string, error)
 	GetIdFromUsername(user string) (uint64, error)
 }
 
 type appdbimpl struct {
 	c *sql.DB
-}
-
-func (db *appdbimpl) CheckAuthorization(request *http.Request, username string) error {
-	//TODO implement me
-	panic("implement me")
 }
 
 // New returns a new instance of AppDatabase based on the SQLite connection `db`.
@@ -136,6 +130,17 @@ func New(db *sql.DB) (AppDatabase, error) {
 		// userDb memorizza gli username e gli id di ogni utente
 		userDb := `CREATE TABLE userDb (username TEXT NOT NULL UNIQUE, UserId INTEGER PRIMARY KEY AUTOINCREMENT);`
 		_, err = db.Exec(userDb)
+		if err != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err)
+		}
+	}
+
+	err = db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='authorizedDb';`).Scan(&tableName)
+	if errors.Is(err, sql.ErrNoRows) {
+		// Creazione della tabella users
+		// userDb memorizza gli username e gli id di ogni utente
+		authorizedDb := `CREATE TABLE authorizedDb (UserId INTEGER PRIMARY KEY);`
+		_, err = db.Exec(authorizedDb)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
 		}

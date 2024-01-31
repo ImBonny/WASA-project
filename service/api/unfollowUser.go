@@ -19,12 +19,15 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 
 	w.Header().Set("content-type", "application/json")
 	token := getToken(r.Header.Get("Authorization"))
-	if token == 0 {
-		http.Error(w, "no token provided", http.StatusBadRequest)
+	auth, e := rt.db.CheckAuthorization(token)
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusBadRequest)
 		return
 	}
-
-	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+	if !auth {
+		http.Error(w, "token is invalid", http.StatusBadRequest)
+		return
+	}
 
 	var request unfollowRequest
 	request.Username = ps.ByName("username")

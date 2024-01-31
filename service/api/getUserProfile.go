@@ -24,11 +24,15 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	token := getToken(r.Header.Get("Authorization"))
-	if token == 0 {
-		http.Error(w, "no token provided", http.StatusBadRequest)
+	auth, e := rt.db.CheckAuthorization(token)
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusBadRequest)
 		return
 	}
-	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+	if !auth {
+		http.Error(w, "token is invalid", http.StatusBadRequest)
+		return
+	}
 
 	profReq.Username = ps.ByName("username")
 	profile, err := rt.db.GetUserProfile(profReq.Username)

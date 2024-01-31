@@ -22,12 +22,15 @@ func (rt *_router) searchUser(w http.ResponseWriter, r *http.Request, ps httprou
 	var err error
 
 	token := getToken(r.Header.Get("Authorization"))
-	if token == 0 {
-		http.Error(w, "no token provided", http.StatusBadRequest)
+	auth, e := rt.db.CheckAuthorization(token)
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusBadRequest)
 		return
 	}
-
-	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+	if !auth {
+		http.Error(w, "token is invalid", http.StatusBadRequest)
+		return
+	}
 
 	request.Username = r.URL.Query().Get("username")
 	user, err := rt.db.SearchUser(request.Username)

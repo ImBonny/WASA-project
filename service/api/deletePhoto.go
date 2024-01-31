@@ -26,12 +26,16 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	token := getToken(r.Header.Get("Authorization"))
-	if token == 0 {
-		http.Error(w, "no token provided", http.StatusBadRequest)
+
+	auth, e := rt.db.CheckAuthorization(token)
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusBadRequest)
 		return
 	}
-
-	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+	if !auth {
+		http.Error(w, "token is invalid", http.StatusBadRequest)
+		return
+	}
 
 	var err error
 	deleteReq.postId, err = strconv.Atoi(ps.ByName("postId"))

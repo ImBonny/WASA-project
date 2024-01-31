@@ -20,12 +20,15 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	var err error
 
 	token := getToken(r.Header.Get("Authorization"))
-	if token == 0 {
-		http.Error(w, "no token provided", http.StatusBadRequest)
+	auth, e := rt.db.CheckAuthorization(token)
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusBadRequest)
 		return
 	}
-
-	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+	if !auth {
+		http.Error(w, "token is invalid", http.StatusBadRequest)
+		return
+	}
 
 	uncommentReq.CommentId, err = strconv.ParseUint(ps.ByName("commentId"), 10, 64)
 	if err != nil {

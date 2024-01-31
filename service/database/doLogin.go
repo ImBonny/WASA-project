@@ -1,25 +1,18 @@
 package database
 
-import (
-	"database/sql"
-	"errors"
-)
-
 // creates a new User in the database
-func (db *appdbimpl) DoLogin(username string) (uint64, error) {
-	res, err := db.c.Exec("INSERT INTO userDb (Username) VALUES (?, ?)", username)
-	if err != nil {
-		userId := uint64(0)
-		if err = db.c.QueryRow("SELECT Username, UserId FROM userDb WHERE Username = ?", username).Scan(&username, &userId); err != nil {
-			if err == sql.ErrNoRows {
-				return userId, errors.New("user does not exist")
-			}
-		}
-		return userId, nil
-	}
-	lastInsertId, err := res.LastInsertId()
+func (db *appdbimpl) DoLogin(username string, token uint64) (uint64, error) {
+	// check if user exists
+	var exists bool
+	err := db.c.QueryRow("SELECT EXISTS(SELECT Username FROM userDb WHERE Username = ?)", username).Scan(&exists)
 	if err != nil {
 		return 0, err
 	}
-	return uint64(lastInsertId), nil
+	if !exists {
+		_, err := db.c.Exec("INSERT INTO authorizedDb (UserId) VALUES (?)", token)
+		if err != nil {
+			return 0, err
+		}
+	}
+	return token, nil
 }

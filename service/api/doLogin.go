@@ -31,10 +31,19 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, "Invalid username format", http.StatusBadRequest)
 		return
 	}
-	err := error(nil)
 
 	var userId uint64
-	userId, err = rt.db.DoLogin(loginReq.Name)
+	token := getToken(r.Header.Get("Authorization"))
+	userId, err := rt.db.DoLogin(loginReq.Name, token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	_, err = rt.db.CheckAuthorization(token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	// Create the response body
 	response := LoginResponse{Identifier: userId}

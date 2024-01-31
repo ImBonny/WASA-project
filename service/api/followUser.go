@@ -27,7 +27,15 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 
 	token := getToken(r.Header.Get("Authorization"))
 
-	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+	auth, e := rt.db.CheckAuthorization(token)
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusBadRequest)
+		return
+	}
+	if !auth {
+		http.Error(w, "token is invalid", http.StatusBadRequest)
+		return
+	}
 
 	request.Username = ps.ByName("username")
 	followId, err := rt.db.GetIdFromUsername(request.Username)
