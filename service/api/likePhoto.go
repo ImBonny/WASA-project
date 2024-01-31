@@ -30,7 +30,15 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 
 	token := getToken(r.Header.Get("Authorization"))
 
-	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+	auth, e := rt.db.CheckAuthorization(token)
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusBadRequest)
+		return
+	}
+	if !auth {
+		http.Error(w, "token is invalid", http.StatusBadRequest)
+		return
+	}
 
 	rt.db.LikePhoto(likeReq.targetPost, token)
 

@@ -15,7 +15,6 @@ type changeResponse struct {
 }
 
 // Handler for changing username
-// TODO: check how to handle request body
 func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new change request
 	var changeReq changeRequest
@@ -26,8 +25,15 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	token := getToken(r.Header.Get("Authorization"))
-
-	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+	auth, e := rt.db.CheckAuthorization(token)
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusBadRequest)
+		return
+	}
+	if !auth {
+		http.Error(w, "token is invalid", http.StatusBadRequest)
+		return
+	}
 
 	changeReq.NewUsername = ps.ByName("NewUsername")
 	err := rt.db.SetMyUsername(token, changeReq.NewUsername)

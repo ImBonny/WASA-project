@@ -28,7 +28,15 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 
 	token := getToken(r.Header.Get("Authorization"))
 
-	//TODO: IMPLEMENT SECURITY ONCE I HAVE DB
+	auth, e := rt.db.CheckAuthorization(token)
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusBadRequest)
+		return
+	}
+	if !auth {
+		http.Error(w, "token is invalid", http.StatusBadRequest)
+		return
+	}
 
 	var err error
 	commentReq.PostId, err = strconv.ParseUint(ps.ByName("postId"), 10, 64)
