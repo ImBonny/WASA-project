@@ -17,7 +17,7 @@ func (db *appdbimpl) GetBanned(userid uint64) (*[]Database_user, error) {
 	}
 	err = rows.Err()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	return &bannedUsers, nil
 }

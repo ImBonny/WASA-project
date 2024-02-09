@@ -10,9 +10,6 @@ type uncommentRequest struct {
 	CommentId uint64 `json:"commentId"`
 }
 
-type uncommentResponse struct {
-}
-
 // Handler for uncommenting a post
 func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new uncomment request

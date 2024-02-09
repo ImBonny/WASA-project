@@ -719,7 +719,7 @@ paths:
   /users:
     get:
       tags: [ "search" ]
-      operationId: "searchUser"
+      operationId: searchUser
       description: it allows you to search for a user's profile using his username
       summary: search by username
       parameters:

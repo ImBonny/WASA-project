@@ -17,7 +17,7 @@ func (db *appdbimpl) GetComments(postId uint64) (*[]Database_comment, error) {
 	}
 	err = rows.Err()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	return &comments, nil
 }

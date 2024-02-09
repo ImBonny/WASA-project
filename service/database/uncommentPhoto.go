@@ -17,6 +17,12 @@ func (db *appdbimpl) UncommentPhoto(commentId uint64) error {
 		panic(err)
 	}
 	_, err = db.c.Exec("DELETE FROM commentDb WHERE commentId = ?", commentId)
-	db.c.Exec("UPDATE postDb SET nComments = nComments - 1 WHERE postId = ?", postId)
+	if err != nil {
+		return err
+	}
+	_, err = db.c.Exec("UPDATE postDb SET nComments = nComments - 1 WHERE postId = ?", postId)
+	if err != nil {
+		return err
+	}
 	return err
 }

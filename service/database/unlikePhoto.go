@@ -13,6 +13,12 @@ func (db *appdbimpl) UnlikePhoto(postID uint64, userID uint64) error {
 	}
 
 	_, err = db.c.Exec("DELETE FROM likesDb WHERE postId = ? AND userId = ?", postID, userID)
-	db.c.Exec("UPDATE postDb SET nLikes = nLikes - 1 WHERE postId = ?", postID)
+	if err != nil {
+		return err
+	}
+	_, err = db.c.Exec("UPDATE postDb SET nLikes = nLikes - 1 WHERE postId = ?", postID)
+	if err != nil {
+		return err
+	}
 	return err
 }

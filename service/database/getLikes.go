@@ -17,7 +17,7 @@ func (db *appdbimpl) GetLikes(postId uint64) (*[]Database_like, error) {
 	}
 	err = rows.Err()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	return &likes, nil
 }

@@ -40,7 +40,11 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	rt.db.LikePhoto(likeReq.targetPost, token)
+	err = rt.db.LikePhoto(likeReq.targetPost, token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	likeResponse := LikeResponse{message: "Post liked"}
 

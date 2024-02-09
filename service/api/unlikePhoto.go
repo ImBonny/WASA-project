@@ -41,7 +41,11 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	rt.db.UnlikePhoto(unlikeReq.PostId, token)
+	err = rt.db.UnlikePhoto(unlikeReq.PostId, token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	unlikeResponse := unlikeResponse{Message: "Successfully unliked the post"}
 
 	w.Header().Set("Content-Type", "application/json")
