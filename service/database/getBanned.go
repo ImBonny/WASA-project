@@ -6,7 +6,10 @@ func (db *appdbimpl) GetBanned(userid uint64) (*[]Database_user, error) {
 	if err != nil {
 		panic(err)
 	}
-	defer rows.Close()
+	err = rows.Close()
+	if err != nil {
+		return nil, err
+	}
 	for rows.Next() {
 		var banned Database_user
 		err = rows.Scan(&banned.Username, &banned.UserId)

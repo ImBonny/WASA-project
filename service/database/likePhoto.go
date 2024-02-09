@@ -1,6 +1,9 @@
 package database
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 func (db *appdbimpl) LikePhoto(postID uint64, userID uint64) error {
 	var alreadyLiked bool
@@ -12,7 +15,7 @@ func (db *appdbimpl) LikePhoto(postID uint64, userID uint64) error {
 		return errors.New("already liked")
 	}
 
-	_, err = db.c.Exec("INSERT INTO likesDb (postId, userId) VALUES (?, ?)", postID, userID)
+	_, err = db.c.Exec("INSERT INTO likesDb (postId, userId, creationTime) VALUES (?, ?, ?)", postID, userID, time.Now())
 	_, err = db.c.Exec("UPDATE postDb SET nLikes = nLikes+1 WHERE postId = ?", postID)
 	if err != nil {
 		return err
