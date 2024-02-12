@@ -18,7 +18,8 @@ type getProfileResponse struct {
 func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var profReq getProfileRequest
 	// Decode the request body into banReq
-	if err := json.NewDecoder(r.Body).Decode(&getProfileRequest{}); err != nil {
+	var err error
+	if err = json.NewDecoder(r.Body).Decode(&getProfileRequest{}); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

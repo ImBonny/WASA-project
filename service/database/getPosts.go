@@ -6,7 +6,10 @@ func (db *appdbimpl) GetPosts(userid uint64) ([]Database_photo, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	err = rows.Close()
+	if err != nil {
+		return nil, err
+	}
 	for rows.Next() {
 		var post Database_photo
 		err = rows.Scan(&post.postId, &post.postOwner, &post.image, &post.description, &post.nComments, &post.nLikes, &post.creationTime)
@@ -14,6 +17,10 @@ func (db *appdbimpl) GetPosts(userid uint64) ([]Database_photo, error) {
 			return nil, err
 		}
 		posts = append(posts, post)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
 	}
 	return posts, nil
 }

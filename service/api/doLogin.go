@@ -20,8 +20,10 @@ type LoginResponse struct {
 // doLogin handles the login request
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var loginReq LoginRequest
+	_ = ps
 	// Decode the request body into loginReq
-	if err := json.NewDecoder(r.Body).Decode(&loginReq); err != nil {
+	var err error
+	if err = json.NewDecoder(r.Body).Decode(&loginReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -34,7 +36,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	var userId uint64
 	token := getToken(r.Header.Get("Authorization"))
-	userId, err := rt.db.DoLogin(loginReq.Name, token)
+	userId, err = rt.db.DoLogin(loginReq.Name, token)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

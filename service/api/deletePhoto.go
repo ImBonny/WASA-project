@@ -20,7 +20,8 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// Create a new delete request
 	var deleteReq deleteRequest
 	// Decode the request body into deleteReq
-	if err := json.NewDecoder(r.Body).Decode(&deleteReq); err != nil {
+	var err error
+	if err = json.NewDecoder(r.Body).Decode(&deleteReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -37,7 +38,6 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	var err error
 	deleteReq.postId, err = strconv.Atoi(ps.ByName("postId"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

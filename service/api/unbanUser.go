@@ -22,16 +22,17 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	unbanReq.UnbanningUser = ps.ByName("username")
 	unbanReq.BannedUser = ps.ByName("bannedUser")
 	// Decode the request body into unbanReq
-	if err := json.NewDecoder(r.Body).Decode(&unbanReq); err != nil {
+	var err error
+	if err = json.NewDecoder(r.Body).Decode(&unbanReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	token := getToken(r.Header.Get("Authorization"))
 
-	auth, e := rt.db.CheckAuthorization(token)
-	if e != nil {
-		http.Error(w, e.Error(), http.StatusBadRequest)
+	auth, err := rt.db.CheckAuthorization(token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	if !auth {

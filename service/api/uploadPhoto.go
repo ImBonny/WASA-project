@@ -9,11 +9,11 @@ import (
 // Upload a photo to the current user's profile
 func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
-
+	_ = ps
 	token := getToken(r.Header.Get("Authorization"))
-	auth, e := rt.db.CheckAuthorization(token)
-	if e != nil {
-		http.Error(w, e.Error(), http.StatusBadRequest)
+	auth, err := rt.db.CheckAuthorization(token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	if !auth {

@@ -19,7 +19,7 @@ type searchUserResponse struct {
 func (rt *_router) searchUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var request searchUserRequest
 	var response searchUserResponse
-	var err error
+	_ = ps
 
 	token := getToken(r.Header.Get("Authorization"))
 	auth, e := rt.db.CheckAuthorization(token)

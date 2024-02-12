@@ -17,9 +17,9 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	var err error
 
 	token := getToken(r.Header.Get("Authorization"))
-	auth, e := rt.db.CheckAuthorization(token)
-	if e != nil {
-		http.Error(w, e.Error(), http.StatusBadRequest)
+	auth, err := rt.db.CheckAuthorization(token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	if !auth {

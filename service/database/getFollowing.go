@@ -6,7 +6,10 @@ func (db *appdbimpl) GetFollowing(id uint64) (*[]Database_user, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	err = rows.Close()
+	if err != nil {
+		return nil, err
+	}
 	for rows.Next() {
 		var user Database_user
 		err = rows.Scan(&user.Username, &user.UserId)
@@ -14,6 +17,10 @@ func (db *appdbimpl) GetFollowing(id uint64) (*[]Database_user, error) {
 			return nil, err
 		}
 		following = append(following, user)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
 	}
 	return &following, nil
 }

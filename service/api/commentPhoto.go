@@ -21,7 +21,8 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	// Create a new comment request
 	var commentReq commentRequest
 	// Decode the request body into commentReq
-	if err := json.NewDecoder(r.Body).Decode(&commentReq); err != nil {
+	var err error
+	if err = json.NewDecoder(r.Body).Decode(&commentReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -38,7 +39,6 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	var err error
 	commentReq.PostId, err = strconv.ParseUint(ps.ByName("postId"), 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
