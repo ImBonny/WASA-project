@@ -36,17 +36,17 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	profReq.Username = ps.ByName("username")
-	profile, err := rt.db.GetUserProfile(profReq.Username)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	profile, err1 := rt.db.GetUserProfile(profReq.Username)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusBadRequest)
 		return
 	}
 	profResponse := getProfileResponse{Profile: *profile}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(profResponse)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err2 := json.NewEncoder(w).Encode(profResponse)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
 }

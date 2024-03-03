@@ -30,9 +30,9 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 
 	token := getToken(r.Header.Get("Authorization"))
 
-	auth, err := rt.db.CheckAuthorization(token)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	auth, err1 := rt.db.CheckAuthorization(token)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusBadRequest)
 		return
 	}
 	if !auth {
@@ -40,23 +40,23 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	bannedId, err := rt.db.GetIdFromUsername(unbanReq.BannedUser)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	bannedId, err2 := rt.db.GetIdFromUsername(unbanReq.BannedUser)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
-	err = rt.db.UnbanUser(token, bannedId)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err3 := rt.db.UnbanUser(token, bannedId)
+	if err3 != nil {
+		http.Error(w, err3.Error(), http.StatusBadRequest)
 		return
 	}
 	unbanResponse := unbanUserResponse{Message: "Successfully unbanned the user"}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	err = json.NewEncoder(w).Encode(unbanResponse)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err4 := json.NewEncoder(w).Encode(unbanResponse)
+	if err4 != nil {
+		http.Error(w, err4.Error(), http.StatusBadRequest)
 		return
 	}
 }

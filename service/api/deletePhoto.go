@@ -37,22 +37,22 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, "token is invalid", http.StatusBadRequest)
 		return
 	}
-
-	deleteReq.postId, err = strconv.Atoi(ps.ByName("postId"))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	var err1 error
+	deleteReq.postId, err1 = strconv.Atoi(ps.ByName("postId"))
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusBadRequest)
 	}
-	err = rt.db.DeletePhoto(uint64(deleteReq.postId))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err2 := rt.db.DeletePhoto(uint64(deleteReq.postId))
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
 	deleteResponse := deleteResponse{Message: "Successfully deleted the post"}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	err = json.NewEncoder(w).Encode(deleteResponse)
-	if err != nil {
+	err3 := json.NewEncoder(w).Encode(deleteResponse)
+	if err3 != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

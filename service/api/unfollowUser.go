@@ -31,19 +31,23 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 
 	var request unfollowRequest
 	request.Username = ps.ByName("username")
-	unfollowId, err := rt.db.GetIdFromUsername(request.Username)
-	err = rt.db.UnfollowUser(token, unfollowId)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	unfollowId, err1 := rt.db.GetIdFromUsername(request.Username)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusBadRequest)
+		return
+	}
+	err2 := rt.db.UnfollowUser(token, unfollowId)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
 
 	response := unfollowResponse{
 		Username: request.Username,
 	}
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err3 := json.NewEncoder(w).Encode(response)
+	if err3 != nil {
+		http.Error(w, err3.Error(), http.StatusBadRequest)
 		return
 	}
 }

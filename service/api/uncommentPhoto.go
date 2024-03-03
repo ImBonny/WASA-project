@@ -14,7 +14,6 @@ type uncommentRequest struct {
 func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new uncomment request
 	var uncommentReq uncommentRequest
-	var err error
 
 	token := getToken(r.Header.Get("Authorization"))
 	auth, err := rt.db.CheckAuthorization(token)
@@ -26,11 +25,15 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		http.Error(w, "token is invalid", http.StatusBadRequest)
 		return
 	}
-
-	uncommentReq.CommentId, err = strconv.ParseUint(ps.ByName("commentId"), 10, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	var err1 error
+	uncommentReq.CommentId, err1 = strconv.ParseUint(ps.ByName("commentId"), 10, 64)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusBadRequest)
 		return
 	}
-	err = rt.db.UncommentPhoto(uncommentReq.CommentId)
+	err2 := rt.db.UncommentPhoto(uncommentReq.CommentId)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
+		return
+	}
 }

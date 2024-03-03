@@ -23,14 +23,14 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	uploadedImage := r.URL.Query().Get("image")
 	caption := r.URL.Query().Get("caption")
-	photoId, err := rt.db.UploadPhoto(token, uploadedImage, caption)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	photoId, err1 := rt.db.UploadPhoto(token, uploadedImage, caption)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusBadRequest)
 		return
 	}
-	err = json.NewEncoder(w).Encode(photoId)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err2 := json.NewEncoder(w).Encode(photoId)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
 }

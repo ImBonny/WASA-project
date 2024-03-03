@@ -45,9 +45,9 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	err = json.NewEncoder(w).Encode(changeResponse)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err1 := json.NewEncoder(w).Encode(changeResponse)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusBadRequest)
 		return
 	}
 }

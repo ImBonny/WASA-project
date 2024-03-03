@@ -38,22 +38,22 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	request.Username = ps.ByName("username")
-	followId, err := rt.db.GetIdFromUsername(request.Username)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	followId, err1 := rt.db.GetIdFromUsername(request.Username)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusBadRequest)
 		return
 	}
-	err = rt.db.FollowUser(token, followId)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err2 := rt.db.FollowUser(token, followId)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
 	response := followResponse{
 		Username: request.Username,
 	}
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err3 := json.NewEncoder(w).Encode(response)
+	if err3 != nil {
+		http.Error(w, err3.Error(), http.StatusBadRequest)
 		return
 	}
 }

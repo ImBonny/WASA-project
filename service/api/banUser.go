@@ -38,23 +38,23 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	banReq.BannedUser = ps.ByName("bannedUser")
 
-	bannedId, err := rt.db.GetIdFromUsername(banReq.BannedUser)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	bannedId, err0 := rt.db.GetIdFromUsername(banReq.BannedUser)
+	if err0 != nil {
+		http.Error(w, err0.Error(), http.StatusBadRequest)
 		return
 	}
-	err = rt.db.BanUser(token, bannedId)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err1 := rt.db.BanUser(token, bannedId)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusBadRequest)
 		return
 	}
 	banResponse := banResponse{Username: banReq.BannedUser}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(banResponse)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err2 := json.NewEncoder(w).Encode(banResponse)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
 }

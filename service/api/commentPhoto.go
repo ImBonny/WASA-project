@@ -38,14 +38,14 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		http.Error(w, "token is invalid", http.StatusBadRequest)
 		return
 	}
-
-	commentReq.PostId, err = strconv.ParseUint(ps.ByName("postId"), 10, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	var err0 error
+	commentReq.PostId, err0 = strconv.ParseUint(ps.ByName("postId"), 10, 64)
+	if err0 != nil {
+		http.Error(w, err0.Error(), http.StatusBadRequest)
 	}
-	body, err := json.Marshal(commentReq)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	body, err1 := json.Marshal(commentReq)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusBadRequest)
 	}
 	commentReq.CommentText = string(body)
 	// Find the post put by the specified user
@@ -56,9 +56,9 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	err = json.NewEncoder(w).Encode(commentResponse)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err2 := json.NewEncoder(w).Encode(commentResponse)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
 }

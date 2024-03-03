@@ -40,9 +40,9 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	err = rt.db.LikePhoto(likeReq.targetPost, token)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err1 := rt.db.LikePhoto(likeReq.targetPost, token)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -50,9 +50,9 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	err = json.NewEncoder(w).Encode(likeResponse)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err2 := json.NewEncoder(w).Encode(likeResponse)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
 }

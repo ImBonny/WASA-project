@@ -36,14 +36,15 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	var userId uint64
 	token := getToken(r.Header.Get("Authorization"))
-	userId, err = rt.db.DoLogin(loginReq.Name, token)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	var err0 error
+	userId, err0 = rt.db.DoLogin(loginReq.Name, token)
+	if err0 != nil {
+		http.Error(w, err0.Error(), http.StatusBadRequest)
 		return
 	}
-	_, err = rt.db.CheckAuthorization(token)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	_, err1 := rt.db.CheckAuthorization(token)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -51,9 +52,9 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	response := LoginResponse{Identifier: userId}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err2 := json.NewEncoder(w).Encode(response)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
 }
