@@ -34,9 +34,6 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	//}
 
 	var userId uint64
-	print("-------------------")
-	print(loginReq.Username)
-	print("-------------------")
 	var err0 error
 	userId, err0 = rt.db.DoLogin(loginReq.Username)
 	if err0 != nil {

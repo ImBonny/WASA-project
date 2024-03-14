@@ -26,6 +26,8 @@ export default {
 						}
 					})
 					this.id = response.data;
+					localStorage.setItem("username", this.username);
+					localStorage.setItem("id", this.id);
 					this.$router.push("/session");
 				} catch (error) {
 					this.errormsg = error.response.data;
