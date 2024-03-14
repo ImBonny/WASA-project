@@ -41,7 +41,7 @@ type AppDatabase interface {
 
 	// DoLogin resitituisce l'id relativo all'username passato come argomento. //
 	// se l'username non è registrato verrà creato e restituito un nuovo id,altrimenti verrò resituito quello esistente //
-	DoLogin(username string, token uint64) (uint64, error)
+	DoLogin(username string) (uint64, error)
 
 	// GetUserProfile gets a user profile searched via username //
 	GetUserProfile(username string) (*Database_profile, error)
