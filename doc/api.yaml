@@ -359,7 +359,7 @@ paths:
     parameters:
       - name: username
         in: path
-        description: The username of the user whose profile is to be shown
+        description: The username of the user who whose profile is being shown
         required: true
         content:
           application/json:
@@ -381,7 +381,7 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
-  /users/{username}/profiles/{profile}:
+  /users/{username}/profile:
     parameters:
         - name: username
           in: path
@@ -390,13 +390,6 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/User/properties/username'}
-        - name: profile
-          in: path
-          description: The profile of the user to be followed or unfollowed
-          required: true
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/Profile'}
     put:
       tags: ["theirProfile"]
       operationId: followUser
@@ -733,7 +726,7 @@ paths:
           description: Successfully found the user
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/User" }
+              schema: { $ref: "#/components/schemas/User/properties/username" }
         "400": { $ref: '#/components/responses/BadRequest' }
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }

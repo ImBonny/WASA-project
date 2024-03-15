@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/ImBonny/WASA-project.git/service/database"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -12,7 +11,7 @@ type searchUserRequest struct {
 }
 
 type searchUserResponse struct {
-	User database.Database_user `json:"user"`
+	Username string `json:"username"`
 }
 
 // searchUser returns a list of users that match the search query
@@ -20,7 +19,6 @@ func (rt *_router) searchUser(w http.ResponseWriter, r *http.Request, ps httprou
 	var request searchUserRequest
 	var response searchUserResponse
 	_ = ps
-
 	token := getToken(r.Header.Get("Authorization"))
 	auth, e := rt.db.CheckAuthorization(token)
 	if e != nil {
@@ -38,7 +36,7 @@ func (rt *_router) searchUser(w http.ResponseWriter, r *http.Request, ps httprou
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	response.User = user
+	response.Username = user
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

@@ -100,7 +100,7 @@ type AppDatabase interface {
 	// UncommentPhoto //
 	UncommentPhoto(commentid uint64) error
 
-	SearchUser(username string) (Database_user, error)
+	SearchUser(username string) (string, error)
 
 	// Ping checks whether the database is available or not (in that case, an error will be returned)
 	Ping() error

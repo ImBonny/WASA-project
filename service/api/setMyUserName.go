@@ -11,7 +11,7 @@ type changeRequest struct {
 }
 
 type changeResponse struct {
-	Message string `json:"message"`
+	NewUsername string `json:"newUsername"`
 }
 
 // Handler for changing username
@@ -35,19 +35,18 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	changeReq.NewUsername = ps.ByName("NewUsername")
 	err := rt.db.SetMyUsername(token, changeReq.NewUsername)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	changeResponse := changeResponse{Message: "Successfully changed username"}
 
+	changeResponse := changeResponse{NewUsername: changeReq.NewUsername}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	err1 := json.NewEncoder(w).Encode(changeResponse)
-	if err1 != nil {
-		http.Error(w, err1.Error(), http.StatusBadRequest)
+	err2 := json.NewEncoder(w).Encode(changeResponse)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
 }

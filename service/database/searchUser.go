@@ -1,10 +1,19 @@
 package database
 
-func (db *appdbimpl) SearchUser(username string) (Database_user, error) {
-	var user Database_user
-	err := db.c.QueryRow("SELECT * FROM userDb WHERE username = ?", username).Scan(&user.Username, &user.UserId)
+import (
+	"database/sql"
+	"errors"
+)
+
+func (db *appdbimpl) SearchUser(username string) (string, error) {
+	var user string
+	err := db.c.QueryRow("SELECT username FROM userDb WHERE username = ?", username).Scan(&user)
+	if errors.Is(err, sql.ErrNoRows) {
+		print("Utente non trovato")
+		return "", nil // Utente non trovato, restituisci un errore nullo
+	}
 	if err != nil {
-		return Database_user{}, err
+		return "", err
 	}
 	return user, nil
 }

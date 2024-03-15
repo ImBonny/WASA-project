@@ -14,11 +14,11 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/liveness", rt.liveness)
 
 	// API routes
-	rt.router.POST("/session", rt.doLogin)                                                    // DONE
-	rt.router.GET("/users/myStream", rt.getMyStream)                                          // DONE
-	rt.router.GET("/users/profiles/:username", rt.getUserProfile)                             // DONE
-	rt.router.PUT("/users/:username/profiles/:profile", rt.followUser)                        // DONE
-	rt.router.DELETE("/users/:username/profiles/:profile", rt.unfollowUser)                   // DONE
+	rt.router.POST("/session", rt.doLogin)           // DONE
+	rt.router.GET("/users/myStream", rt.getMyStream) // DONE
+	rt.router.GET("/users/profiles/:username", rt.getUserProfile)
+	rt.router.PUT("/users/:username/profile", rt.followUser)
+	rt.router.DELETE("/users/:username/profile", rt.unfollowUser)
 	rt.router.PUT("/users/:username/banned", rt.banUser)                                      // DONE
 	rt.router.DELETE("/users/:username/banned/:bannedUser", rt.unbanUser)                     // DONE
 	rt.router.POST("/users/:username/posts/:postId/likes", rt.likePhoto)                      // DONE

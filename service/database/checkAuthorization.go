@@ -4,13 +4,13 @@ import "errors"
 
 func (db *appdbimpl) CheckAuthorization(token uint64) (bool, error) {
 	if token == 0 {
-		return false, errors.New("token is invalid")
+		return false, errors.New("token is invalid!")
 	} else {
-		var id uint64
-		err := db.c.QueryRow("SELECT UserId FROM authorizedDb WHERE UserId = ?", token).Scan(&id)
+		_, err := db.c.Exec("SELECT UserId FROM authorizedDb WHERE UserId = ?", token)
+
 		if err != nil {
 			return false, err
 		}
-		return false, nil
+		return true, nil
 	}
 }

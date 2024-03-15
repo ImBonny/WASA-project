@@ -6,10 +6,7 @@ export default {
 		return {
 			errormsg: null,
 			username: "",
-			profile: {
-				id: 0,
-				username: "",
-			},
+			id: 0,
 		}
 	},
 	methods: {
@@ -19,16 +16,12 @@ export default {
 			} else {
 				try{
 					let response = await this.$axios.post("/session", {
-						username: this.username,
-						headers:
-						{
-							Authorization: "Bearer " + this.token,
-						}
-					})
-					this.id = response.data;
+						username: this.username})
+					this.id = response.data.Identifier;
 					localStorage.setItem("username", this.username);
 					localStorage.setItem("id", this.id);
 					this.$router.push("/session");
+
 				} catch (error) {
 					this.errormsg = error.response.data;
 				}
