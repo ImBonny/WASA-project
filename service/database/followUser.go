@@ -12,7 +12,6 @@ func (db *appdbimpl) FollowUser(userFollowingId uint64, userToFollowId uint64) e
 	if alreadyFollowing {
 		return errors.New("already following")
 	}
-
 	// Insert the follow into the database
 	_, err = db.c.Exec("INSERT INTO followersDb (userFollowingId, userToFollowId) VALUES (?, ?)", userFollowingId, userToFollowId)
 	if err != nil {

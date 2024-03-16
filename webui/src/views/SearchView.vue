@@ -40,8 +40,9 @@ export default {
 				});
 				this.profile = response.data.profile;
 				this.$router.push(`/users/${this.username}/profile`);
-				console.log("Profile found: " + this.profile.username);
-				localStorage.setItem("profile", this.profile);
+				console.log("Profile found: " + this.profile.Username);
+				localStorage.setItem("profile", JSON.stringify(this.profile));
+				console.log(localStorage.getItem("profile"));
 			}
 			catch (error) {
 				this.errormsg = error.response.data;

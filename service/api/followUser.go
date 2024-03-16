@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -16,17 +17,20 @@ type followResponse struct {
 
 // Follow a user
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("content-type", "application/json")
 
 	var request followRequest
-	err := json.NewDecoder(r.Body).Decode(&request)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	token := getToken(r.Header.Get("Authorization"))
+	for name, headers := range r.Header {
+		for _, h := range headers {
+			fmt.Printf("%v: %v\n", name, h)
+		}
+	}
 
+	token := getToken(r.Header.Get("Authorization"))
 	auth, e := rt.db.CheckAuthorization(token)
 	if e != nil {
 		http.Error(w, e.Error(), http.StatusBadRequest)
@@ -37,7 +41,6 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	request.Username = ps.ByName("username")
 	followId, err1 := rt.db.GetIdFromUsername(request.Username)
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusBadRequest)
@@ -51,6 +54,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	response := followResponse{
 		Username: request.Username,
 	}
+	w.Header().Set("content-type", "application/json")
 	err3 := json.NewEncoder(w).Encode(response)
 	if err3 != nil {
 		http.Error(w, err3.Error(), http.StatusBadRequest)
