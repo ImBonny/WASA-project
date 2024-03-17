@@ -1,10 +1,10 @@
 package database
 
 func (db *appdbimpl) GetIdFromUsername(username string) (uint64, error) {
-	var id uint64
-	err := db.c.QueryRow("SELECT Userid FROM userDb WHERE Username=?", username).Scan(&id)
+	var id int
+	err := db.c.QueryRow("SELECT UserId FROM userDb WHERE username = ?", username).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
-	return id, nil
+	return uint64(id), nil
 }

@@ -731,3 +731,36 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
+
+  /utils/follows:
+    get:
+      tags: [ "utils"]
+      operationId: getFollows
+      description: it allows you to check if a user follows another one
+      summary: check if a user follows another one
+      parameters:
+       -  name: username1
+          in: query
+          description: The username of the user who wants to follow another one
+          required: true
+          schema: { $ref: "#/components/schemas/User/properties/username" }
+       -  name: username2
+          in: query
+          description: The username of the user to be followed
+          required: true
+          schema: { $ref: "#/components/schemas/User/properties/username" }
+      responses:
+          "201":
+            description: Successfully checked the following
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Indicates whether the comment operation was successful or not.
+          "400": { $ref: '#/components/responses/BadRequest' }
+          "401": { $ref: '#/components/responses/Unauthorized' }
+          "404": { $ref: '#/components/responses/NotFound' }
+          "500": { $ref: '#/components/responses/InternalServerError' }
