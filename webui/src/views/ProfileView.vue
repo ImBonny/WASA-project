@@ -7,12 +7,16 @@ export default {
 			username: localStorage.getItem("username") || "",
 			profile: localStorage.getItem("profile"),
 			id : localStorage.getItem("id"),
-			isFollowing: false
+			isFollowing: false,
+			posts: [],
 		}
 	},
 	created() {
 		this.checkFollowing();
 		console.log("Is following: " + this.isFollowing);
+		console.log("posts: " + JSON.parse(this.profile).Posts);
+		this.loadImage()
+
 	},
 	methods: {
 		async checkFollowing(){
@@ -74,6 +78,19 @@ export default {
 				console.log("Error unfollowing user: " + JSON.parse(this.profile).Username);
 				this.errormsg = error.response.data;
 			}
+		},
+		async loadImage(){
+			for (let i = 0; i < JSON.parse(this.profile).Posts.length; i++) {
+				console.log("Loading image: " + JSON.parse(this.profile).Posts[i]);
+				try {
+					let response = await this.$axios.get(`/images/${JSON.parse(this.profile).Posts[i]}`, {
+					});
+					this.posts = [...this.posts, response.data.image];
+					console.log("Image loaded: " + this.posts[i].Description);
+				} catch (error) {
+					console.error("Error loading image:", error);
+				}
+			}
 		}
 
 	}
@@ -97,6 +114,32 @@ export default {
 			<button class="btn btn-success" type="button" @click="Ban">Ban</button>
 		</div>
 	</div>
+	<div>
+		<h2>Profile Posts</h2>
+		<div>
+			<div class="col-md-4" v-for="(post, index) in posts" :key="index">
+				<img :src="`data:image/*;base64,${post.Image}`" alt="photo">
+				<p>{{ post.Description }}</p>
+				<!-- spazio per mostrare tutti i commenti -->
+				<!-- //TODO: aggiungere commenti -->
+				<div v-for="(comment, index) in post.Comments" :key="index">
+					<p>{{ comment }}</p>
+				</div>
+				<div class="input-group mb-3">
+					<div class="input-group-append" style="margin-right: 10px">
+						<button class="btn btn-success" type="button" @click="HandleLike(post)">Like</button>
+					</div>
+					<div class="input-group-append">
+						<button class="btn btn-success" type="button" @click="HandleComment(post)">Comment</button>
+					</div>
+					</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!-- Display error message if any -->
+	<ErrorMsg v-if="errormsg" :msg="errormsg" />
 
 	<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 </template>

@@ -38,11 +38,12 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 	profResponse := getProfileResponse{Profile: *profile}
+	print(profResponse.Profile.Posts)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	err2 := json.NewEncoder(w).Encode(profResponse)
-	if err2 != nil {
-		http.Error(w, err2.Error(), http.StatusBadRequest)
+	err3 := json.NewEncoder(w).Encode(profResponse)
+	if err3 != nil {
+		http.Error(w, err3.Error(), http.StatusBadRequest)
 		return
 	}
 }

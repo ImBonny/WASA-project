@@ -331,7 +331,15 @@ paths:
                     maxLength: 99999
                     example: "abcdef012345"
       security: []
-  /users/myStream:
+  /users/{username}/stream:
+    parameters:
+      - name: username
+        in: path
+        description: The username of the user whose stream is being shown
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/User/properties/username' }
     get:
       tags: ["myProfile"]
       operationId: getMyStream
@@ -764,3 +772,28 @@ paths:
           "401": { $ref: '#/components/responses/Unauthorized' }
           "404": { $ref: '#/components/responses/NotFound' }
           "500": { $ref: '#/components/responses/InternalServerError' }
+
+    /images/{imageId}:
+      get:
+        summary: Get image by ID
+        description: Retrieve the image by its ID
+        parameters:
+          - in: path
+            name: imageId
+            required: true
+            description: ID of the image to retrieve
+            schema:
+              type: string
+        responses:
+          '200':
+            description: Successful operation
+            content:
+              image/jpeg:
+                schema:
+                  type: string
+                  format: binary
+          '404':
+            description: Image not found
+
+
+

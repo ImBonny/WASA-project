@@ -47,7 +47,7 @@ type AppDatabase interface {
 	GetUserProfile(username string) (*Database_profile, error)
 
 	// GetMyStream //
-	GetMyStream(id uint64) (*[]Database_photo, error)
+	GetMyStream(id uint64) (*[]uint64, error)
 
 	// Deleteuser deletes the user from the system //
 	DeleteUser(id uint64) error
@@ -77,7 +77,7 @@ type AppDatabase interface {
 	UnbanUser(id uint64, to_del_id uint64) error
 
 	// UploadPhoto //
-	UploadPhoto(id uint64, image string, caption string) (uint64, error)
+	UploadPhoto(id uint64, photo []byte, caption string) (uint64, error)
 
 	// DeletePhoto //
 	DeletePhoto(postId uint64) error
@@ -101,6 +101,8 @@ type AppDatabase interface {
 	UncommentPhoto(commentid uint64) error
 
 	SearchUser(username string) (string, error)
+
+	GetImage(imageId string) (Database_photo, error)
 
 	// Ping checks whether the database is available or not (in that case, an error will be returned)
 	Ping() error
@@ -188,8 +190,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 										 postOwner INTEGER NOT NULL,
 										 image BLOB NOT NULL,
 										 description TEXT NOT NULL,
-										 nComments INTEGER NOT NULL,
-										 nLikes INTEGER NOT NULL,
+										 nComments INTEGER,
+										 nLikes INTEGER,
 										 creationTime DATETIME NOT NULL,
 										 FOREIGN KEY (postOwner) REFERENCES userDb(UserId)
                          );`

@@ -10,21 +10,6 @@ export default {
 		}
 	},
 	methods: {
-		async changeUsername(){
-			let username = this.username
-			this.$router.push(`/users/${username}`);
-		},
-		async searchUser(){
-			this.$router.push('/users');
-		},
-		async home(){
-			let username = this.username
-			this.$router.push(`/users/${username}/stream`);
-		},
-		async uploadPhoto(){
-			let username = this.username
-			this.$router.push(`/users/${username}/posts`);
-		}
 	}
 }
 </script>
@@ -33,25 +18,7 @@ export default {
 <template>
 	<div
 		class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-		<h1>Welcome {{username}}!</h1>
-	</div>
-	<div>
-		<h3>Please select an option from the buttons below:</h3>
-	</div>
-	<div class="input-group mb-3">
-		<div class="input-group-append">
-			<button class="btn btn-success" type="button" @click="changeUsername">Change Username</button>
-		</div>
-	</div>
-	<div class="input-group mb-3">
-		<div class="input-group-append">
-			<button class="btn btn-success" type="button" @click="searchUser">Search</button>
-		</div>
-	</div>
-	<div class="input-group mb-3">
-		<div class="input-group-append">
-			<button class="btn btn-success" type="button" @click="uploadPhoto">Upload a Photo</button>
-		</div>
+		<h1>{{username}}'s Stream</h1>
 	</div>
 	<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
 		<div class="position-sticky pt-3 sidebar-sticky">
@@ -84,9 +51,9 @@ export default {
 			</h6>
 			<ul class="nav flex-column">
 				<li class="nav-item">
-					<RouterLink :to="'/'" class="nav-link">
+					<RouterLink :to="'/some/' + 'variable_here' + '/path'" class="nav-link">
 						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#file-text"/></svg>
-						Logout
+						Item 1
 					</RouterLink>
 				</li>
 			</ul>

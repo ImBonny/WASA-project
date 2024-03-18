@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/ImBonny/WASA-project.git/service/database"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -12,7 +11,7 @@ type getMyStreamRequest struct {
 }
 
 type getMyStreamResponse struct {
-	Posts []database.Database_photo `json:"posts"`
+	Posts []uint64 `json:"posts"`
 }
 
 // getMyStream returns a list of posts from the user's stream

@@ -8,6 +8,7 @@ export default {
 			username: localStorage.getItem("username") || "",
 			id: localStorage.getItem("id"),
 			user: "",
+			profile: "",
 		}
 	},
 	methods: {
@@ -39,10 +40,14 @@ export default {
 					}
 				});
 				this.profile = response.data.profile;
-				this.$router.push(`/users/${this.username}/profile`);
 				console.log("Profile found: " + this.profile.Username);
+				console.log("Number of photos: " + this.profile.NumberOfPhotos);
+
+				this.posts = response.data.profile.Posts;
+				console.log("Posts found: " + response.data.profile.Posts);
 				localStorage.setItem("profile", JSON.stringify(this.profile));
 				console.log(localStorage.getItem("profile"));
+				this.$router.push(`/users/${this.username}/profile`);
 			}
 			catch (error) {
 				this.errormsg = error.response.data;

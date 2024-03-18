@@ -6,9 +6,9 @@ type Database_user struct {
 }
 
 type Database_photo struct {
-	postOwner    uint64
-	image        string
-	description  string
+	PostOwner    uint64
+	Image        []byte
+	Description  string
 	nComments    uint
 	nLikes       uint
 	creationTime string
@@ -31,6 +31,6 @@ type Database_comment struct {
 
 type Database_profile struct {
 	Username       string
-	Posts          []Database_photo
+	Posts          []uint64
 	NumberOfPhotos int
 }
