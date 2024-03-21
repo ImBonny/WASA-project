@@ -1,19 +1,21 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 )
 
 type commentRequest struct {
-	PostId      uint64 `json:"postId"`
-	CommentText string `json:"commentText"`
+	CommentText string `json:"CommentText"`
 }
 
 type commentResponse struct {
-	commentId uint64 `json:"comment"`
+	CommentId uint64 `json:"CommentId"`
 }
 
 // Handler for commenting on a post
@@ -21,11 +23,9 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	// Create a new comment request
 	var commentReq commentRequest
 	// Decode the request body into commentReq
-	var err error
-	if err = json.NewDecoder(r.Body).Decode(&commentReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	body, _ := ioutil.ReadAll(r.Body)
+	fmt.Println("Request Body:", string(body))
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 	token := getToken(r.Header.Get("Authorization"))
 
@@ -38,25 +38,28 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		http.Error(w, "token is invalid", http.StatusBadRequest)
 		return
 	}
-	var err0 error
-	commentReq.PostId, err0 = strconv.ParseUint(ps.ByName("postId"), 10, 64)
+	PostId, err0 := strconv.ParseUint(ps.ByName("postId"), 10, 64)
+
 	if err0 != nil {
 		http.Error(w, err0.Error(), http.StatusBadRequest)
 	}
-	body, err1 := json.Marshal(commentReq)
-	if err1 != nil {
-		http.Error(w, err1.Error(), http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&commentReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-	commentReq.CommentText = string(body)
+	print("commenting on post\n")
+	print("comment text: ", commentReq.CommentText, "\n")
+
+	commentId, _ := rt.db.CommentPhoto(token, PostId, commentReq.CommentText)
+
 	// Find the post put by the specified user
 
-	commentId, _ := rt.db.CommentPhoto(token, commentReq.PostId, commentReq.CommentText)
-
-	commentResponse := commentResponse{commentId: commentId}
+	commentRes := commentResponse{CommentId: commentId}
+	print("comment id: ", commentRes.CommentId, "\n")
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	err2 := json.NewEncoder(w).Encode(commentResponse)
+	err2 := json.NewEncoder(w).Encode(commentRes)
 	if err2 != nil {
 		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return

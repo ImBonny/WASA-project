@@ -13,23 +13,25 @@ func (rt *_router) Handler() http.Handler {
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
 
+	rt.router.POST("/session", rt.doLogin) // DONE
 	// API routes
-	rt.router.POST("/session", rt.doLogin)           // DONE
-	rt.router.GET("/users/myStream", rt.getMyStream) // DONE
-	rt.router.GET("/users/profiles/:username", rt.getUserProfile)
+	rt.router.GET("/users", rt.searchUser)                   // DONE
+	rt.router.GET("/users/:username/stream", rt.getMyStream) // DONE
+	rt.router.GET("/users/:username/profiles", rt.getUserProfile)
+	rt.router.PUT("/users/:username", rt.setMyUserName) // DONE
 	rt.router.PUT("/users/:username/profile", rt.followUser)
 	rt.router.DELETE("/users/:username/profile", rt.unfollowUser)
 	rt.router.PUT("/users/:username/banned", rt.banUser)                                      // DONE
 	rt.router.DELETE("/users/:username/banned/:bannedUser", rt.unbanUser)                     // DONE
-	rt.router.POST("/users/:username/posts/:postId/likes", rt.likePhoto)                      // DONE
-	rt.router.DELETE("/users/:username/posts/:postId/likes/:likeId", rt.unlikePhoto)          // DONE
+	rt.router.POST("/users/:username/posts", rt.uploadPhoto)                                  // DONE
 	rt.router.DELETE("/users/:username/posts/:postId", rt.deletePhoto)                        // DONE
 	rt.router.POST("/users/:username/posts/:postId/comments", rt.commentPhoto)                // DONE
+	rt.router.GET("/users/:username/posts/:postId/comments", rt.getComments)                  // DONE
+	rt.router.POST("/users/:username/posts/:postId/likes", rt.likePhoto)                      // DONE
 	rt.router.DELETE("/users/:username/posts/:postId/comments/:commentId", rt.uncommentPhoto) // DONE
-	rt.router.POST("/users/:username/posts", rt.uploadPhoto)                                  // DONE
-	rt.router.PUT("/users/:username", rt.setMyUserName)                                       // DONE
-	rt.router.GET("/users", rt.searchUser)                                                    // DONE
+	rt.router.DELETE("/users/:username/posts/:postId/likes/:likeId", rt.unlikePhoto)          // DONE
 	rt.router.GET("/utils/follows", rt.getFollows)                                            // DONE
 	rt.router.GET("/images/:imageId", rt.getImage)                                            // DONE
+
 	return rt.router
 }

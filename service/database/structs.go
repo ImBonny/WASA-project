@@ -12,7 +12,8 @@ type Database_photo struct {
 	nComments    uint
 	nLikes       uint
 	creationTime string
-	postId       uint64
+	PostId       uint64
+	Comments     []Database_comment
 }
 
 type Database_like struct {
@@ -22,11 +23,11 @@ type Database_like struct {
 }
 
 type Database_comment struct {
-	postId       uint64
-	commentOwner string
-	commentText  string
-	creationTime string
-	commentId    uint64
+	PostId       uint64
+	CommentOwner string
+	CommentText  string
+	CreationTime string
+	CommentId    uint64
 }
 
 type Database_profile struct {

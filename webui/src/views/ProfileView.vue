@@ -9,6 +9,7 @@ export default {
 			id : localStorage.getItem("id"),
 			isFollowing: false,
 			posts: [],
+			comment: "",
 		}
 	},
 	created() {
@@ -87,12 +88,46 @@ export default {
 					});
 					this.posts = [...this.posts, response.data.image];
 					console.log("Image loaded: " + this.posts[i].Description);
+					this.posts[i].Comments = await this.getComments(this.posts[i].PostId);
 				} catch (error) {
 					console.error("Error loading image:", error);
 				}
 			}
+		},
+		async getComments(postId){
+			try {
+				let response = await this.$axios.get(`users/${JSON.parse(this.profile).Username}/posts/${postId}/comments`, {
+					headers: {
+						Authorization: "Bearer " + this.id
+					}
+				});
+				console.log("Comments loaded");
+				return response.data.Comments
+			} catch (error) {
+				console.error("Error loading comments:", error);
+			}
+		},
+		async HandleComment(post){
+			if (this.comment == "") {
+				this.errormsg = "Comment cannot be empty.";
+			} else {
+				try {
+					let response = await this.$axios.post(`users/${JSON.parse(this.profile).Username}/posts/${post.PostId}/comments`, {
+							CommentText: this.comment
+						},
+						{
+							headers: {
+								Authorization: "Bearer " + this.id
+							}
+						}
+					);
+					console.log("Comment added: " + response.data.CommentId);
+					return response.data.CommentId;
+				} catch (error) {
+					console.error("Error adding comment:", error);
+				}
+			}
 		}
-
 	}
 }
 </script>
@@ -120,19 +155,28 @@ export default {
 			<div class="col-md-4" v-for="(post, index) in posts" :key="index">
 				<img :src="`data:image/*;base64,${post.Image}`" alt="photo">
 				<p>{{ post.Description }}</p>
-				<!-- spazio per mostrare tutti i commenti -->
-				<!-- //TODO: aggiungere commenti -->
-				<div v-for="(comment, index) in post.Comments" :key="index">
-					<p>{{ comment }}</p>
-				</div>
+				<!-- bottone per aggiungere un commento -->
 				<div class="input-group mb-3">
 					<div class="input-group-append" style="margin-right: 10px">
 						<button class="btn btn-success" type="button" @click="HandleLike(post)">Like</button>
 					</div>
+				</div>
+				<div class="input-group mb-3">
+					<div class="input-group-append" style="margin-right: 10px">
+						<input type="text" class="form-control" placeholder="Comment" v-model="comment">
+					</div>
 					<div class="input-group-append">
-						<button class="btn btn-success" type="button" @click="HandleComment(post)">Comment</button>
+						<button class="btn btn-success" type="button" @click="HandleComment(post)">Add Comment</button>
 					</div>
-					</div>
+				</div>
+				<div>
+					<h3>Comments</h3>
+				</div>
+				<!-- chiamare la funzione getComments(postId) -->
+				<div class="col-md-4" v-for="(comment, index) in post.Comments" :key="index">
+					<p>{{ comment.CommentText }}</p>
+
+				</div>
 
 			</div>
 		</div>

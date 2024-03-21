@@ -6,13 +6,10 @@ func (db *appdbimpl) GetComments(postId uint64) (*[]Database_comment, error) {
 	if err != nil {
 		panic(err)
 	}
-	err = rows.Close()
-	if err != nil {
-		return nil, err
-	}
+	defer rows.Close()
 	for rows.Next() {
 		var comment Database_comment
-		err = rows.Scan(&comment.commentId, &comment.postId, &comment.commentOwner, &comment.commentText, &comment.creationTime)
+		err = rows.Scan(&comment.CommentId, &comment.PostId, &comment.CommentOwner, &comment.CommentText, &comment.CreationTime)
 		if err != nil {
 			panic(err)
 		}

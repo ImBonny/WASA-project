@@ -30,7 +30,7 @@ export default {
 
 			try {
 				console.log("Searching for profile");
-				let response = await this.$axios.get(`/users/profiles/${this.username}`, {
+				let response = await this.$axios.get(`/users/${this.username}/profiles`, {
 					params: {
 						username: this.username
 					},

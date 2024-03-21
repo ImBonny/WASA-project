@@ -363,7 +363,7 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
-  /users/profiles/{username}:
+  /users/{username}/profiles:
     parameters:
       - name: username
         in: path
@@ -609,6 +609,38 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
+    get:
+        tags: ["Post"]
+        operationId: getComments
+        summary: get comments on a post
+        description: given a postId and the username of the user who created it, it allows you to get all the comments on the post
+        parameters:
+          - name: postId
+            in: path
+            description: the Id of the post being commented on
+            required: true
+            schema: {$ref: '#/components/schemas/Post/properties/postId'}
+          - name: username
+            in: path
+            description: the username of the user whose post is being commented on
+            required: true
+            schema: {$ref: '#/components/schemas/User/properties/username'}
+        responses:
+            "200":
+            description: Successfully retrieved the comments
+            content:
+                application/json:
+                schema:
+                    title: comments
+                    description: the comments on the post
+                    type: array
+                    items: {$ref: '#/components/schemas/Comment'}
+                    minItems: 0
+                    maxItems: 99999
+            "400": { $ref: '#/components/responses/BadRequest' }
+            "401": { $ref: '#/components/responses/Unauthorized' }
+            "404": { $ref: '#/components/responses/NotFound' }
+            "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/posts/{postId}/comments/{commentId}:
     delete:
       tags: ["Post"]
