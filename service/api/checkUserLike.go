@@ -4,27 +4,27 @@ import (
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"strconv"
 )
 
-type unlikeRequest struct {
+type checkLikeRequest struct {
 	TargetPost uint64 `json:"TargetPost"`
 	LikeOwner  uint64 `json:"LikeOwner"`
 }
-type unlikeResponse struct {
-	Message string `json:"message"`
+
+type checkLikeResponse struct {
+	Like bool `json:"Like"`
 }
 
-// Handler for unliking a post
-func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	// Create a new unlike request
-	var unlikeReq unlikeRequest
+// Handler for checking if a post is liked
+func (rt *_router) checkUserLike(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	// Create a new checkLike request
+	var checkLikeReq checkLikeRequest
 	var err error
 	//decode the body
-	err = json.NewDecoder(r.Body).Decode(&unlikeReq)
-	print("unlikeReq: ", unlikeReq.TargetPost)
-	print("unlikeReq: ", unlikeReq.LikeOwner)
+	checkLikeReq.TargetPost, err = strconv.ParseUint(r.URL.Query().Get("TargetPost"), 10, 64)
+	checkLikeReq.LikeOwner, err = strconv.ParseUint(r.URL.Query().Get("LikeOwner"), 10, 64)
 	if err != nil {
-		print("error: ", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -41,16 +41,17 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	err2 := rt.db.UnlikePhoto(unlikeReq.LikeOwner, unlikeReq.TargetPost)
+	like, err2 := rt.db.CheckUserLike(checkLikeReq.LikeOwner, checkLikeReq.TargetPost)
 	if err2 != nil {
 		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
-	unlikeResponse := unlikeResponse{Message: "Successfully unliked the post"}
+	checkLikeResponse := checkLikeResponse{Like: like}
+	print("checkLikeResponse: ", checkLikeResponse.Like)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	err3 := json.NewEncoder(w).Encode(unlikeResponse)
+	err3 := json.NewEncoder(w).Encode(checkLikeResponse)
 	if err3 != nil {
 		http.Error(w, err3.Error(), http.StatusBadRequest)
 		return

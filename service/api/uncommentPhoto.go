@@ -7,7 +7,10 @@ import (
 )
 
 type uncommentRequest struct {
-	CommentId uint64 `json:"commentId"`
+	CommentId uint64 `json:"CommentId"`
+}
+type uncommentResponse struct {
+	Message string `json:"message"`
 }
 
 // Handler for uncommenting a post

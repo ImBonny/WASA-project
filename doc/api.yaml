@@ -543,7 +543,6 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
-  /users/{username}/posts/{postId}/likes/{likeId}:
     delete:
       tags: [ "Post" ]
       description: "Remove a like from a post"
@@ -571,6 +570,42 @@ paths:
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
+    get:
+      parameters:
+        - name: postId
+          in: path
+          description: the Id of the post being liked or unliked or the post to be deleted
+          required: true
+          schema: {$ref: '#/components/schemas/Post/properties/postId'}
+        - name: username
+          in: path
+          description: the username of the user whose post is being shown
+          required: true
+          schema: {$ref: '#/components/schemas/User/properties/username'}
+        - name: userId
+          in: query
+          description: the userId of the user who liked the post
+          required: true
+          schema: {$ref: '#/components/schemas/User/properties/userId'}
+      tags: ["Post"]
+      operationId: checkUserLike
+      summary: check if a user liked a post
+      description: given a postId and the userId of a user who created it, it allows you to check if the user liked the post
+      responses:
+          "201":
+            description: Successfully checked the like
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Indicates whether the like operation was successful or not.
+          "400": { $ref: '#/components/responses/BadRequest' }
+          "401": { $ref: '#/components/responses/Unauthorized' }
+          "404": { $ref: '#/components/responses/NotFound' }
+          "500": { $ref: '#/components/responses/InternalServerError' }
   /users/{username}/posts/{postId}/comments:
     post:
       tags: ["Post"]

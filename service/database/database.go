@@ -104,6 +104,9 @@ type AppDatabase interface {
 
 	GetImage(imageId string) (Database_photo, error)
 
+	//cHECK LIKE
+	CheckUserLike(userid uint64, photoid uint64) (bool, error)
+
 	// Ping checks whether the database is available or not (in that case, an error will be returned)
 	Ping() error
 

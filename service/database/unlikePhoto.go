@@ -2,7 +2,7 @@ package database
 
 import "errors"
 
-func (db *appdbimpl) UnlikePhoto(postID uint64, userID uint64) error {
+func (db *appdbimpl) UnlikePhoto(userID uint64, postID uint64) error {
 	var alreadyLiked bool
 	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 FROM likesDb WHERE userId = ? AND postId = ?)", userID, postID).Scan(&alreadyLiked)
 	if err != nil {
