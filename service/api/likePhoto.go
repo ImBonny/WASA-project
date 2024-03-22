@@ -2,29 +2,29 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/ImBonny/WASA-project.git/service/database"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
-	"strconv"
 )
 
 type LikeRequest struct {
-	targetPost uint64 `json:"postId"`
-	postOwner  string `json:"username"`
+	TargetPost uint64 `json:"TargetPost"`
+	LikeOwner  uint64 `json:"LikeOwner"`
 }
 
 type LikeResponse struct {
-	message string `json:"message"`
+	Like database.Database_like `json:"Like"`
 }
 
 // Handler for liking a post
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new like request
 	var likeReq LikeRequest
-	likeReq.postOwner = ps.ByName("username")
-	var err error
-	likeReq.targetPost, err = strconv.ParseUint(ps.ByName("postId"), 10, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	var err0 error
+	//Decode the body in the request
+	err0 = json.NewDecoder(r.Body).Decode(&likeReq)
+	if err0 != nil {
+		http.Error(w, err0.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -40,14 +40,15 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	err1 := rt.db.LikePhoto(likeReq.targetPost, token)
+	err1 := rt.db.LikePhoto(likeReq.TargetPost, token)
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusBadRequest)
 		return
 	}
 
-	likeResponse := LikeResponse{message: "Post liked"}
+	likeResponse := LikeResponse{Like: database.Database_like{PostId: likeReq.TargetPost, LikeOwner: likeReq.LikeOwner}}
 
+	print("likeResponse: ", likeResponse.Like.LikeOwner, likeResponse.Like.PostId)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	err2 := json.NewEncoder(w).Encode(likeResponse)

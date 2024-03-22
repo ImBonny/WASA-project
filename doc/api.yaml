@@ -772,6 +772,29 @@ paths:
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
 
+  /utils/usernames:
+    get:
+      tags: [ "search" ]
+      operationId: searchUserById
+      description: it allows you to search for a user's username using his userId
+      summary: search by userId
+      parameters:
+        - name: userId
+          description: The userId to search
+          in: query
+          required: true
+          schema: { $ref: "#/components/schemas/User/properties/userId" }
+      responses:
+        "200":
+          description: Successfully found the user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User/properties/username" }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
+
   /utils/follows:
     get:
       tags: [ "utils"]

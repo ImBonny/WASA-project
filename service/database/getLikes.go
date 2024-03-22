@@ -12,7 +12,7 @@ func (db *appdbimpl) GetLikes(postId uint64) (*[]Database_like, error) {
 	}
 	for rows.Next() {
 		var like Database_like
-		err = rows.Scan(&like.postId, &like.likeOwner, &like.creationTime)
+		err = rows.Scan(&like.PostId, &like.LikeOwner, &like.CreationTime)
 		if err != nil {
 			panic(err)
 		}

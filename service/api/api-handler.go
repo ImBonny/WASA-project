@@ -31,6 +31,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.DELETE("/users/:username/posts/:postId/comments/:commentId", rt.uncommentPhoto) // DONE
 	rt.router.DELETE("/users/:username/posts/:postId/likes/:likeId", rt.unlikePhoto)          // DONE
 	rt.router.GET("/utils/follows", rt.getFollows)                                            // DONE
+	rt.router.GET("/utils/usernames", rt.searchUserById)                                      // DONE
 	rt.router.GET("/images/:imageId", rt.getImage)                                            // DONE
 
 	return rt.router

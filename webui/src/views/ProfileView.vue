@@ -10,6 +10,7 @@ export default {
 			isFollowing: false,
 			posts: [],
 			comment: "",
+			usernames: {},
 		}
 	},
 	created() {
@@ -20,6 +21,10 @@ export default {
 
 	},
 	methods: {
+		formatDate(value) {
+			let date = new Date(value);
+			return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+		},
 		async checkFollowing(){
 			try{
 				console.log("Checking if user is following: " + JSON.parse(this.profile).Username);
@@ -102,6 +107,10 @@ export default {
 					}
 				});
 				console.log("Comments loaded");
+				// Load usernames for each comment
+				for (let comment of response.data.Comments) {
+					this.usernames[comment.CommentOwner] = await this.getUsername(comment.CommentOwner);
+				}
 				return response.data.Comments
 			} catch (error) {
 				console.error("Error loading comments:", error);
@@ -122,12 +131,50 @@ export default {
 						}
 					);
 					console.log("Comment added: " + response.data.CommentId);
+					//reload the comments
+					post.Comments = await this.getComments(post.PostId);
 					return response.data.CommentId;
 				} catch (error) {
 					console.error("Error adding comment:", error);
 				}
 			}
-		}
+		},
+		async HandleLike(post){
+			try {
+				let response = await this.$axios.post(`users/${JSON.parse(this.profile).Username}/posts/${post.PostId}/likes`, {
+						TargetPost: post.PostId,
+						LikeOwner: JSON.parse(this.id)
+					},
+					{
+						headers: {
+							Authorization: "Bearer " + this.id
+						}
+					}
+				);
+				console.log("Like added: " + response.data.Like.LikeOwner);
+				post.NLikes = post.NLikes + 1;
+				return response.data.Like;
+			} catch (error) {
+				console.error("Error adding like:", error);
+			}
+		},
+		 async getUsername(userId) {
+			 try {
+				 let response = await this.$axios.get(`/utils/usernames`, {
+					 headers: {
+						 Authorization: "Bearer " + this.id
+					 },
+					 params: {
+						 UserId: userId
+					 }
+				 });
+				 console.log("Username loaded: " + response.data.Username)
+				 return response.data.Username;
+			 } catch (error) {
+				 console.error("Error getting username:", error);
+
+			 }
+		 },
 	}
 }
 </script>
@@ -160,6 +207,10 @@ export default {
 					<div class="input-group-append" style="margin-right: 10px">
 						<button class="btn btn-success" type="button" @click="HandleLike(post)">Like</button>
 					</div>
+					<!-- like counter -->
+					<div class="input-group-append">
+						<p>{{ post.NLikes }} likes</p>
+						</div>
 				</div>
 				<div class="input-group mb-3">
 					<div class="input-group-append" style="margin-right: 10px">
@@ -174,8 +225,9 @@ export default {
 				</div>
 				<!-- chiamare la funzione getComments(postId) -->
 				<div class="col-md-4" v-for="(comment, index) in post.Comments" :key="index">
-					<p>{{ comment.CommentText }}</p>
-
+					<p class="comment">{{usernames[comment.CommentOwner]}}: {{ comment.CommentText }} <br>
+						<small>{{formatDate(comment.CreationTime)}}</small>
+					</p>
 				</div>
 
 			</div>

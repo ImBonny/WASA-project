@@ -6,6 +6,7 @@ import (
 )
 
 func (db *appdbimpl) LikePhoto(postID uint64, userID uint64) error {
+	print("likePhoto: ", postID, userID)
 	var alreadyLiked bool
 	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 FROM likesDb WHERE userId = ? AND postId = ?)", userID, postID).Scan(&alreadyLiked)
 	if err != nil {
