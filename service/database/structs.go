@@ -11,7 +11,7 @@ type Database_photo struct {
 	Description  string
 	NComments    uint
 	NLikes       uint
-	creationTime string
+	CreationTime string
 	PostId       uint64
 	Comments     []Database_comment
 }

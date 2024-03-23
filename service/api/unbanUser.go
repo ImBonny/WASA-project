@@ -7,8 +7,7 @@ import (
 )
 
 type unbanUserRequest struct {
-	BannedUser    string `json:"bannedUser"`
-	UnbanningUser string `json:"username"`
+	BannedUser string `json:"bannedUser"`
 }
 
 type unbanUserResponse struct {
@@ -19,14 +18,8 @@ type unbanUserResponse struct {
 func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new unban request
 	var unbanReq unbanUserRequest
-	unbanReq.UnbanningUser = ps.ByName("username")
-	unbanReq.BannedUser = ps.ByName("bannedUser")
 	// Decode the request body into unbanReq
-	var err error
-	if err = json.NewDecoder(r.Body).Decode(&unbanReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	unbanReq.BannedUser = r.URL.Query().Get("BannedUser")
 
 	token := getToken(r.Header.Get("Authorization"))
 

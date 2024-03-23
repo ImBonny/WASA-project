@@ -8,6 +8,7 @@ export default {
 			profile: localStorage.getItem("profile"),
 			id: localStorage.getItem("id"),
 			isFollowing: false,
+			isBanned: false,
 			posts: [],
 			comment: "",
 			usernames: {},
@@ -15,6 +16,7 @@ export default {
 	},
 	created() {
 		this.checkFollowing();
+		this.checkBanned();
 		console.log("Is following: " + this.isFollowing);
 		console.log("posts: " + JSON.parse(this.profile).Posts);
 		this.loadImage()
@@ -24,6 +26,28 @@ export default {
 		formatDate(value) {
 			let date = new Date(value);
 			return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+		},
+		async checkBanned() {
+			try {
+				console.log("Checking if user is banned: " + JSON.parse(this.profile).Username);
+				let response = await this.$axios.get(`/utils/banned`, {
+					headers: {
+						Authorization: "Bearer " + this.id
+					},
+					params: {
+						UsernameToCheck: JSON.parse(this.profile).Username,
+						UsernameBanning: this.username
+					}
+				},);
+				console.log("IS banned:" + response.data.Banned);
+				this.isBanned = response.data.Banned;
+			} catch (error) {
+				if (error.response) {
+					this.errormsg = error.response.data;
+				} else {
+					console.error("Errore durante la richiesta:", error.message);
+				}
+			}
 		},
 		async checkFollowing() {
 			try {
@@ -190,7 +214,7 @@ export default {
 				let response = await this.$axios.delete(`users/${JSON.parse(this.profile).Username}/posts/${post.PostId}/likes`, {
 					data: {
 						TargetPost: post.PostId,
-						LikeOwner: JSON.parse(this.id)
+						LikeOwner: this.id
 					},
 					headers: {
 						Authorization: "Bearer " + this.id
@@ -239,6 +263,46 @@ export default {
 
 			 }
 		 },
+		async HandleBan(){
+			if (this.isBanned) {
+				this.UnbanUser();
+			} else {
+				this.BanUser();
+			}
+		},
+		async BanUser() {
+			try {
+				let response = await this.$axios.put(`/users/${this.username}/banned`, {
+					BannedUser: JSON.parse(this.profile).Username
+				}, {
+					headers: {
+						Authorization: "Bearer " + this.id
+					}
+				});
+				this.isBanned = true;
+				console.log("User banned: " + JSON.parse(this.profile).Username);
+			} catch (error) {
+				console.log("Error banning user: " + JSON.parse(this.profile).Username);
+				this.errormsg = error.response.data;
+			}
+		},
+		async UnbanUser() {
+			try {
+				let response = await this.$axios.delete(`/users/${this.username}/banned/${JSON.parse(this.profile).Username}`, {
+					params: {
+						BannedUser: JSON.parse(this.profile).Username,
+					},
+					headers: {
+						Authorization: "Bearer " + this.id
+					}
+				});
+				this.isBanned = false;
+				console.log("User unbanned: " + JSON.parse(this.profile).Username);
+			} catch (error) {
+				console.log("Error unbanning user: " + JSON.parse(this.profile).Username);
+				this.errormsg = error.response.data;
+			}
+		}
 }
 }
 </script>
@@ -257,7 +321,7 @@ export default {
 			<button class="btn btn-success" type="button" @click="HandleFollow">{{ isFollowing ? 'Unfollow' : 'Follow' }}</button>
 		</div>
 		<div class="input-group-append">
-			<button class="btn btn-success" type="button" @click="Ban">Ban</button>
+			<button class="btn btn-success" type="button" @click="HandleBan">{{ isBanned ? 'UnBan' : 'Ban' }}</button>
 		</div>
 	</div>
 	<div>

@@ -13,6 +13,7 @@ func (db *appdbimpl) BanUser(id uint64, toBanId uint64) error {
 	}
 
 	_, err = db.c.Exec("INSERT INTO bannedDb (userBanningId, userToBanId) VALUES (?, ?)", id, toBanId)
+	_, err = db.c.Exec("DELETE FROM followersDb WHERE userFollowingId = ? AND userToFollowId = ?", toBanId, id)
 
 	return err
 }

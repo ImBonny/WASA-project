@@ -23,6 +23,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	print("\n" + banReq.BannedUser + "\n")
 
 	token := getToken(r.Header.Get("Authorization"))
 
@@ -35,8 +36,6 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, "token is invalid", http.StatusBadRequest)
 		return
 	}
-
-	banReq.BannedUser = ps.ByName("bannedUser")
 
 	bannedId, err0 := rt.db.GetIdFromUsername(banReq.BannedUser)
 	if err0 != nil {

@@ -2,7 +2,7 @@ package database
 
 func (db *appdbimpl) GetImage(imageId string) (image Database_photo, err error) {
 	var out Database_photo
-	err = db.c.QueryRow("SELECT postOwner, image, description, nComments, nLikes, creationTime, postId FROM postDb WHERE postId = ?", imageId).Scan(&out.PostOwner, &out.Image, &out.Description, &out.NComments, &out.NLikes, &out.creationTime, &out.PostId)
+	err = db.c.QueryRow("SELECT postOwner, image, description, nComments, nLikes, creationTime, postId FROM postDb WHERE postId = ?", imageId).Scan(&out.PostOwner, &out.Image, &out.Description, &out.NComments, &out.NLikes, &out.CreationTime, &out.PostId)
 	if err != nil {
 		return out, err
 	}

@@ -863,7 +863,7 @@ paths:
           "404": { $ref: '#/components/responses/NotFound' }
           "500": { $ref: '#/components/responses/InternalServerError' }
 
-    /images/{imageId}:
+  /images/{imageId}:
       get:
         summary: Get image by ID
         description: Retrieve the image by its ID
@@ -884,6 +884,39 @@ paths:
                   format: binary
           '404':
             description: Image not found
+
+  /utils/banned:
+    get:
+      tags: [ "utils"]
+      operationId: getBanned
+      description: it allows you to check if a user is banned by another one
+      summary: check if a user is banned by another one
+      parameters:
+       -  name: username1
+          in: query
+          description: The username of the user who wants to ban another one
+          required: true
+          schema: { $ref: "#/components/schemas/User/properties/username" }
+       -  name: username2
+          in: query
+          description: The username of the user to be banned
+          required: true
+          schema: { $ref: "#/components/schemas/User/properties/username" }
+      responses:
+          "201":
+            description: Successfully checked the banning
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Indicates whether the comment operation was successful or not.
+          "400": { $ref: '#/components/responses/BadRequest' }
+          "401": { $ref: '#/components/responses/Unauthorized' }
+          "404": { $ref: '#/components/responses/NotFound' }
+          "500": { $ref: '#/components/responses/InternalServerError' }
 
 
 

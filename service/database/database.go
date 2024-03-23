@@ -107,6 +107,11 @@ type AppDatabase interface {
 	//cHECK LIKE
 	CheckUserLike(userid uint64, photoid uint64) (bool, error)
 
+	// Check if a user is banned
+	IsBanned(id1 uint64, id2 uint64) (bool, error)
+
+	GetImages(ids *[]uint64) (*[]Database_photo, error)
+
 	// Ping checks whether the database is available or not (in that case, an error will be returned)
 	Ping() error
 
