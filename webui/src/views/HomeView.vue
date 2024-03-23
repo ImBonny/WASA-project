@@ -20,7 +20,7 @@ export default {
 					this.id = response.data.Identifier;
 					localStorage.setItem("username", this.username);
 					localStorage.setItem("id", this.id);
-					this.$router.push("/session");
+					this.$router.push(`/users/${this.username}/stream`);
 
 				} catch (error) {
 					this.errormsg = error.response.data;

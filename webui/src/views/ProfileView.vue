@@ -5,16 +5,19 @@ export default {
 		return {
 			errormsg: null,
 			username: localStorage.getItem("username") || "",
-			profile: localStorage.getItem("profile"),
-			id: localStorage.getItem("id"),
+			profile: localStorage.getItem("profile") || "",
+			id: localStorage.getItem("id") || "",
 			isFollowing: false,
 			isBanned: false,
 			posts: [],
 			comment: "",
 			usernames: {},
+			userProfile: {},
+			ismyProfile: false
 		}
 	},
 	created() {
+		this.checkIsMyProfile();
 		this.checkFollowing();
 		this.checkBanned();
 		console.log("Is following: " + this.isFollowing);
@@ -26,6 +29,11 @@ export default {
 		formatDate(value) {
 			let date = new Date(value);
 			return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+		},
+		async checkIsMyProfile() {
+			if (JSON.parse(this.profile).Username === this.username) {
+				this.ismyProfile = true;
+			}
 		},
 		async checkBanned() {
 			try {
@@ -302,25 +310,112 @@ export default {
 				console.log("Error unbanning user: " + JSON.parse(this.profile).Username);
 				this.errormsg = error.response.data;
 			}
+		},
+		async deletePost(post) {
+			try {
+				let response = await this.$axios.delete(`users/${this.username}/posts/${post.PostId}`, {
+					headers: {
+						Authorization: "Bearer " + this.id
+					}
+				});
+				console.log("Post deleted: " + post.PostId);
+				this.posts = this.posts.filter(p => p.PostId !== post.PostId);
+			} catch (error) {
+				console.error("Error deleting post:", error);
+			}
+		},
+		async home() {
+			this.$router.push(`/users/${this.username}/stream`);
+		},
+		async search() {
+			this.$router.push(`/users`);
+		},
+		async myProfile() {
+			try {
+				console.log("Searching for profile");
+				let response = await this.$axios.get(`/users/${this.username}/profiles`, {
+					params: {
+						username: this.username
+					},
+					headers:
+						{
+							Authorization: "Bearer " + this.id
+						}
+				});
+				this.userProfile = response.data.profile;
+				console.log("Profile found: " + this.userProfile.Username);
+				console.log("Number of photos: " + this.userProfile.NumberOfPhotos);
+
+				this.posts = response.data.profile.Posts;
+
+				console.log("Posts found: " + response.data.profile.Posts);
+				localStorage.setItem("profile", JSON.stringify(this.userProfile));
+				console.log(localStorage.getItem("profile"));
+				this.$router.push(`/users/${this.username}/profile`);
+				//refresh the page
+				location.reload();
+			} catch (error) {
+				this.errormsg = error.response.data;
+			}},
+		async logout() {
+			localStorage.clear();
+			this.$router.push(`/`);
 		}
+
 }
 }
 </script>
 
 
 <template>
+	<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+		<div class="position-sticky pt-3 sidebar-sticky">
+			<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+				<span>General</span>
+			</h6>
+			<ul class="nav flex-column">
+				<li class="nav-item">
+					<router-link to=""  class="nav-link" @click="home">
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#home"/></svg>
+						Home
+					</router-link>
+				</li>
+				<li class="nav-item">
+					<RouterLink to="" class="nav-link" @click="search">
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#layout"/></svg>
+						Search
+					</RouterLink>
+				</li>
+				<li class="nav-item">
+					<RouterLink to="" class="nav-link" @click="myProfile">
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#key"/></svg>
+						My Profile
+					</RouterLink>
+				</li>
+			</ul>
+
+			<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+				<span>Secondary menu</span>
+			</h6>
+			<ul class="nav flex-column">
+				<li class="nav-item">
+					<RouterLink to="" class="nav-link" @click="logout">
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#file-text"/></svg>
+						Item 1
+					</RouterLink>
+				</li>
+			</ul>
+		</div>
+	</nav>
 	<div
 		class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 		<h1>{{JSON.parse(profile).Username}}'s Profile</h1>
 	</div>
-	<div>
-		<h3>Please select an option from the buttons below:</h3>
-	</div>
 	<div class="input-group mb-3">
-		<div class="input-group-append" style="margin-right: 10px">
+		<div class="input-group-append" style="margin-right: 10px" v-if="!ismyProfile">
 			<button class="btn btn-success" type="button" @click="HandleFollow">{{ isFollowing ? 'Unfollow' : 'Follow' }}</button>
 		</div>
-		<div class="input-group-append">
+		<div class="input-group-append" v-if="!ismyProfile">
 			<button class="btn btn-success" type="button" @click="HandleBan">{{ isBanned ? 'UnBan' : 'Ban' }}</button>
 		</div>
 	</div>
@@ -350,6 +445,9 @@ export default {
 					<div class="input-group-append">
 						<button class="btn btn-success" type="button" @click="HandleComment(post)">Add Comment</button>
 					</div>
+				</div>
+				<div class="input-group-append" v-if="ismyProfile">
+					<button class="btn btn-danger" type="button" @click="deletePost(post)">Delete Post</button>
 				</div>
 				<div>
 					<h3>Comments</h3>

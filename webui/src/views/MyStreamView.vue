@@ -31,9 +31,6 @@ export default {
 				this.errormsg = error.response.data.message;
 			}
 		},
-		home() {
-			this.$router.push(`/users/${this.username}/stream`);
-		},
 		async loadImage() {
 			await this.getMyStream();
 			for (let i = 0; i < this.stream.length; i++) {
@@ -198,6 +195,20 @@ export default {
 				}
 			}
 		},
+		async home() {
+			this.$router.push(`/users/${this.username}/stream`);
+		},
+		async search() {
+			this.$router.push(`/users`);
+		},
+		async myProfile() {
+			this.$router.push(`/users/${this.username}/profile`);
+		},
+		async logout() {
+			localStorage.clear();
+			this.$router.push(`/`);
+		}
+
 	},
 	mounted() {
 		this.getMyStream();
@@ -220,21 +231,21 @@ export default {
 			</h6>
 			<ul class="nav flex-column">
 				<li class="nav-item">
-					<router-link to="/users/:username/stream" class="nav-link" @click="home">
+					<router-link to=""  class="nav-link" @click="home">
 						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#home"/></svg>
 						Home
 					</router-link>
 				</li>
 				<li class="nav-item">
-					<RouterLink to="/link1" class="nav-link">
+					<RouterLink to="" class="nav-link" @click="search">
 						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#layout"/></svg>
-						Menu item 1
+						Search
 					</RouterLink>
 				</li>
 				<li class="nav-item">
-					<RouterLink to="/link2" class="nav-link">
+					<RouterLink to="" class="nav-link" @click="myProfile">
 						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#key"/></svg>
-						Menu item 2
+						My Profile
 					</RouterLink>
 				</li>
 			</ul>
@@ -244,7 +255,7 @@ export default {
 			</h6>
 			<ul class="nav flex-column">
 				<li class="nav-item">
-					<RouterLink :to="'/some/' + 'variable_here' + '/path'" class="nav-link">
+					<RouterLink to="" class="nav-link" @click="logout">
 						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#file-text"/></svg>
 						Item 1
 					</RouterLink>
