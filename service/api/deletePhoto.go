@@ -33,7 +33,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	var err1 error
-	deleteReq.postId, err1 = strconv.ParseUint(ps.ByName("postId"))
+	deleteReq.postId, err1 = strconv.ParseUint(ps.ByName("postId"), 10, 64)
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusBadRequest)
 	}
