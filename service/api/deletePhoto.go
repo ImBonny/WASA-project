@@ -20,11 +20,6 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// Create a new delete request
 	var deleteReq deleteRequest
 	// Decode the request body into deleteReq
-	var err error
-	if err = json.NewDecoder(r.Body).Decode(&deleteReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
 
 	token := getToken(r.Header.Get("Authorization"))
 
@@ -42,6 +37,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusBadRequest)
 	}
+	print(deleteReq.postId)
 	err2 := rt.db.DeletePhoto(uint64(deleteReq.postId))
 	if err2 != nil {
 		http.Error(w, err2.Error(), http.StatusBadRequest)
@@ -53,7 +49,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	w.WriteHeader(http.StatusCreated)
 	err3 := json.NewEncoder(w).Encode(deleteResponse)
 	if err3 != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err3.Error(), http.StatusBadRequest)
 		return
 	}
 }

@@ -10,8 +10,9 @@ func (db *appdbimpl) DeletePhoto(postId uint64) error {
 	}
 	if !exists {
 		return errors.New("not such Post")
+		return nil
 	}
-	return nil
+
 	_, err = db.c.Exec("DELETE FROM postDb WHERE postId = ?", postId)
 	return err
 }

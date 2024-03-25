@@ -10,6 +10,7 @@ export default {
 			id: localStorage.getItem("id"),
 			user: "",
 			profile: "",
+			userProfile: {},
 		}
 	},
 	methods: {
@@ -92,12 +93,32 @@ export default {
 			this.$router.push(`/users`);
 		},
 		async myProfile() {
-			this.$router.push(`/users/${this.username}/profile`);
+			try {
+				console.log("Searching for profile");
+				let response = await this.$axios.get(`/users/${this.username}/profiles`, {
+					params: {
+						username: this.username
+					},
+					headers:
+						{
+							Authorization: "Bearer " + this.id
+						}
+				});
+				this.userProfile = response.data.profile;
+				console.log("Profile found: " + this.userProfile.Username);
+				console.log("Number of photos: " + this.userProfile.NumberOfPhotos);
+				localStorage.setItem("profile", JSON.stringify(this.userProfile));
+				console.log(localStorage.getItem("profile"));
+				this.$router.push(`/users/${this.username}/profile`);
+				//refresh the page
+			} catch (error) {
+				this.errormsg = error.response.data;
+			}
 		},
 		async logout() {
 			localStorage.clear();
 			this.$router.push(`/`);
-		}
+		},
 	}
 
 }
@@ -107,7 +128,7 @@ export default {
 	<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
 		<div class="position-sticky pt-3 sidebar-sticky">
 			<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-				<span>General</span>
+				<span>Navigation</span>
 			</h6>
 			<ul class="nav flex-column">
 				<li class="nav-item">
@@ -118,26 +139,26 @@ export default {
 				</li>
 				<li class="nav-item">
 					<RouterLink to="" class="nav-link" @click="search">
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#layout"/></svg>
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#search"/></svg>
 						Search
 					</RouterLink>
 				</li>
 				<li class="nav-item">
 					<RouterLink to="" class="nav-link" @click="myProfile">
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#key"/></svg>
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user"/></svg>
 						My Profile
 					</RouterLink>
 				</li>
 			</ul>
 
 			<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-				<span>Secondary menu</span>
+				<span>Settings</span>
 			</h6>
 			<ul class="nav flex-column">
 				<li class="nav-item">
 					<RouterLink to="" class="nav-link" @click="logout">
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#file-text"/></svg>
-						Item 1
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#log-out"/></svg>
+						Logout
 					</RouterLink>
 				</li>
 			</ul>
@@ -145,14 +166,17 @@ export default {
 	</nav>
 	<div
 		class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-		<h1 class="h2">Welcome to WASAPhoto</h1>
+		<h1 class="h2">Search a User</h1>
 	</div>
 	<div class="input-group mb-3">
-		<input type="text" id="username" v-model="usernameToSearch" class="form-control"
+		<input type="text" id="username" v-model="usernameToSearch" class="form-control search-input"
 			   placeholder="Insert the username to search" aria-label="Recipient's username"
 			   aria-describedby="basic-addon2">
-		<div class="input-group-append">
-			<button class="btn btn-success" type="button" @click="searchUser">Search</button>
+		<div>
+			<button class="search-button" type="button" @click="searchUser">
+				<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#search"/></svg>
+				Search
+			</button>
 		</div>
 	</div>
 	<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>

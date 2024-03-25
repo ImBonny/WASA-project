@@ -13,17 +13,25 @@ export default {
 			comment: "",
 			usernames: {},
 			userProfile: {},
-			ismyProfile: false
+			ismyProfile: false,
+			selectedFile: null,
+			caption: "",
+			followers: [],
+			following: [],
 		}
+	},
+	mounted() {
+		if (!this.ismyProfile) {
+			this.checkFollowing();
+			this.checkBanned();
+			console.log("Is following: " + this.isFollowing);
+		}
+		this.getFollowers()
+		this.getFollowing()
+		this.loadImage()
 	},
 	created() {
 		this.checkIsMyProfile();
-		this.checkFollowing();
-		this.checkBanned();
-		console.log("Is following: " + this.isFollowing);
-		console.log("posts: " + JSON.parse(this.profile).Posts);
-		this.loadImage()
-
 	},
 	methods: {
 		formatDate(value) {
@@ -86,7 +94,7 @@ export default {
 					headers: {
 						Authorization: "Bearer " + this.id
 					},
-					params:{
+					params: {
 						TargetPost: post.PostId,
 						LikeOwner: JSON.parse(this.id)
 					}
@@ -222,7 +230,7 @@ export default {
 				let response = await this.$axios.delete(`users/${JSON.parse(this.profile).Username}/posts/${post.PostId}/likes`, {
 					data: {
 						TargetPost: post.PostId,
-						LikeOwner: this.id
+						LikeOwner: JSON.parse(this.id)
 					},
 					headers: {
 						Authorization: "Bearer " + this.id
@@ -254,24 +262,24 @@ export default {
 				console.error("Error removing comment:", error);
 			}
 		},
-		 async getUsername(userId) {
-			 try {
-				 let response = await this.$axios.get(`/utils/usernames`, {
-					 headers: {
-						 Authorization: "Bearer " + this.id
-					 },
-					 params: {
-						 UserId: userId
-					 }
-				 });
-				 console.log("Username loaded: " + response.data.Username)
-				 return response.data.Username;
-			 } catch (error) {
-				 console.error("Error getting username:", error);
+		async getUsername(userId) {
+			try {
+				let response = await this.$axios.get(`/utils/usernames`, {
+					headers: {
+						Authorization: "Bearer " + this.id
+					},
+					params: {
+						UserId: userId
+					}
+				});
+				console.log("Username loaded: " + response.data.Username)
+				return response.data.Username;
+			} catch (error) {
+				console.error("Error getting username:", error);
 
-			 }
-		 },
-		async HandleBan(){
+			}
+		},
+		async HandleBan() {
 			if (this.isBanned) {
 				this.UnbanUser();
 			} else {
@@ -356,13 +364,124 @@ export default {
 				location.reload();
 			} catch (error) {
 				this.errormsg = error.response.data;
-			}},
+			}
+		},
 		async logout() {
 			localStorage.clear();
 			this.$router.push(`/`);
-		}
+		},
+		async UploadPhoto() {
+			// Crea un elemento input di tipo file
+			let input = document.createElement("input");
+			input.type = "file";
+			input.accept = "image/*";
 
-}
+			// Aspetta che venga selezionato un file prima di andare avanti
+			let selectedFilePromise = new Promise((resolve) => {
+				input.onchange = () => resolve(input.files[0]);
+			});
+
+			// Simula il clic sull'elemento input per aprire la finestra di dialogo di selezione del file
+			input.click();
+
+			// Attendi che l'utente selezioni un file
+			this.selectedFile = await selectedFilePromise;
+
+			// Leggi il contenuto del file come array di byte
+			let reader = new FileReader();
+			reader.readAsArrayBuffer(this.selectedFile);
+
+			// Attendi che il reader completi la lettura del file
+			let fileDataPromise = new Promise((resolve) => {
+				reader.onload = () => resolve(reader.result);
+			});
+
+			// Ottieni i dati binari del file
+			let fileData = await fileDataPromise;
+
+			//Aggiungi la caption
+			this.caption = prompt("Inserisci una caption per la foto");
+			if (this.caption == null) {
+				this.caption = "";
+			}
+
+			// Invia i dati binari del file al backend
+			try {
+				console.log("Uploading file: " + this.selectedFile.name);
+				let response = await this.$axios.post(`/users/${this.username}/posts`, {
+					image: Array.from(new Uint8Array(fileData)),  // Converti i dati del file in un array di byte
+					caption: this.caption
+				}, {
+					headers: {
+						Authorization: "Bearer " + this.id
+					}
+				});
+				console.log("File uploaded: " + response.data);
+				await this.myProfile();
+			} catch (error) {
+				console.log("Error uploading file: " + error.response.data);
+				this.errormsg = error.response.data;
+			}
+
+
+		},
+		async changeUsername() {
+			this.newUsername = prompt("Enter new username");
+			try {
+				let response = await this.$axios.put(`/users/${this.username}`, {
+
+					newUsername: this.newUsername
+				}, {
+					headers:
+						{
+							Authorization: "Bearer " + this.id
+						}
+				})
+				this.username = response.data.newUsername;
+				console.log("Username changed to:" + this.username)
+				localStorage.setItem("username", this.username);
+				await this.myProfile();
+
+			} catch (error) {
+				this.errormsg = error.response.data;
+			}
+
+		},
+		async getFollowers() {
+			try {
+				let response = await this.$axios.get(`/users/${JSON.parse(this.profile).Username}/followers`, {
+					headers: {
+						Authorization: "Bearer " + this.id
+					}
+				});
+				if (response.data.Followers === null) {
+					this.followers = [];
+				}
+				else {
+					this.followers = response.data.Followers;
+				}
+			} catch (error) {
+				console.error("Error getting followers:", error);
+			}
+		},
+		async getFollowing() {
+			try {
+				let response = await this.$axios.get(`/users/${JSON.parse(this.profile).Username}/following`, {
+					headers: {
+						Authorization: "Bearer " + this.id
+					}
+				});
+				if (response.data.Followings === null || response.data.Followings === undefined) {
+					this.following = [];
+				}
+				else {
+					this.following = response.data.Followings;
+				}
+			} catch (error) {
+				console.error("Error getting following:", error);
+			}
+		}
+	}
 }
 </script>
 
@@ -371,7 +490,7 @@ export default {
 	<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
 		<div class="position-sticky pt-3 sidebar-sticky">
 			<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-				<span>General</span>
+				<span>Navigation</span>
 			</h6>
 			<ul class="nav flex-column">
 				<li class="nav-item">
@@ -382,91 +501,108 @@ export default {
 				</li>
 				<li class="nav-item">
 					<RouterLink to="" class="nav-link" @click="search">
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#layout"/></svg>
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#search"/></svg>
 						Search
 					</RouterLink>
 				</li>
 				<li class="nav-item">
 					<RouterLink to="" class="nav-link" @click="myProfile">
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#key"/></svg>
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user"/></svg>
 						My Profile
 					</RouterLink>
 				</li>
 			</ul>
 
 			<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-				<span>Secondary menu</span>
+				<span>Settings</span>
 			</h6>
 			<ul class="nav flex-column">
 				<li class="nav-item">
 					<RouterLink to="" class="nav-link" @click="logout">
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#file-text"/></svg>
-						Item 1
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#log-out"/></svg>
+						Logout
 					</RouterLink>
 				</li>
 			</ul>
 		</div>
 	</nav>
-	<div
-		class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+	<div class="profile-header">
 		<h1>{{JSON.parse(profile).Username}}'s Profile</h1>
+		<div class="counters"> Followers: {{followers.length>0 ? followers.length : 0}}<br>
+		Followings: {{following.length>0 ? following.length : 0}}</div>
+		<div class="input-group-append" style="margin-right: 10px" v-if="ismyProfile">
+			<button class="changeUsername-button" type="button" @click="changeUsername" >Change Username</button>
+		</div>
 	</div>
 	<div class="input-group mb-3">
 		<div class="input-group-append" style="margin-right: 10px" v-if="!ismyProfile">
-			<button class="btn btn-success" type="button" @click="HandleFollow">{{ isFollowing ? 'Unfollow' : 'Follow' }}</button>
+			<button class="follow-button" type="button" @click="HandleFollow">{{ isFollowing ? 'Unfollow' : 'Follow' }}</button>
 		</div>
 		<div class="input-group-append" v-if="!ismyProfile">
-			<button class="btn btn-success" type="button" @click="HandleBan">{{ isBanned ? 'UnBan' : 'Ban' }}</button>
+			<button class="ban-button" type="button" @click="HandleBan">{{ isBanned ? 'UnBan' : 'Ban' }}</button>
 		</div>
 	</div>
 	<div>
-		<h2>Profile Posts</h2>
-		<div>
-			<div v-for="(post, index) in posts" :key="index" class="postBox">
+		<h2>Number of posts: {{posts.length}}</h2>
+		<div class="input-group-append" v-if="ismyProfile">
+			<button class="upload-button" type="button" @click="UploadPhoto">Upload a Post</button>
+		</div>
+		<div v-for="(post, index) in posts" :key="index" class="postBox">
+			<div>
+				<div class="input-group-append" v-if="ismyProfile">
+					<button class="deletePost-button" type="button" @click="deletePost(post)">
+						<svg class="feather trash"><use href="/feather-sprite-v4.29.0.svg#trash-2"/></svg>
+					</button>
+				</div>
 				<img :src="`data:image/*;base64,${post.Image}`" alt="photo" class="post">
-				<p>{{ post.Description }}</p>
+				<p class="description">{{ post.Description }}</p>
+				<p class="dateTime">{{formatDate(post.CreationTime)}}</p>
 				<!-- bottone per aggiungere un commento -->
-				<div class="input-group mb-3">
-					<div class="input-group-append" style="margin-right: 10px">
-						<button class="btn btn-success" type="button" @click="HandleLike(post)" v-if="!post.isLiked">Like</button>
+				<div class="like-bar">
+					<div class="input-group-append">
+						<button class="like-button" @click="HandleLike(post)" v-if="!post.isLiked">
+							<svg class="feather like"><use href="/feather-sprite-v4.29.0.svg#heart"/></svg>
+						</button>
 					</div>
-					<div class="input-group-append" style="margin-right: 10px">
-						<button class="btn btn-success" type="button" @click="unlikePost(post)" v-if="post.isLiked">UnLike</button>
+					<div class="input-group-append">
+						<button class="like-button" @click="unlikePost(post)" v-if="post.isLiked">
+							<svg class="feather like"><use href="/feather-sprite-v4.29.0.svg#heart" style="fill: red;"/></svg>
+						</button>
 					</div>
 					<!-- like counter -->
+					<div class="input-group-append" style="margin-left: 10px">
+						<p class=" like-counter">{{ post.NLikes }} likes</p>
+					</div>
+				</div>
+				<div class="comment-bar">
+					<div class="comment-input">
+						<input type="text" class="form-control" placeholder="Add a comment..." v-model="comment">
+					</div>
 					<div class="input-group-append">
-						<p>{{ post.NLikes }} likes</p>
+						<button class="comment-button" type="button" @click="HandleComment(post)">
+							<svg class="feather addcomment"><use href="/feather-sprite-v4.29.0.svg#message-square"/></svg>
+						</button>
 					</div>
 				</div>
-				<div class="input-group mb-3">
-					<div class="input-group-append" style="margin-right: 10px">
-						<input type="text" class="form-control" placeholder="Comment" v-model="comment">
-					</div>
-					<div class="input-group-append">
-						<button class="btn btn-success" type="button" @click="HandleComment(post)">Add Comment</button>
-					</div>
 				</div>
-				<div class="input-group-append" v-if="ismyProfile">
-					<button class="btn btn-danger" type="button" @click="deletePost(post)">Delete Post</button>
-				</div>
-				<div>
-					<h3>Comments</h3>
-				</div>
-				<!-- chiamare la funzione getComments(postId) -->
+			<!-- commenti -->
+			<div class="comment-box">
 				<div class="col-md-4" v-for="(comment, index) in post.Comments" :key="index">
-					<p class="comment">{{usernames[comment.CommentOwner]}}: {{ comment.CommentText }} <br>
-						<small>{{formatDate(comment.CreationTime)}}</small>
-					</p>
-
-					<div class="input-group-append" v-if="comment.CommentOwner == id">
-						<button class="btn btn-success" type="button" @click="uncommentPost(post,comment)">Delete Comment</button>
+					<div class="comment">
+						<div style="display: flex;flex-direction: row">
+							<p class="comment-user">{{usernames[comment.CommentOwner]}}: </p>
+							<p class="comment-text">{{ comment.CommentText }}</p>
+						</div>
+						<p class="dateTime">{{formatDate(comment.CreationTime)}}</p>
+						<button class="delete-button" type="button" @click="uncommentPost(post,comment)" v-if="comment.CommentOwner==this.id">
+							<svg class="feather trash"><use href="/feather-sprite-v4.29.0.svg#trash-2"/></svg>
+						</button>
 					</div>
-					</div>
-
+				</div>
 			</div>
+
 		</div>
 	</div>
-
 	<!-- Display error message if any -->
 	<ErrorMsg v-if="errormsg" :msg="errormsg" />
 
@@ -474,19 +610,4 @@ export default {
 </template>
 
 <style scoped>
-	.postBox {
-		background-color: #f0f0f0;
-		padding: 10px;
-		margin: 10px;
-	}
-	.post {
-		max-width: 200px;
-		max-height: 200px;
-	}
-	.comment {
-		background-color: #f0f0f0;
-		padding: 10px;
-		margin: 10px;
-	}
-
 </style>

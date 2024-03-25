@@ -12,7 +12,7 @@ type uploadPhotoRequest struct {
 }
 
 type uploadPhotoResponse struct {
-	PhotoId string `json:"photoId"`
+	PhotoId uint64 `json:"photoId"`
 }
 
 // Upload a photo to the current user's profile
@@ -42,8 +42,9 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, err1.Error(), http.StatusBadRequest)
 		return
 	}
+	response := uploadPhotoResponse{photoId}
 
-	err2 := json.NewEncoder(w).Encode(photoId)
+	err2 := json.NewEncoder(w).Encode(response)
 	if err2 != nil {
 		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return

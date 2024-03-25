@@ -11,7 +11,9 @@ export default {
 			stream: [],
 			comment: "",
 			usernames: {},
-			target: ""
+			target: "",
+			userProfile: {},
+
 		}
 	},
 	methods: {
@@ -202,12 +204,31 @@ export default {
 			this.$router.push(`/users`);
 		},
 		async myProfile() {
-			this.$router.push(`/users/${this.username}/profile`);
+			try {
+				console.log("Searching for profile");
+				let response = await this.$axios.get(`/users/${this.username}/profiles`, {
+					params: {
+						username: this.username
+					},
+					headers:
+						{
+							Authorization: "Bearer " + this.id
+						}
+				});
+				this.userProfile = response.data.profile;
+				console.log("Profile found: " + this.userProfile.Username);
+				console.log("Number of photos: " + this.userProfile.NumberOfPhotos);
+				localStorage.setItem("profile", JSON.stringify(this.userProfile));
+				console.log(localStorage.getItem("profile"));
+				this.$router.push(`/users/${this.username}/profile`);
+			} catch (error) {
+				this.errormsg = error.response.data;
+			}
 		},
 		async logout() {
 			localStorage.clear();
 			this.$router.push(`/`);
-		}
+		},
 
 	},
 	mounted() {
@@ -227,7 +248,7 @@ export default {
 	<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
 		<div class="position-sticky pt-3 sidebar-sticky">
 			<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-				<span>General</span>
+				<span>Navigation</span>
 			</h6>
 			<ul class="nav flex-column">
 				<li class="nav-item">
@@ -238,26 +259,26 @@ export default {
 				</li>
 				<li class="nav-item">
 					<RouterLink to="" class="nav-link" @click="search">
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#layout"/></svg>
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#search"/></svg>
 						Search
 					</RouterLink>
 				</li>
 				<li class="nav-item">
 					<RouterLink to="" class="nav-link" @click="myProfile">
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#key"/></svg>
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user"/></svg>
 						My Profile
 					</RouterLink>
 				</li>
 			</ul>
 
 			<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-				<span>Secondary menu</span>
+				<span>Settings</span>
 			</h6>
 			<ul class="nav flex-column">
 				<li class="nav-item">
 					<RouterLink to="" class="nav-link" @click="logout">
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#file-text"/></svg>
-						Item 1
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#log-out"/></svg>
+						Logout
 					</RouterLink>
 				</li>
 			</ul>
@@ -265,41 +286,53 @@ export default {
 	</nav>
 	<!-- stream -->
 	<div v-for="(post, index) in stream" :key="index" class="postBox">
-		<img :src="`data:image/*;base64,${post.Image}`" alt="photo" class="post">
-		<p>{{ post.Description }}</p>
-		<!-- bottone per aggiungere un commento -->
-		<div class="input-group mb-3">
-			<div class="input-group-append" style="margin-right: 10px">
-				<button class="btn btn-success" type="button" @click="HandleLike(post)" v-if="!post.isLiked">Like</button>
-			</div>
-			<div class="input-group-append" style="margin-right: 10px">
-				<button class="btn btn-success" type="button" @click="unlikePost(post)" v-if="post.isLiked">UnLike</button>
-			</div>
-			<!-- like counter -->
-			<div class="input-group-append">
-				<p>{{ post.NLikes }} likes</p>
-			</div>
-		</div>
-		<div class="input-group mb-3">
-			<div class="input-group-append" style="margin-right: 10px">
-				<input type="text" class="form-control" placeholder="Comment" v-model="comment">
-			</div>
-			<div class="input-group-append">
-				<button class="btn btn-success" type="button" @click="HandleComment(post)">Add Comment</button>
-			</div>
-		</div>
 		<div>
-			<h3>Comments</h3>
-		</div>
-		<!-- chiamare la funzione getComments(postId) -->
-		<div class="col-md-4" v-for="(comment, index) in post.Comments" :key="index">
-			<p class="comment">{{usernames[comment.CommentOwner]}}: {{ comment.CommentText }} <br>
-				<small>{{formatDate(comment.CreationTime)}}</small>
-			</p>
-
-			<div class="input-group-append" v-if="comment.CommentOwner == id">
-				<button class="btn btn-success" type="button" @click="uncommentPost(post,comment)">Delete Comment</button>
+			<h2 style="margin-left: 10px">{{usernames[post.PostOwner]}}</h2>
+			<img :src="`data:image/*;base64,${post.Image}`" alt="photo" class="post">
+			<p class="description">{{ post.Description }}</p>
+			<p class="dateTime">{{formatDate(post.CreationTime)}}</p>
+			<!-- bottone per aggiungere un commento -->
+			<div class="like-bar">
+				<div class="input-group-append">
+					<button class="like-button" @click="HandleLike(post)" v-if="!post.isLiked">
+						<svg class="feather like"><use href="/feather-sprite-v4.29.0.svg#heart"/></svg>
+					</button>
+				</div>
+				<div class="input-group-append">
+					<button class="like-button" @click="unlikePost(post)" v-if="post.isLiked">
+						<svg class="feather like"><use href="/feather-sprite-v4.29.0.svg#heart" style="fill: red;"/></svg>
+					</button>
+				</div>
+				<!-- like counter -->
+				<div class="input-group-append" style="margin-left: 10px">
+					<p class=" like-counter">{{ post.NLikes }} likes</p>
+				</div>
 			</div>
+			<div class="comment-bar">
+				<div class="comment-input">
+					<input type="text" class="form-control" placeholder="Add a comment..." v-model="comment">
+				</div>
+				<div class="input-group-append">
+					<button class="comment-button" type="button" @click="HandleComment(post)">
+						<svg class="feather addcomment"><use href="/feather-sprite-v4.29.0.svg#message-square"/></svg>
+					</button>
+				</div>
+			</div>
+		</div>
+		<!-- commenti -->
+		<div class="comment-box">
+		<div class="col-md-4" v-for="(comment, index) in post.Comments" :key="index">
+			<div class="comment">
+				<div style="display: flex;flex-direction: row">
+					<p class="comment-user">{{usernames[comment.CommentOwner]}}: </p>
+					<p class="comment-text">{{ comment.CommentText }}</p>
+				</div>
+				<p class="dateTime">{{formatDate(comment.CreationTime)}}</p>
+				<button class="delete-button" type="button" @click="uncommentPost(post,comment)" v-if="comment.CommentOwner == this.id">
+					<svg class="feather trash"><use href="/feather-sprite-v4.29.0.svg#trash-2"/></svg>
+				</button>
+			</div>
+		</div>
 		</div>
 
 	</div>
@@ -307,5 +340,6 @@ export default {
 </template>
 
 <style scoped>
+
 
 </style>

@@ -885,6 +885,65 @@ paths:
           '404':
             description: Image not found
 
+  /users/{username}/followers:
+    get:
+        tags: [ "theirProfile" ]
+        operationId: getFollowers
+        description: it allows you to get all the followers of a user
+        summary: get all the followers of a user
+        parameters:
+            - name: username
+              in: path
+              description: The username of the user whose followers are being shown
+              required: true
+              schema: { $ref: "#/components/schemas/User/properties/username" }
+        responses:
+            "200":
+              description: Successfully retrieved the followers
+              content:
+                application/json:
+                  schema:
+                      title: followers
+                      description: the followers of the user
+                      type: array
+                      items: {$ref:"'#/components/schemas/User/properties/username"}
+                      minItems: 0
+                      maxItems: 99999
+            "400": { $ref: '#/components/responses/BadRequest' }
+            "401": { $ref: '#/components/responses/Unauthorized' }
+            "404": { $ref: '#/components/responses/NotFound' }
+            "500": { $ref: '#/components/responses/InternalServerError' }
+
+  /users/{username}/following:
+    get:
+        tags: [ "theirProfile" ]
+        operationId: getFollowing
+        description: it allows you to get all the users followed by a auser
+        summary: get all the followers of a user
+        parameters:
+            - name: username
+              in: path
+              description: The username of the user whose following are being shown
+              required: true
+              schema: { $ref: "#/components/schemas/User/properties/username" }
+        responses:
+            "200":
+              description: Successfully retrieved the following
+              content:
+                application/json:
+                  schema:
+                      title: followers
+                      description: the followings of the user
+                      type: array
+                      items: {$ref:"'#/components/schemas/User/properties/username"}
+                      minItems: 0
+                      maxItems: 99999
+            "400": { $ref: '#/components/responses/BadRequest' }
+            "401": { $ref: '#/components/responses/Unauthorized' }
+            "404": { $ref: '#/components/responses/NotFound' }
+            "500": { $ref: '#/components/responses/InternalServerError' }
+
+
   /utils/banned:
     get:
       tags: [ "utils"]

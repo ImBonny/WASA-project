@@ -6,21 +6,18 @@ func (db *appdbimpl) GetFollowers(userid uint64) (*[]Database_user, error) {
 	if err != nil {
 		panic(err)
 	}
-	err = rows.Close()
-	if err != nil {
-		return nil, err
-	}
+	defer rows.Close()
 	for rows.Next() {
 		var follower Database_user
-		err = rows.Scan(&follower.Username, &follower.UserId)
-		if err != nil {
-			panic(err)
+		err1 := rows.Scan(&follower.Username, &follower.UserId)
+		if err1 != nil {
+			panic(err1)
 		}
 		followers = append(followers, follower)
 	}
-	err = rows.Err()
-	if err != nil {
-		return nil, err
+	err2 := rows.Err()
+	if err2 != nil {
+		return nil, err2
 	}
 	return &followers, nil
 }

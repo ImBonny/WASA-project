@@ -41,7 +41,9 @@ export default {
 			   placeholder="Insert a username to log in WASAPhoto." aria-label="Recipient's username"
 			   aria-describedby="basic-addon2">
 		<div class="input-group-append">
-			<button class="btn btn-success" type="button" @click="doLogin">Login</button>
+			<button class="login-button" type="button" @click="doLogin">
+				<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#log-in"/></svg> Login
+			</button>
 		</div>
 	</div>
 	<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
