@@ -21,7 +21,7 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	// Create a new like request
 	var likeReq LikeRequest
 	var err0 error
-	//Decode the body in the request
+
 	err0 = json.NewDecoder(r.Body).Decode(&likeReq)
 	if err0 != nil {
 		http.Error(w, err0.Error(), http.StatusBadRequest)
@@ -48,7 +48,6 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 
 	likeResponse := LikeResponse{Like: database.Database_like{PostId: likeReq.TargetPost, LikeOwner: likeReq.LikeOwner}}
 
-	print("likeResponse: ", likeResponse.Like.LikeOwner, likeResponse.Like.PostId)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	err2 := json.NewEncoder(w).Encode(likeResponse)

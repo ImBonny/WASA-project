@@ -15,12 +15,11 @@ type followsResponse struct {
 	Result bool `json:"result"`
 }
 
-//Check if username1 follows username2
 func (rt *_router) getFollows(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var request followsRequest
 	request.Username1 = r.URL.Query().Get("username1")
 	request.Username2 = r.URL.Query().Get("username2")
-	//Check if username1 follows username2
+
 	userId, err := rt.db.GetIdFromUsername(request.Username1)
 
 	if err != nil {
@@ -42,7 +41,7 @@ func (rt *_router) getFollows(w http.ResponseWriter, r *http.Request, ps httprou
 	response := followsResponse{
 		Result: follows,
 	}
-	//Create response
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(response)

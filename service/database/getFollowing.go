@@ -25,7 +25,7 @@ func (db *appdbimpl) GetFollowing(id uint64) (*[]Database_user, error) {
 		if err2 != nil {
 			return nil, err2
 		}
-		print(user.Username, user.UserId)
+
 		following = append(following, user)
 	}
 	err3 := rows.Err()

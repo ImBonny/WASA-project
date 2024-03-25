@@ -18,19 +18,14 @@ type followersResponse struct {
 func (rt *_router) getFollowers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var request followersRequest
 	request.Username = ps.ByName("username")
-	//Get followers
+
 	userId, err := rt.db.GetIdFromUsername(request.Username)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	followers, err1 := rt.db.GetFollowers(userId)
-	print("Followers: ")
-	//print every follower
-	for _, follower := range *followers {
-		print(follower.Username)
-		print("/n")
-	}
+
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusBadRequest)
 		return
@@ -38,7 +33,7 @@ func (rt *_router) getFollowers(w http.ResponseWriter, r *http.Request, ps httpr
 	response := followersResponse{
 		Followers: *followers,
 	}
-	//Create response
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(response)

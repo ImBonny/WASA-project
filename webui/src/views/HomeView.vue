@@ -11,7 +11,7 @@ export default {
 	},
 	methods: {
 		async doLogin() {
-			if (this.username == "") {
+			if (this.username === "") {
 				this.errormsg = "Username cannot be empty.";
 			} else {
 				try{

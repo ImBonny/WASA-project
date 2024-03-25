@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"net/http"
@@ -24,7 +23,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	var commentReq commentRequest
 	// Decode the request body into commentReq
 	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println("Request Body:", string(body))
+
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 	token := getToken(r.Header.Get("Authorization"))
@@ -47,15 +46,12 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	print("commenting on post\n")
-	print("comment text: ", commentReq.CommentText, "\n")
 
 	commentId, _ := rt.db.CommentPhoto(token, PostId, commentReq.CommentText)
 
 	// Find the post put by the specified user
 
 	commentRes := commentResponse{CommentId: commentId}
-	print("comment id: ", commentRes.CommentId, "\n")
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

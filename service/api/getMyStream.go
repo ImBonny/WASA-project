@@ -20,9 +20,9 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 	// Get username from session
 	var request getMyStreamRequest
 	request.Username = r.URL.Query().Get("Username")
-	print(request.Username + "\n")
+
 	// Get token from header
-	print(r.Header.Get("Authorization") + "\n")
+
 	token := getToken(r.Header.Get("Authorization"))
 
 	auth, e := rt.db.CheckAuthorization(token)

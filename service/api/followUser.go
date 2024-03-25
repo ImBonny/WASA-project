@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -22,12 +21,6 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
-	}
-
-	for name, headers := range r.Header {
-		for _, h := range headers {
-			fmt.Printf("%v: %v\n", name, h)
-		}
 	}
 
 	token := getToken(r.Header.Get("Authorization"))

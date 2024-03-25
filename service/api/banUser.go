@@ -23,7 +23,6 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	print("\n" + banReq.BannedUser + "\n")
 
 	token := getToken(r.Header.Get("Authorization"))
 

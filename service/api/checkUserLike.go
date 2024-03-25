@@ -47,7 +47,6 @@ func (rt *_router) checkUserLike(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 	checkLikeResponse := checkLikeResponse{Like: like}
-	print("checkLikeResponse: ", checkLikeResponse.Like)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

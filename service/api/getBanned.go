@@ -46,7 +46,7 @@ func (rt *_router) getBanned(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 
 	}
-	print("\nid1: ", id1, " id2: ", id2, "\n")
+
 	banned, err4 := rt.db.IsBanned(id1, id2)
 	if err4 != nil {
 		http.Error(w, err4.Error(), http.StatusBadRequest)

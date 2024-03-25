@@ -19,12 +19,11 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// Create a new unlike request
 	var unlikeReq unlikeRequest
 	var err error
-	//decode the body
+
 	err = json.NewDecoder(r.Body).Decode(&unlikeReq)
-	print("unlikeReq: ", unlikeReq.TargetPost)
-	print("unlikeReq: ", unlikeReq.LikeOwner)
+
 	if err != nil {
-		print("error: ", err)
+
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

@@ -127,6 +127,7 @@ export default {
 				});
 				this.isFollowing = true;
 				console.log("User followed: " + JSON.parse(this.profile).Username);
+				location.reload()
 			} catch (error) {
 				console.log("Error following user: " + JSON.parse(this.profile).Username);
 				this.errormsg = error.response.data;
@@ -144,6 +145,7 @@ export default {
 				});
 				this.isFollowing = false;
 				console.log("User unfollowed: " + JSON.parse(this.profile).Username);
+				location.reload()
 			} catch (error) {
 				console.log("Error unfollowing user: " + JSON.parse(this.profile).Username);
 				this.errormsg = error.response.data;
@@ -427,6 +429,10 @@ export default {
 		},
 		async changeUsername() {
 			this.newUsername = prompt("Enter new username");
+			if (this.newUsername === null || this.newUsername === "") {
+				this.errormsg = "Username cannot be empty.";
+				return;
+			}
 			try {
 				let response = await this.$axios.put(`/users/${this.username}`, {
 

@@ -8,7 +8,7 @@ import (
 )
 
 type deleteRequest struct {
-	postId int `json:"postId"`
+	postId uint64 `json:"postId"`
 }
 
 type deleteResponse struct {
@@ -33,11 +33,11 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	var err1 error
-	deleteReq.postId, err1 = strconv.Atoi(ps.ByName("postId"))
+	deleteReq.postId, err1 = strconv.ParseUint(ps.ByName("postId"))
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusBadRequest)
 	}
-	print(deleteReq.postId)
+
 	err2 := rt.db.DeletePhoto(uint64(deleteReq.postId))
 	if err2 != nil {
 		http.Error(w, err2.Error(), http.StatusBadRequest)

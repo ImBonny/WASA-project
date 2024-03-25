@@ -9,7 +9,7 @@ func (db *appdbimpl) SearchUser(username string) (string, error) {
 	var user string
 	err := db.c.QueryRow("SELECT username FROM userDb WHERE username = ?", username).Scan(&user)
 	if errors.Is(err, sql.ErrNoRows) {
-		print("Utente non trovato")
+
 		return "", nil // Utente non trovato, restituisci un errore nullo
 	}
 	if err != nil {

@@ -26,12 +26,6 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// Validate the name using regular expression pattern
-	//validName := regexp.MustCompile(`^.*$`)
-	//if !validName.MatchString(loginReq.Username) || len(loginReq.Username) < 3 || len(loginReq.Username) > 16 {
-	//http.Error(w, "Invalid username format: "+loginReq.Username, http.StatusBadRequest)
-	//return
-	//}
 
 	var userId uint64
 	var err0 error
