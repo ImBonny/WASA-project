@@ -115,6 +115,8 @@ type AppDatabase interface {
 	// Ping checks whether the database is available or not (in that case, an error will be returned)
 	Ping() error
 
+	GetPosts(userid uint64) ([]uint64, error)
+
 	// Funzioni ausiliarie definite in database_utilities
 	CheckAuthorization(token uint64) (bool, error)
 	GetUsernameFromId(id uint64) (string, error)

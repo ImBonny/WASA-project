@@ -404,11 +404,7 @@ paths:
       summary: follow a user
       description: "Given the profile of a user, it allows you to follow a certain user"
       responses:
-        "201":
-          description: Successfully followed the user
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/User/properties/username" }
+        "204": { $ref: '#/components/responses/NoContent' }
         "400": { $ref: '#/components/responses/BadRequest' }
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
@@ -428,29 +424,19 @@ paths:
     parameters:
       - name: username
         in: path
-        description: The username of the user who wants to ban
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/User/properties/username' }
-      - name: bannedUser
-        in: query
         description: The username of the user to be banned
         required: true
         content:
           application/json:
             schema: { $ref: '#/components/schemas/User/properties/username' }
+
     put:
       tags: [ "theirProfile" ]
       operationId: banUser
       summary: ban a user
       description: "Given the username of a user, it allows you to ban a certain user"
       responses:
-        "201":
-          description: Successfully banned the user
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/User/properties/username" }
+        "204": { $ref: '#/components/responses/NoContent' }
         "400": { $ref: '#/components/responses/BadRequest' }
         "401": { $ref: '#/components/responses/Unauthorized' }
         "404": { $ref: '#/components/responses/NotFound' }
@@ -611,7 +597,7 @@ paths:
       tags: ["Post"]
       operationId: commentPhoto
       description: given a postId and the username of the user who created it, it allows you to write a comment on the post
-      summary: write a comment ona  post
+      summary: write a comment on a  post
       parameters:
         - name: postId
           in: path
@@ -662,10 +648,10 @@ paths:
             schema: {$ref: '#/components/schemas/User/properties/username'}
         responses:
             "200":
-            description: Successfully retrieved the comments
-            content:
+              description: Successfully retrieved the comments
+              content:
                 application/json:
-                schema:
+                  schema:
                     title: comments
                     description: the comments on the post
                     type: array
@@ -830,7 +816,7 @@ paths:
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
 
-  /utils/follows:
+  /users/{username}/followers/{username}:
     get:
       tags: [ "utils"]
       operationId: getFollows
@@ -863,11 +849,17 @@ paths:
           "404": { $ref: '#/components/responses/NotFound' }
           "500": { $ref: '#/components/responses/InternalServerError' }
 
-  /images/{imageId}:
+  /users/{username}/images/{imageId}:
       get:
         summary: Get image by ID
         description: Retrieve the image by its ID
         parameters:
+          - in: path
+            name: username
+            required: true
+            description: Username of the user who uploaded the image
+            schema:
+              type: string
           - in: path
             name: imageId
             required: true

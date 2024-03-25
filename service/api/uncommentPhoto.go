@@ -9,9 +9,6 @@ import (
 type uncommentRequest struct {
 	CommentId uint64 `json:"CommentId"`
 }
-type uncommentResponse struct {
-	Message string `json:"message"`
-}
 
 // Handler for uncommenting a post
 func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -39,4 +36,5 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
+
 }

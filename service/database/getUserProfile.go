@@ -9,6 +9,10 @@ func (db *appdbimpl) GetUserProfile(username string) (*Database_profile, error) 
 	if err != nil {
 		return nil, err
 	}
-	profile := Database_profile{Username: username, Posts: posts, NumberOfPhotos: len(posts)}
+	images, err1 := db.GetImages(&posts)
+	if err1 != nil {
+		return nil, err1
+	}
+	profile := Database_profile{Username: username, Posts: *images, NumberOfPhotos: len(posts)}
 	return &profile, nil
 }

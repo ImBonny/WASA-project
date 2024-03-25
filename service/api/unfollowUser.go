@@ -1,16 +1,11 @@
 package api
 
 import (
-	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
 type unfollowRequest struct {
-	Username string `json:"username"`
-}
-
-type unfollowResponse struct {
 	Username string `json:"username"`
 }
 
@@ -39,15 +34,6 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	err2 := rt.db.UnfollowUser(token, unfollowId)
 	if err2 != nil {
 		http.Error(w, err2.Error(), http.StatusBadRequest)
-		return
-	}
-
-	response := unfollowResponse{
-		Username: request.Username,
-	}
-	err3 := json.NewEncoder(w).Encode(response)
-	if err3 != nil {
-		http.Error(w, err3.Error(), http.StatusBadRequest)
 		return
 	}
 }

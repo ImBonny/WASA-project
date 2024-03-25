@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 )
@@ -22,9 +22,9 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	// Create a new comment request
 	var commentReq commentRequest
 	// Decode the request body into commentReq
-	body, _ := ioutil.ReadAll(r.Body)
+	body, _ := io.ReadAll(r.Body)
 
-	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	r.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	token := getToken(r.Header.Get("Authorization"))
 

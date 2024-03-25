@@ -73,10 +73,8 @@ export default {
 					});
 					this.profile = response.data.profile;
 					console.log("Profile found: " + this.profile.Username);
-					console.log("Number of photos: " + this.profile.NumberOfPhotos);
 
 					this.posts = response.data.profile.Posts;
-					console.log("Posts found: " + response.data.profile.Posts);
 					localStorage.setItem("profile", JSON.stringify(this.profile));
 					console.log(localStorage.getItem("profile"));
 					this.$router.push(`/users/${this.usernameToSearch}/profile`);
@@ -106,9 +104,8 @@ export default {
 				});
 				this.userProfile = response.data.profile;
 				console.log("Profile found: " + this.userProfile.Username);
-				console.log("Number of photos: " + this.userProfile.NumberOfPhotos);
+
 				localStorage.setItem("profile", JSON.stringify(this.userProfile));
-				console.log(localStorage.getItem("profile"));
 				this.$router.push(`/users/${this.username}/profile`);
 				//refresh the page
 			} catch (error) {
@@ -117,7 +114,7 @@ export default {
 		},
 		async logout() {
 			localStorage.clear();
-			this.$router.push(`/`);
+			this.$router.push(`/session`);
 		},
 	}
 

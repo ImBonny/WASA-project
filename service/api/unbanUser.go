@@ -1,17 +1,12 @@
 package api
 
 import (
-	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
 type unbanUserRequest struct {
 	BannedUser string `json:"bannedUser"`
-}
-
-type unbanUserResponse struct {
-	Message string `json:"message"`
 }
 
 // Handler for unbanning a user
@@ -41,15 +36,6 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	err3 := rt.db.UnbanUser(token, bannedId)
 	if err3 != nil {
 		http.Error(w, err3.Error(), http.StatusBadRequest)
-		return
-	}
-	unbanResponse := unbanUserResponse{Message: "Successfully unbanned the user"}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	err4 := json.NewEncoder(w).Encode(unbanResponse)
-	if err4 != nil {
-		http.Error(w, err4.Error(), http.StatusBadRequest)
 		return
 	}
 }

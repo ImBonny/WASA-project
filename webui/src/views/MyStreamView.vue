@@ -36,13 +36,11 @@ export default {
 		async loadImage() {
 			await this.getMyStream();
 			for (let i = 0; i < this.stream.length; i++) {
-				console.log("Loading image: " + this.stream[i]);
 				try {
-					let response = await this.$axios.get(`/images/${this.stream[i].PostId}`, {});
-					let post = response.data.image;
+					//let response = await this.$axios.get(`/images/${this.stream[i].PostId}`, {});
+					let post = this.stream[i];
 					post.isLiked = await this.checkLike(post);
 					this.stream[i] = post; // Update the existing post in the stream array
-					console.log("Image loaded: " + this.stream[i].Description);
 					console.log("Loading comments for post: " + this.stream[i]);
 					this.stream[i].Comments = await this.getComments(this.stream[i]);
 				} catch (error) {
@@ -129,7 +127,6 @@ export default {
 				console.log("Like removed successfully");
 				post.NLikes = post.NLikes - 1;
 				post.isLiked = false;
-				return response.data;
 			} catch (error) {
 				console.error("Error removing like:", error);
 			}
@@ -187,7 +184,6 @@ export default {
 						LikeOwner: JSON.parse(this.id)
 					}
 				});
-				console.log("response: " + response.data.Like);
 				return response.data.Like;
 			} catch (error) {
 				if (error.response) {
@@ -217,9 +213,7 @@ export default {
 				});
 				this.userProfile = response.data.profile;
 				console.log("Profile found: " + this.userProfile.Username);
-				console.log("Number of photos: " + this.userProfile.NumberOfPhotos);
 				localStorage.setItem("profile", JSON.stringify(this.userProfile));
-				console.log(localStorage.getItem("profile"));
 				this.$router.push(`/users/${this.username}/profile`);
 			} catch (error) {
 				this.errormsg = error.response.data;
@@ -227,7 +221,7 @@ export default {
 		},
 		async logout() {
 			localStorage.clear();
-			this.$router.push(`/`);
+			this.$router.push(`/session`);
 		},
 
 	},

@@ -68,7 +68,7 @@ export default {
 		async checkFollowing() {
 			try {
 				console.log("Checking if user is following: " + JSON.parse(this.profile).Username);
-				let response = await this.$axios.get(`/utils/follows`, {
+				let response = await this.$axios.get(`/users/${JSON.parse(this.profile).Username}/followers/${this.username}`, {
 					headers: {
 						Authorization: "Bearer " + this.id
 					},
@@ -77,7 +77,6 @@ export default {
 						username2: JSON.parse(this.profile).Username
 					}
 				},);
-				console.log(response.data.result);
 				this.isFollowing = response.data.result;
 			} catch (error) {
 				if (error.response) {
@@ -111,14 +110,14 @@ export default {
 		},
 		async HandleFollow() {
 			if (this.isFollowing) {
-				this.UnfollowUser();
+				await this.UnfollowUser();
 			} else {
-				this.FollowUser();
+				await this.FollowUser();
 			}
 		},
 		async FollowUser() {
 			try {
-				let response = await this.$axios.put(`/users/${JSON.parse(this.profile).Username}/profile`, {
+				await this.$axios.put(`/users/${JSON.parse(this.profile).Username}/profile`, {
 					username: JSON.parse(this.profile).Username
 				}, {
 					headers: {
@@ -129,13 +128,12 @@ export default {
 				console.log("User followed: " + JSON.parse(this.profile).Username);
 				location.reload()
 			} catch (error) {
-				console.log("Error following user: " + JSON.parse(this.profile).Username);
 				this.errormsg = error.response.data;
 			}
 		},
 		async UnfollowUser() {
 			try {
-				let response = await this.$axios.delete(`/users/${JSON.parse(this.profile).Username}/profile`, {
+				await this.$axios.delete(`/users/${JSON.parse(this.profile).Username}/profile`, {
 					params: {
 						username: JSON.parse(this.profile).Username,
 					},
@@ -147,7 +145,6 @@ export default {
 				console.log("User unfollowed: " + JSON.parse(this.profile).Username);
 				location.reload()
 			} catch (error) {
-				console.log("Error unfollowing user: " + JSON.parse(this.profile).Username);
 				this.errormsg = error.response.data;
 			}
 		},
@@ -155,8 +152,7 @@ export default {
 			for (let i = 0; i < JSON.parse(this.profile).Posts.length; i++) {
 				console.log("Loading image: " + JSON.parse(this.profile).Posts[i]);
 				try {
-					let response = await this.$axios.get(`/images/${JSON.parse(this.profile).Posts[i]}`, {});
-					let post = response.data.image;
+					let post = JSON.parse(this.profile).Posts[i];
 					post.isLiked = await this.checkLike(post);
 					this.posts = [...this.posts, post];
 					console.log("Image loaded: " + this.posts[i].Description);
@@ -241,7 +237,6 @@ export default {
 				console.log("Like removed successfully");
 				post.NLikes = post.NLikes - 1;
 				post.isLiked = false;
-				return response.data;
 			} catch (error) {
 				console.error("Error removing like:", error);
 			}
@@ -249,7 +244,7 @@ export default {
 		},
 		async uncommentPost(post, comment) {
 			try {
-				let response = await this.$axios.delete(`users/${JSON.parse(this.profile).Username}/posts/${post.PostId}/comments/${comment.CommentId}`, {
+				await this.$axios.delete(`users/${JSON.parse(this.profile).Username}/posts/${post.PostId}/comments/${comment.CommentId}`, {
 					data: {
 						CommentId: comment.CommentId
 					},
@@ -259,7 +254,6 @@ export default {
 				});
 				console.log("Comment removed successfully");
 				post.Comments = await this.getComments(post.PostId);
-				return response.data;
 			} catch (error) {
 				console.error("Error removing comment:", error);
 			}
@@ -283,14 +277,14 @@ export default {
 		},
 		async HandleBan() {
 			if (this.isBanned) {
-				this.UnbanUser();
+				await this.UnbanUser();
 			} else {
-				this.BanUser();
+				await this.BanUser();
 			}
 		},
 		async BanUser() {
 			try {
-				let response = await this.$axios.put(`/users/${this.username}/banned`, {
+				await this.$axios.put(`/users/${this.username}/banned`, {
 					BannedUser: JSON.parse(this.profile).Username
 				}, {
 					headers: {
@@ -300,13 +294,12 @@ export default {
 				this.isBanned = true;
 				console.log("User banned: " + JSON.parse(this.profile).Username);
 			} catch (error) {
-				console.log("Error banning user: " + JSON.parse(this.profile).Username);
 				this.errormsg = error.response.data;
 			}
 		},
 		async UnbanUser() {
 			try {
-				let response = await this.$axios.delete(`/users/${this.username}/banned/${JSON.parse(this.profile).Username}`, {
+				await this.$axios.delete(`/users/${this.username}/banned/${JSON.parse(this.profile).Username}`, {
 					params: {
 						BannedUser: JSON.parse(this.profile).Username,
 					},
@@ -323,7 +316,7 @@ export default {
 		},
 		async deletePost(post) {
 			try {
-				let response = await this.$axios.delete(`users/${this.username}/posts/${post.PostId}`, {
+				await this.$axios.delete(`users/${this.username}/posts/${post.PostId}`, {
 					headers: {
 						Authorization: "Bearer " + this.id
 					}
@@ -354,7 +347,6 @@ export default {
 				});
 				this.userProfile = response.data.profile;
 				console.log("Profile found: " + this.userProfile.Username);
-				console.log("Number of photos: " + this.userProfile.NumberOfPhotos);
 
 				this.posts = response.data.profile.Posts;
 
@@ -370,7 +362,7 @@ export default {
 		},
 		async logout() {
 			localStorage.clear();
-			this.$router.push(`/`);
+			this.$router.push(`/session`);
 		},
 		async UploadPhoto() {
 			// Crea un elemento input di tipo file

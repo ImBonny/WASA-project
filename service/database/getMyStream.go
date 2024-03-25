@@ -20,6 +20,7 @@ func (db *appdbimpl) GetMyStream(id uint64) (*[]uint64, error) {
 		}
 		posts = append(posts, userPosts...)
 	}
+
 	sort := func(p []uint64) {
 		sort.SliceStable(p, func(i, j int) bool {
 			return p[i] > p[j]

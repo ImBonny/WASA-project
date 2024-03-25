@@ -33,9 +33,8 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/users/:username/posts/:postId/likes", rt.checkUserLike)                   // DONE
 	rt.router.GET("/users/:username/followers", rt.getFollowers)                              // DONE
 	rt.router.GET("/users/:username/following", rt.getFollowing)                              // DONE
-	rt.router.GET("/utils/follows", rt.getFollows)                                            // DONE
+	rt.router.GET("/users/:username/followers/:username", rt.getFollows)                      // DONE
 	rt.router.GET("/utils/usernames", rt.searchUserById)                                      // DONE
-	rt.router.GET("/images/:imageId", rt.getImage)                                            // DONE
 	rt.router.GET("/utils/banned", rt.getBanned)                                              // DONE
 
 	return rt.router

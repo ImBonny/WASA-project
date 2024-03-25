@@ -32,6 +32,6 @@ type Database_comment struct {
 
 type Database_profile struct {
 	Username       string
-	Posts          []uint64
+	Posts          []Database_photo
 	NumberOfPhotos int
 }

@@ -10,10 +10,6 @@ type banRequest struct {
 	BannedUser string `json:"bannedUser"`
 }
 
-type banResponse struct {
-	Username string `json:"username"`
-}
-
 func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new ban request
 	var banReq banRequest
@@ -44,15 +40,6 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	err1 := rt.db.BanUser(token, bannedId)
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusBadRequest)
-		return
-	}
-	banResponse := banResponse{Username: banReq.BannedUser}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	err2 := json.NewEncoder(w).Encode(banResponse)
-	if err2 != nil {
-		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return
 	}
 }
