@@ -18,6 +18,8 @@ export default {
 			caption: "",
 			followers: [],
 			following: [],
+			showFollowers : false,
+			showFollowings : false,
 		}
 	},
 	mounted() {
@@ -526,8 +528,18 @@ export default {
 	</nav>
 	<div class="profile-header">
 		<h1>{{JSON.parse(profile).Username}}'s Profile</h1>
-		<div class="counters"> Followers: {{followers.length>0 ? followers.length : 0}}<br>
-		Followings: {{following.length>0 ? following.length : 0}}</div>
+		<div class="counters">
+			<a @click="showFollowers = !showFollowers">Followers: {{followers.length>0 ? followers.length : 0}} <br></a>
+			<a @click="showFollowings = !showFollowings">Followings: {{following.length>0 ? following.length : 0}}</a>
+		</div>
+		<div class="followers-box">
+		<div v-if="showFollowers" v-for="(follower, index) in followers" :key="index">
+			<div class="followers-text">{{ follower.Username }}</div>
+		</div>
+		<div v-if="showFollowings" v-for="(following, index) in following" :key="index">
+			<div>{{ following.Username }}</div>
+		</div>
+		</div>
 		<div class="input-group-append" style="margin-right: 10px" v-if="ismyProfile">
 			<button class="changeUsername-button" type="button" @click="changeUsername" >Change Username</button>
 		</div>
@@ -608,4 +620,16 @@ export default {
 </template>
 
 <style scoped>
+.followers-box{
+	display: flex;
+	flex-direction: column;
+	background-color: white;
+	border: 1px solid black;
+
+}
+.followers-text{
+	font-size: 20px;
+	font-weight: bold;
+	margin: 10px;
+}
 </style>

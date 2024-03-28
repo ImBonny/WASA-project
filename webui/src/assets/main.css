@@ -49,8 +49,6 @@
 	-webkit-overflow-scrolling: touch;
 }
 .feather {
-/*	width: 24px;
-	height: 24px;*/
 	stroke: currentColor;
 	stroke-width: 2;
 	stroke-linecap: round;
