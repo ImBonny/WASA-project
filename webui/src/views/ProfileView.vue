@@ -94,10 +94,6 @@ export default {
 				let response = await this.$axios.get(`users/${JSON.parse(this.profile).Username}/posts/${post.PostId}/likes`, {
 					headers: {
 						Authorization: "Bearer " + this.id
-					},
-					params: {
-						TargetPost: post.PostId,
-						LikeOwner: JSON.parse(this.id)
 					}
 				});
 				console.log("response: " + response.data.Like);
@@ -120,7 +116,6 @@ export default {
 		async FollowUser() {
 			try {
 				await this.$axios.put(`/users/${JSON.parse(this.profile).Username}/profile`, {
-					username: JSON.parse(this.profile).Username
 				}, {
 					headers: {
 						Authorization: "Bearer " + this.id
@@ -136,9 +131,6 @@ export default {
 		async UnfollowUser() {
 			try {
 				await this.$axios.delete(`/users/${JSON.parse(this.profile).Username}/profile`, {
-					params: {
-						username: JSON.parse(this.profile).Username,
-					},
 					headers: {
 						Authorization: "Bearer " + this.id
 					}
@@ -208,7 +200,6 @@ export default {
 		async HandleLike(post) {
 			try {
 				let response = await this.$axios.post(`users/${JSON.parse(this.profile).Username}/posts/${post.PostId}/likes`, {
-						TargetPost: post.PostId,
 						LikeOwner: JSON.parse(this.id)
 					},
 					{
@@ -229,7 +220,6 @@ export default {
 			try {
 				let response = await this.$axios.delete(`users/${JSON.parse(this.profile).Username}/posts/${post.PostId}/likes`, {
 					data: {
-						TargetPost: post.PostId,
 						LikeOwner: JSON.parse(this.id)
 					},
 					headers: {
@@ -247,9 +237,6 @@ export default {
 		async uncommentPost(post, comment) {
 			try {
 				await this.$axios.delete(`users/${JSON.parse(this.profile).Username}/posts/${post.PostId}/comments/${comment.CommentId}`, {
-					data: {
-						CommentId: comment.CommentId
-					},
 					headers: {
 						Authorization: "Bearer " + this.id
 					}
@@ -302,9 +289,6 @@ export default {
 		async UnbanUser() {
 			try {
 				await this.$axios.delete(`/users/${this.username}/banned/${JSON.parse(this.profile).Username}`, {
-					params: {
-						BannedUser: JSON.parse(this.profile).Username,
-					},
 					headers: {
 						Authorization: "Bearer " + this.id
 					}
@@ -339,9 +323,6 @@ export default {
 			try {
 				console.log("Searching for profile");
 				let response = await this.$axios.get(`/users/${this.username}/profiles`, {
-					params: {
-						username: this.username
-					},
 					headers:
 						{
 							Authorization: "Bearer " + this.id

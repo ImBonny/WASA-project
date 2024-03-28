@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -14,10 +13,7 @@ type followRequest struct {
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	var request followRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	request.Username = ps.ByName("username")
 
 	token := getToken(r.Header.Get("Authorization"))
 	auth, e := rt.db.CheckAuthorization(token)

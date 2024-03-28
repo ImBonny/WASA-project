@@ -14,7 +14,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	// Create a new unban request
 	var unbanReq unbanUserRequest
 	// Decode the request body into unbanReq
-	unbanReq.BannedUser = r.URL.Query().Get("BannedUser")
+	unbanReq.BannedUser = ps.ByName("bannedUser")
 
 	token := getToken(r.Header.Get("Authorization"))
 

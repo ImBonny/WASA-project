@@ -17,8 +17,8 @@ type followsResponse struct {
 
 func (rt *_router) getFollows(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var request followsRequest
-	request.Username1 = r.URL.Query().Get("username1")
-	request.Username2 = r.URL.Query().Get("username2")
+	request.Username1 = ps.ByName("username")
+	request.Username2 = ps.ByName("usernameFollowed")
 
 	userId, err := rt.db.GetIdFromUsername(request.Username1)
 

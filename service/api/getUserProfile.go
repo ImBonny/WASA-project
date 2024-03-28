@@ -18,7 +18,7 @@ type getProfileResponse struct {
 func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var profReq getProfileRequest
 	// Decode the request body into banReq
-	profReq.Username = r.URL.Query().Get("username")
+	profReq.Username = ps.ByName("username")
 
 	token := getToken(r.Header.Get("Authorization"))
 	auth, e := rt.db.CheckAuthorization(token)

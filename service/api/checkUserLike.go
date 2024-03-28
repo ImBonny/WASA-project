@@ -21,15 +21,14 @@ func (rt *_router) checkUserLike(w http.ResponseWriter, r *http.Request, ps http
 	// Create a new checkLike request
 	var checkLikeReq checkLikeRequest
 	var err error
+	token := getToken(r.Header.Get("Authorization"))
 	//decode the body
-	checkLikeReq.TargetPost, err = strconv.ParseUint(r.URL.Query().Get("TargetPost"), 10, 64)
-	checkLikeReq.LikeOwner, err = strconv.ParseUint(r.URL.Query().Get("LikeOwner"), 10, 64)
+	checkLikeReq.TargetPost, err = strconv.ParseUint(ps.ByName("postId"), 10, 64)
+	checkLikeReq.LikeOwner = token
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	token := getToken(r.Header.Get("Authorization"))
 
 	auth, err1 := rt.db.CheckAuthorization(token)
 	if err1 != nil {

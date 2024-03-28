@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"strconv"
 )
 
 type unlikeRequest struct {
@@ -18,7 +19,7 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	var err error
 
 	err = json.NewDecoder(r.Body).Decode(&unlikeReq)
-
+	unlikeReq.TargetPost, err = strconv.ParseUint(ps.ByName("postId"), 10, 64)
 	if err != nil {
 
 		http.Error(w, err.Error(), http.StatusBadRequest)

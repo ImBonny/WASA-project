@@ -1,10 +1,8 @@
 package api
 
 import (
-	"bytes"
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
-	"io"
 	"net/http"
 	"strconv"
 )
@@ -21,11 +19,6 @@ type commentResponse struct {
 func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new comment request
 	var commentReq commentRequest
-	// Decode the request body into commentReq
-	body, _ := io.ReadAll(r.Body)
-
-	r.Body = io.NopCloser(bytes.NewBuffer(body))
-
 	token := getToken(r.Header.Get("Authorization"))
 
 	auth, e := rt.db.CheckAuthorization(token)

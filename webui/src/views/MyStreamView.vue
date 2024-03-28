@@ -23,9 +23,6 @@ export default {
 					headers: {
 						Authorization: "Bearer " + this.id
 					},
-					params: {
-						Username: this.username
-					}
 				});
 				console.log("Stream loaded");
 				this.stream = response.data.Posts;
@@ -95,7 +92,7 @@ export default {
 			try {
 				await this.getUsername(post.PostOwner);
 				let response = await this.$axios.post(`users/${this.target}/posts/${post.PostId}/likes`, {
-						TargetPost: post.PostId,
+
 						LikeOwner: JSON.parse(this.id)
 					},
 					{
@@ -117,7 +114,6 @@ export default {
 				await this.getUsername(post.PostOwner);
 				let response = await this.$axios.delete(`users/${this.target}/posts/${post.PostId}/likes`, {
 					data: {
-						TargetPost: post.PostId,
 						LikeOwner: JSON.parse(this.id)
 					},
 					headers: {
@@ -136,9 +132,6 @@ export default {
 			try {
 				await this.getUsername(post.PostOwner);
 				let response = await this.$axios.delete(`users/${this.target}/posts/${post.PostId}/comments/${comment.CommentId}`, {
-					data: {
-						CommentId: comment.CommentId
-					},
 					headers: {
 						Authorization: "Bearer " + this.id
 					}
@@ -178,10 +171,6 @@ export default {
 				let response = await this.$axios.get(`users/${this.username}/posts/${post.PostId}/likes`, {
 					headers: {
 						Authorization: "Bearer " + this.id
-					},
-					params:{
-						TargetPost: post.PostId,
-						LikeOwner: JSON.parse(this.id)
 					}
 				});
 				return response.data.Like;
@@ -203,9 +192,6 @@ export default {
 			try {
 				console.log("Searching for profile");
 				let response = await this.$axios.get(`/users/${this.username}/profiles`, {
-					params: {
-						username: this.username
-					},
 					headers:
 						{
 							Authorization: "Bearer " + this.id

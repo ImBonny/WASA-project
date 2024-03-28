@@ -5,6 +5,7 @@ import (
 	"github.com/ImBonny/WASA-project.git/service/database"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"strconv"
 )
 
 type LikeRequest struct {
@@ -27,6 +28,7 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		http.Error(w, err0.Error(), http.StatusBadRequest)
 		return
 	}
+	likeReq.TargetPost, err0 = strconv.ParseUint(ps.ByName("postId"), 10, 64)
 
 	token := getToken(r.Header.Get("Authorization"))
 

@@ -13,7 +13,6 @@ type Database_photo struct {
 	NLikes       uint
 	CreationTime string
 	PostId       uint64
-	Comments     []Database_comment
 }
 
 type Database_like struct {

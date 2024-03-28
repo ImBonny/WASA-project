@@ -19,7 +19,7 @@ type getMyStreamResponse struct {
 func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Get username from session
 	var request getMyStreamRequest
-	request.Username = r.URL.Query().Get("Username")
+	request.Username = ps.ByName("username")
 
 	// Get token from header
 

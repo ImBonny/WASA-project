@@ -63,9 +63,6 @@ export default {
 				try {
 					console.log("Searching for profile");
 					let response = await this.$axios.get(`/users/${this.usernameToSearch}/profiles`, {
-						params: {
-							username: this.usernameToSearch
-						},
 						headers:
 							{
 								Authorization: "Bearer " + this.id
@@ -94,9 +91,6 @@ export default {
 			try {
 				console.log("Searching for profile");
 				let response = await this.$axios.get(`/users/${this.username}/profiles`, {
-					params: {
-						username: this.username
-					},
 					headers:
 						{
 							Authorization: "Bearer " + this.id
