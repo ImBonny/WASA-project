@@ -61,7 +61,7 @@
 	padding: 10px;
 	height: 480px;
 	border-radius: 10px;
-	background-color: #fafafa;
+	background-color: rgba(0, 130, 255, 0.1);
 	display: flex;
 	flex-direction: row;
 }
@@ -100,6 +100,7 @@
 	display: flex;
 	flex-direction: column;
 	overflow: auto;
+
 }
 .comment {
 	border: 1px solid black;
@@ -109,7 +110,9 @@
 	width: 1000px;
 	display: flex;
 	flex-direction: column;
+	background-color: rgb(221, 221, 227, 0.5);
 }
+
 .comment-text {
 	font-size: 15px;
 	margin-left: 10px;
@@ -234,18 +237,14 @@
 	border-radius: 10px;
 }
 .profile-header {
+	margin: 10px;
 	display: flex;
 	flex-direction: row;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: space-between;
+	height: 100px;
 }
-.counters {
-	display: flex;
-	flex-direction: row;
-	font-size: 20px;
-	margin: 20px;
-	font-weight: bold;
-}
+
 .login-button {
 	background-color: dodgerblue;
 	border: 1px solid black;
@@ -254,4 +253,31 @@
 	border-radius: 10px;
 	color: white;
 	font-size: 20px;
+}
+.followers-box{
+	display: flex;
+	flex-direction: column;
+	background-color: white;
+	border: 1px solid black;
+	height: 150px;
+	width: 200px;
+	overflow: scroll;
+	border-radius: 10px;
+	background-color: rgba(0, 130, 255, 0.1);
+}
+.followers-text{
+	font-size: 20px;
+	font-weight: bold;
+	margin: 10px;
+	cursor: pointer;
+	color: black;
+	width: 200px;
+}
+.counters{
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	font-size: 20px;
+	margin: 20px;
+	font-weight: bold;
 }

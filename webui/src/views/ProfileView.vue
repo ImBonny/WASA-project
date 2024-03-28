@@ -123,7 +123,6 @@ export default {
 				});
 				this.isFollowing = true;
 				console.log("User followed: " + JSON.parse(this.profile).Username);
-				location.reload()
 			} catch (error) {
 				this.errormsg = error.response.data;
 			}
@@ -137,7 +136,6 @@ export default {
 				});
 				this.isFollowing = false;
 				console.log("User unfollowed: " + JSON.parse(this.profile).Username);
-				location.reload()
 			} catch (error) {
 				this.errormsg = error.response.data;
 			}
@@ -461,6 +459,30 @@ export default {
 			} catch (error) {
 				console.error("Error getting following:", error);
 			}
+		},
+		async loadProfile(username){
+			try {
+				console.log("Searching for profile");
+				let response = await this.$axios.get(`/users/${username}/profiles`, {
+					headers:
+						{
+							Authorization: "Bearer " + this.id
+						}
+				});
+				this.userProfile = response.data.profile;
+				console.log("Profile found: " + this.userProfile.Username);
+
+				this.posts = response.data.profile.Posts;
+
+				console.log("Posts found: " + response.data.profile.Posts);
+				localStorage.setItem("profile", JSON.stringify(this.userProfile));
+				console.log(localStorage.getItem("profile"));
+				this.$router.push(`/users/${username}/profile`);
+
+				location.reload();
+			} catch (error) {
+				this.errormsg = error.response.data;
+			}
 		}
 	}
 }
@@ -508,18 +530,24 @@ export default {
 		</div>
 	</nav>
 	<div class="profile-header">
-		<h1>{{JSON.parse(profile).Username}}'s Profile</h1>
+		<h1 >{{JSON.parse(profile).Username}}'s Profile</h1>
 		<div class="counters">
-			<a @click="showFollowers = !showFollowers">Followers: {{followers.length>0 ? followers.length : 0}} <br></a>
-			<a @click="showFollowings = !showFollowings">Followings: {{following.length>0 ? following.length : 0}}</a>
+			<div>
+				<a @click="showFollowers = !showFollowers" style="cursor: pointer">Followers: {{followers.length>0 ? followers.length : 0}} <br></a>
+			</div>
+			<div class="followers-box" v-show="showFollowers">
+				<div v-for="(follower, index) in followers" :key="index">
+					<a class="followers-text" @click="loadProfile(follower.Username)">{{ follower.Username }}</a>
+				</div>
+			</div>
 		</div>
-		<div class="followers-box">
-		<div v-if="showFollowers" v-for="(follower, index) in followers" :key="index">
-			<div class="followers-text">{{ follower.Username }}</div>
-		</div>
-		<div v-if="showFollowings" v-for="(following, index) in following" :key="index">
-			<div>{{ following.Username }}</div>
-		</div>
+		<div class="counters">
+		<a @click="showFollowings = !showFollowings" style="cursor: pointer">Followings: {{following.length>0 ? following.length : 0}}</a>
+			<div class="followers-box" v-if="showFollowings">
+			<div v-for="(following, index) in following" :key="index">
+				<a class="followers-text" @click="loadProfile(following.Username)">{{ following.Username }}</a>
+			</div>
+			</div>
 		</div>
 		<div class="input-group-append" style="margin-right: 10px" v-if="ismyProfile">
 			<button class="changeUsername-button" type="button" @click="changeUsername" >Change Username</button>
@@ -548,7 +576,7 @@ export default {
 				<img :src="`data:image/*;base64,${post.Image}`" alt="photo" class="post">
 				<p class="description">{{ post.Description }}</p>
 				<p class="dateTime">{{formatDate(post.CreationTime)}}</p>
-				<!-- bottone per aggiungere un commento -->
+
 				<div class="like-bar">
 					<div class="input-group-append">
 						<button class="like-button" @click="HandleLike(post)" v-if="!post.isLiked">
@@ -560,7 +588,7 @@ export default {
 							<svg class="feather like"><use href="/feather-sprite-v4.29.0.svg#heart" style="fill: red;"/></svg>
 						</button>
 					</div>
-					<!-- like counter -->
+
 					<div class="input-group-append" style="margin-left: 10px">
 						<p class=" like-counter">{{ post.NLikes }} likes</p>
 					</div>
@@ -576,7 +604,7 @@ export default {
 					</div>
 				</div>
 				</div>
-			<!-- commenti -->
+
 			<div class="comment-box">
 				<div class="col-md-4" v-for="(comment, index) in post.Comments" :key="index">
 					<div class="comment">
@@ -585,7 +613,7 @@ export default {
 							<p class="comment-text">{{ comment.CommentText }}</p>
 						</div>
 						<p class="dateTime">{{formatDate(comment.CreationTime)}}</p>
-						<button class="delete-button" type="button" @click="uncommentPost(post,comment)" v-if="comment.CommentOwner==this.id">
+						<button class="delete-button" type="button" @click="uncommentPost(post,comment)" v-if="comment.CommentOwner === JSON.parse(this.id)">
 							<svg class="feather trash"><use href="/feather-sprite-v4.29.0.svg#trash-2"/></svg>
 						</button>
 					</div>
@@ -594,23 +622,12 @@ export default {
 
 		</div>
 	</div>
-	<!-- Display error message if any -->
+
 	<ErrorMsg v-if="errormsg" :msg="errormsg" />
 
 	<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 </template>
 
 <style scoped>
-.followers-box{
-	display: flex;
-	flex-direction: column;
-	background-color: white;
-	border: 1px solid black;
 
-}
-.followers-text{
-	font-size: 20px;
-	font-weight: bold;
-	margin: 10px;
-}
 </style>

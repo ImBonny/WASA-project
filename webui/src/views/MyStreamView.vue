@@ -209,6 +209,28 @@ export default {
 			localStorage.clear();
 			this.$router.push(`/session`);
 		},
+		async loadProfile(username){
+			try {
+				console.log("Searching for profile");
+				let response = await this.$axios.get(`/users/${username}/profiles`, {
+					headers:
+						{
+							Authorization: "Bearer " + this.id
+						}
+				});
+				this.userProfile = response.data.profile;
+				console.log("Profile found: " + this.userProfile.Username);
+
+				this.posts = response.data.profile.Posts;
+
+				console.log("Posts found: " + response.data.profile.Posts);
+				localStorage.setItem("profile", JSON.stringify(this.userProfile));
+				console.log(localStorage.getItem("profile"));
+				this.$router.push(`/users/${username}/profile`);
+			} catch (error) {
+				this.errormsg = error.response.data;
+			}
+		}
 
 	},
 	mounted() {
@@ -264,14 +286,14 @@ export default {
 			</ul>
 		</div>
 	</nav>
-	<!-- stream -->
+
 	<div v-for="(post, index) in stream" :key="index" class="postBox">
 		<div>
-			<h2 style="margin-left: 10px">{{usernames[post.PostOwner]}}</h2>
+			<h2 style="margin-left: 10px;cursor: pointer" @click="loadProfile(usernames[post.PostOwner])">{{usernames[post.PostOwner]}}</h2>
 			<img :src="`data:image/*;base64,${post.Image}`" alt="photo" class="post">
 			<p class="description">{{ post.Description }}</p>
 			<p class="dateTime">{{formatDate(post.CreationTime)}}</p>
-			<!-- bottone per aggiungere un commento -->
+
 			<div class="like-bar">
 				<div class="input-group-append">
 					<button class="like-button" @click="HandleLike(post)" v-if="!post.isLiked">
@@ -283,7 +305,7 @@ export default {
 						<svg class="feather like"><use href="/feather-sprite-v4.29.0.svg#heart" style="fill: red;"/></svg>
 					</button>
 				</div>
-				<!-- like counter -->
+
 				<div class="input-group-append" style="margin-left: 10px">
 					<p class=" like-counter">{{ post.NLikes }} likes</p>
 				</div>
@@ -299,7 +321,7 @@ export default {
 				</div>
 			</div>
 		</div>
-		<!-- commenti -->
+
 		<div class="comment-box">
 		<div class="col-md-4" v-for="(comment, index) in post.Comments" :key="index">
 			<div class="comment">
@@ -308,7 +330,7 @@ export default {
 					<p class="comment-text">{{ comment.CommentText }}</p>
 				</div>
 				<p class="dateTime">{{formatDate(comment.CreationTime)}}</p>
-				<button class="delete-button" type="button" @click="uncommentPost(post,comment)" v-if="comment.CommentOwner == this.id">
+				<button class="delete-button" type="button" @click="uncommentPost(post,comment)" v-if="comment.CommentOwner === JSON.parse(this.id)">
 					<svg class="feather trash"><use href="/feather-sprite-v4.29.0.svg#trash-2"/></svg>
 				</button>
 			</div>

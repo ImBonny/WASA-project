@@ -8,7 +8,7 @@ import (
 
 type followsRequest struct {
 	Username1 string `json:"username"`
-	Username2 string `json:"username"`
+	Username2 string `json:"usernameFollowing"`
 }
 
 type followsResponse struct {
@@ -18,9 +18,9 @@ type followsResponse struct {
 func (rt *_router) getFollows(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var request followsRequest
 	request.Username1 = ps.ByName("username")
-	request.Username2 = ps.ByName("usernameFollowed")
+	request.Username2 = ps.ByName("usernameFollowing")
 
-	userId, err := rt.db.GetIdFromUsername(request.Username1)
+	userId, err := rt.db.GetIdFromUsername(request.Username2)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -33,7 +33,7 @@ func (rt *_router) getFollows(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 	follows := false
 	for _, user := range *following {
-		if user.Username == request.Username2 {
+		if user.Username == request.Username1 {
 			follows = true
 			break
 		}

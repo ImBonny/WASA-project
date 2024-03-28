@@ -785,7 +785,7 @@ paths:
         "404": { $ref: '#/components/responses/NotFound' }
         "500": { $ref: '#/components/responses/InternalServerError' }
 
-  /users/{username}/followers/{usernameFollowed}:
+  /users/{username}/followers/{usernameFollowing}:
     get:
       tags: [ "utils"]
       operationId: getFollows
