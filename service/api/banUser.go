@@ -14,8 +14,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	// Create a new ban request
 	var banReq banRequest
 	// Decode the request body into banReq
-	var err error
-	if err = json.NewDecoder(r.Body).Decode(&banReq); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&banReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

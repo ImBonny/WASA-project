@@ -104,7 +104,7 @@ type AppDatabase interface {
 
 	GetImage(imageId string) (Database_photo, error)
 
-	//cHECK LIKE
+	// Check Like
 	CheckUserLike(userid uint64, photoid uint64) (bool, error)
 
 	// Check if a user is banned

@@ -7,7 +7,7 @@ import (
 )
 
 type deleteRequest struct {
-	postId uint64 `json:"postId"`
+	PostId uint64 `json:"postId"`
 }
 
 // Handler for deleting a post
@@ -28,12 +28,12 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	var err1 error
-	deleteReq.postId, err1 = strconv.ParseUint(ps.ByName("postId"), 10, 64)
+	deleteReq.PostId, err1 = strconv.ParseUint(ps.ByName("postId"), 10, 64)
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusBadRequest)
 	}
 
-	err2 := rt.db.DeletePhoto(uint64(deleteReq.postId))
+	err2 := rt.db.DeletePhoto(deleteReq.PostId)
 	if err2 != nil {
 		http.Error(w, err2.Error(), http.StatusBadRequest)
 		return

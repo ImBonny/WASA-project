@@ -1,0 +1,15 @@
+FROM node:lts AS builder
+
+WORKDIR /app
+
+COPY /webui ./
+
+COPY . .
+
+RUN npm run build-prod
+
+FROM nginx:alpine
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80

@@ -22,7 +22,7 @@ func (rt *_router) checkUserLike(w http.ResponseWriter, r *http.Request, ps http
 	var checkLikeReq checkLikeRequest
 	var err error
 	token := getToken(r.Header.Get("Authorization"))
-	//decode the body
+	// decode the body
 	checkLikeReq.TargetPost, err = strconv.ParseUint(ps.ByName("postId"), 10, 64)
 	checkLikeReq.LikeOwner = token
 	if err != nil {

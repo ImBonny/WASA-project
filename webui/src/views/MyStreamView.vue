@@ -34,7 +34,6 @@ export default {
 			await this.getMyStream();
 			for (let i = 0; i < this.stream.length; i++) {
 				try {
-					//let response = await this.$axios.get(`/images/${this.stream[i].PostId}`, {});
 					let post = this.stream[i];
 					post.isLiked = await this.checkLike(post);
 					this.stream[i] = post; // Update the existing post in the stream array

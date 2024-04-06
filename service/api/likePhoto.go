@@ -21,15 +21,18 @@ type LikeResponse struct {
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new like request
 	var likeReq LikeRequest
-	var err0 error
 
-	err0 = json.NewDecoder(r.Body).Decode(&likeReq)
+	err0 := json.NewDecoder(r.Body).Decode(&likeReq)
 	if err0 != nil {
 		http.Error(w, err0.Error(), http.StatusBadRequest)
 		return
 	}
-	likeReq.TargetPost, err0 = strconv.ParseUint(ps.ByName("postId"), 10, 64)
-
+	var err error
+	likeReq.TargetPost, err = strconv.ParseUint(ps.ByName("postId"), 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	token := getToken(r.Header.Get("Authorization"))
 
 	auth, e := rt.db.CheckAuthorization(token)

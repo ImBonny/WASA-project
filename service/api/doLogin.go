@@ -19,17 +19,13 @@ type LoginResponse struct {
 // doLogin handles the login request
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var loginReq LoginRequest
-	_ = ps
 	// Decode the request body into loginReq
-	var err error
-	if err = json.NewDecoder(r.Body).Decode(&loginReq); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&loginReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	var userId uint64
-	var err0 error
-	userId, err0 = rt.db.DoLogin(loginReq.Username)
+	userId, err0 := rt.db.DoLogin(loginReq.Username)
 	if err0 != nil {
 		http.Error(w, err0.Error(), http.StatusBadRequest)
 		return

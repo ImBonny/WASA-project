@@ -8,5 +8,9 @@ func (db *appdbimpl) UploadPhoto(id uint64, photo []byte, caption string) (uint6
 		return 0, err
 	}
 	lastInsertId, err := res.LastInsertId()
+	if err != nil {
+		panic(err)
+		return 0, err
+	}
 	return uint64(lastInsertId), nil
 }

@@ -27,8 +27,8 @@ func (rt *_router) searchUserById(w http.ResponseWriter, r *http.Request, p http
 		http.Error(w, "Invalid user id", http.StatusBadRequest)
 		return
 	}
-	user, err := rt.db.GetUsernameFromId(request.UserId)
-	if err != nil {
+	user, err1 := rt.db.GetUsernameFromId(request.UserId)
+	if err1 != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -36,8 +36,8 @@ func (rt *_router) searchUserById(w http.ResponseWriter, r *http.Request, p http
 	response.Username = user
 	// Send the user
 	w.Header().Set("Content-Type", "application/json")
-	err1 := json.NewEncoder(w).Encode(response)
-	if err1 != nil {
+	err2 := json.NewEncoder(w).Encode(response)
+	if err2 != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}

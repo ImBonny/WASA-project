@@ -17,6 +17,9 @@ func (db *appdbimpl) LikePhoto(postID uint64, userID uint64) error {
 	}
 
 	_, err = db.c.Exec("INSERT INTO likesDb (postId, userId, creationTime) VALUES (?, ?, ?)", postID, userID, time.Now())
+	if err != nil {
+		return err
+	}
 	_, err = db.c.Exec("UPDATE postDb SET nLikes = nLikes+1 WHERE postId = ?", postID)
 	if err != nil {
 		return err

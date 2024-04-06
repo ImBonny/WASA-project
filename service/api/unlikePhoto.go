@@ -16,9 +16,8 @@ type unlikeRequest struct {
 func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Create a new unlike request
 	var unlikeReq unlikeRequest
-	var err error
 
-	err = json.NewDecoder(r.Body).Decode(&unlikeReq)
+	err := json.NewDecoder(r.Body).Decode(&unlikeReq)
 	unlikeReq.TargetPost, err = strconv.ParseUint(ps.ByName("postId"), 10, 64)
 	if err != nil {
 
