@@ -13,6 +13,18 @@ export default {
 			userProfile: {},
 		}
 	},
+	created() {
+		let username = localStorage.getItem("username");
+		let id = localStorage.getItem("id");
+
+		if (!username || !id) {
+			// Redirect the user to the login page
+			this.$router.push('/');
+		} else {
+			this.username = username;
+			this.id = id;
+		}
+	},
 	methods: {
 		async searchUser() {
 			try {
@@ -56,7 +68,6 @@ export default {
 			}
 			if (this.isBanned){
 				this.errormsg = "User Not Found";
-				return;
 			}
 			else {
 

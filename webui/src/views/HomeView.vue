@@ -9,6 +9,18 @@ export default {
 			id: 0,
 		}
 	},
+	created() {
+		let username = localStorage.getItem("username");
+		let id = localStorage.getItem("id");
+
+		if (!username || !id) {
+			// Redirect the user to the login page
+			this.$router.push('/');
+		} else {
+			this.username = username;
+			this.id = id;
+		}
+	},
 	methods: {
 		async doLogin() {
 			if (this.username === "") {

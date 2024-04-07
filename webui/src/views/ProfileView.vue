@@ -34,6 +34,16 @@ export default {
 	},
 	created() {
 		this.checkIsMyProfile();
+		let username = localStorage.getItem("username");
+		let id = localStorage.getItem("id");
+
+		if (!username || !id) {
+			// Redirect the user to the login page
+			this.$router.push('/');
+		} else {
+			this.username = username;
+			this.id = id;
+		}
 	},
 	methods: {
 		formatDate(value) {
@@ -216,7 +226,7 @@ export default {
 		},
 		async unlikePost(post) {
 			try {
-				let response = await this.$axios.delete(`users/${JSON.parse(this.profile).Username}/posts/${post.PostId}/likes`, {
+				await this.$axios.delete(`users/${JSON.parse(this.profile).Username}/posts/${post.PostId}/likes`, {
 					data: {
 						LikeOwner: JSON.parse(this.id)
 					},

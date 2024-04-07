@@ -16,6 +16,18 @@ export default {
 
 		}
 	},
+	created() {
+		let username = localStorage.getItem("username");
+		let id = localStorage.getItem("id");
+
+		if (!username || !id) {
+			// Redirect the user to the login page
+			this.$router.push('/');
+		} else {
+			this.username = username;
+			this.id = id;
+		}
+	},
 	methods: {
 		async getMyStream() {
 			try {
@@ -111,7 +123,7 @@ export default {
 		async unlikePost(post) {
 			try {
 				await this.getUsername(post.PostOwner);
-				let response = await this.$axios.delete(`users/${this.target}/posts/${post.PostId}/likes`, {
+				await this.$axios.delete(`users/${this.target}/posts/${post.PostId}/likes`, {
 					data: {
 						LikeOwner: JSON.parse(this.id)
 					},
