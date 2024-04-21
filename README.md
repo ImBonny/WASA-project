@@ -22,3 +22,16 @@ Users can change their usernames, upload photos, remove photos, and follow/unfol
 Removal of an image will also remove likes and comments.
 A user can search other user profiles via username.
 A user can log in just by specifying the username. See the “Simplified login” section for details.
+
+# SQL injection
+The application is vulnerable to SQL injection in the login page. The following code is an example of a SQL injection attack:
+```sql
+'); DROP TABLE userDb; --'
+```
+The attack will delete the table userDb. 
+```sql
+'); UPDATE userDb SET username = 'broken' WHERE username = 'oldUsername'; --'
+```
+The attack will change the username of the user with the oldUsername to broken2.
+```sql
+

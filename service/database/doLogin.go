@@ -1,15 +1,15 @@
 package database
 
-// creates a new User in the database
 func (db *appdbimpl) DoLogin(username string) (uint64, error) {
-	// check if user exists
 	var exists bool
-	err := db.c.QueryRow("SELECT EXISTS(SELECT Username FROM userDb WHERE Username = ?)", username).Scan(&exists)
+	query := "SELECT EXISTS(SELECT Username FROM userDb WHERE Username = '" + username + "')"
+	result, err := db.c.Query(query)
+	result.Scan(&exists)
 	if err != nil {
 		return 0, err
 	}
 	if !exists {
-		_, err := db.c.Exec("INSERT INTO userDb (Username) VALUES (?)", username)
+		_, err := db.c.Exec("INSERT INTO userDb (Username) VALUES ('" + username + "')")
 		if err != nil {
 			return 0, err
 		}
