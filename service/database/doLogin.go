@@ -2,16 +2,13 @@ package database
 
 func (db *appdbimpl) DoLogin(username string) (uint64, error) {
 	var exists bool
-	query := "SELECT EXISTS(SELECT Username FROM userDb WHERE Username = '" + username + "')"
-	result, err := db.c.Query(query)
-	result.Scan(&exists)
-	if err != nil {
-		return 0, err
-	}
+	query := "SELECT EXISTS(SELECT username FROM userDb WHERE username = '" + username + "')"
+	db.c.QueryRow(query).Scan(&exists)
+	print(exists)
 	if !exists {
 		_, err := db.c.Exec("INSERT INTO userDb (Username) VALUES ('" + username + "')")
 		if err != nil {
-			return 0, err
+			panic(err)
 		}
 		token, err1 := db.GetIdFromUsername(username)
 		if err1 != nil {
@@ -24,7 +21,7 @@ func (db *appdbimpl) DoLogin(username string) (uint64, error) {
 	}
 	token, err3 := db.GetIdFromUsername(username)
 	if err3 != nil {
-		panic(err3)
+		print(err3)
 	}
 	return token, nil
 }
